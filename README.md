@@ -378,6 +378,77 @@ header('Content-Disposition: attachment; filename="calendar.ics"');
 echo $ical;
 ```
 
-Diese Beispiele zeigen, wie man die `CalendarEventICal`-Klasse verwendet, um Ereignisse in das iCal-Format zu konvertieren und als Kalenderdatei bereitzustellen.
+Um sicherzustellen, dass die Kategorien in der Datenbank richtig gespeichert werden, damit sie im iCal-Format korrekt verarbeitet werden können, sollten die Kategorien als durch Kommas getrennte Liste von Kategorienamen gespeichert werden. Dies entspricht dem iCal-Standard für das `CATEGORIES`-Feld, das mehrere Kategorien als durch Kommas getrennte Werte unterstützt.
+
+### Beispiel für die Speicherung von Kategorien in der Datenbank
+
+Angenommen, Sie haben ein Ereignis, das zu den Kategorien "Meeting", "Work" und "Urgent" gehört, sollte das entsprechende Feld in der Datenbank so aussehen:
+
+```plaintext
+Meeting,Work,Urgent
+```
+
+### iCal-Spezifikation für das `CATEGORIES`-Feld
+
+Das `CATEGORIES`-Feld im iCal-Format wird verwendet, um eine oder mehrere Kategorien zu definieren, zu denen das Ereignis gehört. Mehrere Kategorien sollten durch Kommas getrennt werden. Hier ist ein Beispiel für ein `CATEGORIES`-Feld im iCal-Format:
+
+```plaintext
+CATEGORIES:Meeting,Work,Urgent
+```
+
+### Anpassung der `CalendarEventICal`-Klasse
+
+Die `generateICalEvent`-Methode in der `CalendarEventICal`-Klasse setzt das `CATEGORIES`-Feld im iCal-Format korrekt, indem es den Wert aus der Datenbank direkt verwendet. Die Methode nimmt an, dass die Kategorien in der Datenbank als durch Kommas getrennte Liste gespeichert sind.
+
+### Beispiel für die Speicherung und Verwendung
+
+#### 1. Beispiel: Einfügen eines Ereignisses in die Datenbank
+
+Angenommen, wir fügen ein Ereignis in die Datenbank ein, das die Kategorien "Meeting", "Work" und "Urgent" hat:
+
+```sql
+INSERT INTO rex_yform_table (summary, description, location, status, categories, dtstart, dtend, all_day, repeat, freq, interval, repeat_by, exdate)
+VALUES ('Team Meeting', 'Discuss project updates', 'Conference Room', 'CONFIRMED', 'Meeting,Work,Urgent', '2024-06-15 10:00:00', '2024-06-15 11:00:00', 0, 0, '', 0, '', '');
+```
+
+#### 2. Beispiel: Generieren eines iCal-Kalenders mit Kategorien
+
+Das folgende Beispiel zeigt, wie Sie die `CalendarEventICal`-Klasse verwenden, um einen iCal-Kalender zu generieren, der Ereignisse mit Kategorien enthält:
+
+```php
+require_once 'path/to/CalendarEventICal.php';
+
+// Erstellen einer Instanz der CalendarEventICal-Klasse
+$calendar = new CalendarEventICal();
+
+// Festlegen des Start- und Enddatums
+$startDate = (new DateTime())->format('Y-m-d');
+$endDate = (new DateTime())->modify('+1 month')->format('Y-m-d');
+
+// Generieren des iCal-Kalenders
+$ical = $calendar->generateICal($startDate, $endDate);
+
+// Ausgabe des iCal-Kalenders
+header('Content-Type: text/calendar; charset=utf-8');
+header('Content-Disposition: attachment; filename="calendar.ics"');
+echo $ical;
+```
+
+### Beispiel für die Ausgabe eines Ereignisses mit Kategorien im iCal-Format
+
+Angenommen, das Ereignis aus der Datenbank hat die folgenden Kategorien: "Meeting,Work,Urgent", dann wird die `generateICalEvent`-Methode dieses Ereignis wie folgt in das iCal-Format konvertieren:
+
+```plaintext
+BEGIN:VEVENT
+UID:60d21b96c292f@yourdomain.com
+SUMMARY:Team Meeting
+DESCRIPTION:Discuss project updates
+LOCATION:Conference Room
+STATUS:CONFIRMED
+CATEGORIES:Meeting,Work,Urgent
+DTSTART:20240615T100000Z
+DTEND:20240615T110000Z
+END:VEVENT
+```
 
 
