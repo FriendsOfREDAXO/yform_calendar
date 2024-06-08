@@ -268,3 +268,116 @@ Diese Beispiele zeigen verschiedene Anwendungsfälle und wie man die Methoden de
 </html>
 ```
 
+
+## Erklärung der Klasse `CalendarEventICal`
+
+Die `CalendarEventICal`-Klasse dient dazu, Kalenderereignisse in das iCalendar (iCal)-Format zu konvertieren. Diese Klasse verwendet die `YFormCalHelper`-Klasse, um Ereignisse abzurufen und diese in ein iCal-kompatibles Format zu transformieren.
+
+### Methoden
+
+#### `generateICal`
+
+Generiert den gesamten iCal-Kalender für einen bestimmten Zeitraum.
+
+```php
+public function generateICal(
+    ?string $startDate = null,
+    ?string $endDate = null,
+    string $sortByStart = 'ASC', 
+    string $sortByEnd = 'ASC'
+): string
+```
+
+- **Parameter:**
+  - `startDate` (optional): Das Startdatum, um Ereignisse zu filtern.
+  - `endDate` (optional): Das Enddatum, um Ereignisse zu filtern.
+  - `sortByStart`: Sortierrichtung für das Startdatum (`ASC` oder `DESC`).
+  - `sortByEnd`: Sortierrichtung für das Enddatum (`ASC` oder `DESC`).
+
+- **Rückgabewert:** 
+  - Ein String, der den iCal-Kalender darstellt.
+
+- **Beschreibung:**
+  - Diese Methode ruft alle Ereignisse innerhalb des angegebenen Zeitraums ab, konvertiert jedes Ereignis in das iCal-Format und fügt sie zu einem iCal-Kalender zusammen.
+
+#### `generateICalEvent`
+
+Generiert ein einzelnes iCal-Ereignis.
+
+```php
+private function generateICalEvent($event): string
+```
+
+- **Parameter:**
+  - `event`: Das Ereignisobjekt, das in das iCal-Format konvertiert werden soll.
+
+- **Rückgabewert:** 
+  - Ein String, der das iCal-Ereignis darstellt.
+
+- **Beschreibung:**
+  - Diese Methode konvertiert die Daten eines Ereignisses in das iCal-Format und behandelt ganztägige Ereignisse und wiederkehrende Ereignisse.
+
+#### `escapeString`
+
+Hilfsfunktion zum Escapen von Zeichen in iCal.
+
+```php
+private function escapeString(string $string): string
+```
+
+- **Parameter:**
+  - `string`: Der zu escapende String.
+
+- **Rückgabewert:** 
+  - Ein String, in dem die speziellen iCal-Zeichen escapet wurden.
+
+- **Beschreibung:**
+  - Diese Methode sorgt dafür, dass spezielle Zeichen im iCal-Format korrekt dargestellt werden.
+
+### Beispiele
+
+#### Beispiel 1: Generieren eines iCal-Kalenders für den aktuellen Monat
+
+```php
+require_once 'path/to/CalendarEventICal.php';
+
+// Erstellen einer Instanz der CalendarEventICal-Klasse
+$calendar = new CalendarEventICal();
+
+// Festlegen des Start- und Enddatums
+$startDate = (new DateTime())->format('Y-m-01'); // Erster Tag des aktuellen Monats
+$endDate = (new DateTime())->format('Y-m-t'); // Letzter Tag des aktuellen Monats
+
+// Generieren des iCal-Kalenders
+$ical = $calendar->generateICal($startDate, $endDate);
+
+// Ausgabe des iCal-Kalenders
+header('Content-Type: text/calendar; charset=utf-8');
+header('Content-Disposition: attachment; filename="calendar.ics"');
+echo $ical;
+```
+
+#### Beispiel 2: Generieren eines iCal-Kalenders für die nächsten 3 Monate
+
+```php
+require_once 'path/to/CalendarEventICal.php';
+
+// Erstellen einer Instanz der CalendarEventICal-Klasse
+$calendar = new CalendarEventICal();
+
+// Festlegen des Start- und Enddatums
+$startDate = (new DateTime())->format('Y-m-d');
+$endDate = (new DateTime())->modify('+3 months')->format('Y-m-d');
+
+// Generieren des iCal-Kalenders
+$ical = $calendar->generateICal($startDate, $endDate);
+
+// Ausgabe des iCal-Kalenders
+header('Content-Type: text/calendar; charset=utf-8');
+header('Content-Disposition: attachment; filename="calendar.ics"');
+echo $ical;
+```
+
+Diese Beispiele zeigen, wie man die `CalendarEventICal`-Klasse verwendet, um Ereignisse in das iCal-Format zu konvertieren und als Kalenderdatei bereitzustellen.
+
+
