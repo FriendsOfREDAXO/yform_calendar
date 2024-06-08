@@ -407,7 +407,7 @@ Die `generateICalEvent`-Methode in der `CalendarEventICal`-Klasse setzt das `CAT
 Angenommen, wir fügen ein Ereignis in die Datenbank ein, das die Kategorien "Meeting", "Work" und "Urgent" hat:
 
 ```sql
-INSERT INTO rex_yform_table (summary, description, location, status, categories, dtstart, dtend, all_day, repeat, freq, interval, repeat_by, exdate)
+INSERT INTO rex_yform_table (summary, description, location, `status`, categories, dtstart, dtend, all_day, `repeat`, freq, `interval`, repeat_by, exdate)
 VALUES ('Team Meeting', 'Discuss project updates', 'Conference Room', 'CONFIRMED', 'Meeting,Work,Urgent', '2024-06-15 10:00:00', '2024-06-15 11:00:00', 0, 0, '', 0, '', '');
 ```
 
