@@ -196,7 +196,7 @@ class YFormCalHelper extends \rex_yform_manager_dataset
         $filteredEvents = [];
         foreach ($events as $e) {
             $eventStart = new DateTime($e->getValue('dtstart'));
-            if ($eventStart >= $startDateTimeObj && $e->getId() != $eventId) {
+            if ($eventStart >= $startDateTimeObj && $e->getId() == $eventId) {
                 $filteredEvents[] = $e;
             }
         }
