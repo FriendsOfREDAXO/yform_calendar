@@ -452,3 +452,22 @@ END:VEVENT
 ```
 
 
+## Erforderliche Tabellenfelder
+
+Um sicherzustellen, dass alle Funktionen der `YFormCalHelper`- und `CalendarEventICal`-Klassen korrekt funktionieren, sollten die folgenden Felder in Ihrer Tabelle vorhanden sein:
+
+1. **summary**: Eine kurze Zusammenfassung oder der Titel des Ereignisses.
+2. **description**: Eine detaillierte Beschreibung des Ereignisses.
+3. **location**: Der Ort, an dem das Ereignis stattfindet.
+4. **status**: Der Status des Ereignisses (z.B. CONFIRMED, TENTATIVE).
+5. **categories**: Kategorien des Ereignisses als durch Kommas getrennte Liste.
+6. **dtstart**: Das Startdatum und die Startzeit des Ereignisses im Format `YYYY-MM-DD HH:MM:SS`.
+7. **dtend**: Das Enddatum und die Endzeit des Ereignisses im Format `YYYY-MM-DD HH:MM:SS`.
+8. **all_day**: Ein Boolean-Wert (0 oder 1), der angibt, ob es sich um ein ganztägiges Ereignis handelt.
+9. **repeat**: Ein Boolean-Wert (0 oder 1), der angibt, ob das Ereignis wiederholt wird.
+10. **freq**: Die Häufigkeit der Wiederholung (z.B. DAILY, WEEKLY, MONTHLY, YEARLY).
+11. **interval**: Das Intervall der Wiederholung.
+12. **repeat_by**: Die Regel, nach der das Ereignis wiederholt wird (z.B. day oder date).
+13. **exdate**: Eine durch Kommas getrennte Liste von Ausnahme-Daten im Format `YYYY-MM-DD`.
+
+Ein Tableset zum Import und Aufbau einer eigenen Tabelle liegt bei. 
