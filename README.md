@@ -49,10 +49,10 @@ $events = YFormCalHelper::getEvents();
 echo "<ul>";
 foreach ($events as $event) {
     echo "<li>";
-    echo "<strong>Event:</strong> " . htmlspecialchars($event->getValue('summary')) . "<br>";
-    echo "<strong>Location:</strong> " . htmlspecialchars($event->getValue('location')) . "<br>";
-    echo "<strong>Start:</strong> " . htmlspecialchars($event->getValue('dtstart')) . "<br>";
-    echo "<strong>End:</strong> " . htmlspecialchars($event->getValue('dtend')) . "<br>";
+    echo "<strong>Event:</strong> " . rex_escape($event->getValue('summary')) . "<br>";
+    echo "<strong>Location:</strong> " . rex_escape($event->getValue('location')) . "<br>";
+    echo "<strong>Start:</strong> " . rex_escape($event->getValue('dtstart')) . "<br>";
+    echo "<strong>End:</strong> " . rex_escape($event->getValue('dtend')) . "<br>";
     echo "</li>";
 }
 echo "</ul>";
@@ -80,11 +80,11 @@ foreach ($nextEvents as $event) {
     echo "<div class='col-md-4'>";
     echo "<div class='card'>";
     echo "<div class='card-body'>";
-    echo "<h5 class='card-title'>" . htmlspecialchars($event->getValue('summary')) . "</h5>";
-    echo "<p class='card-text'>" . htmlspecialchars($event->getValue('description')) . "</p>";
-    echo "<p><strong>Location:</strong> " . htmlspecialchars($event->getValue('location')) . "</p>";
-    echo "<p><strong>Start:</strong> " . htmlspecialchars($event->getValue('dtstart')) . "</p>";
-    echo "<p><strong>End:</strong> " . htmlspecialchars($event->getValue('dtend')) . "</p>";
+    echo "<h5 class='card-title'>" . rex_escape($event->getValue('summary')) . "</h5>";
+    echo "<p class='card-text'>" . rex_escape($event->getValue('description')) . "</p>";
+    echo "<p><strong>Location:</strong> " . rex_escape($event->getValue('location')) . "</p>";
+    echo "<p><strong>Start:</strong> " . rex_escape($event->getValue('dtstart')) . "</p>";
+    echo "<p><strong>End:</strong> " . rex_escape($event->getValue('dtend')) . "</p>";
     echo "</div>";
     echo "</div>";
     echo "</div>";
@@ -109,11 +109,11 @@ $events = YFormCalHelper::getEvents();
 echo "<div class='uk-container'>";
 foreach ($events as $event) {
     echo "<div class='uk-card uk-card-default uk-card-body uk-margin'>";
-    echo "<h3 class='uk-card-title'>" . htmlspecialchars($event->getValue('summary')) . "</h3>";
-    echo "<p>" . htmlspecialchars($event->getValue('description')) . "</p>";
-    echo "<p><strong>Location:</strong> " . htmlspecialchars($event->getValue('location')) . "</p>";
-    echo "<p><strong>Start:</strong> " . htmlspecialchars($event->getValue('dtstart')) . "</p>";
-    echo "<p><strong>End:</strong> " . htmlspecialchars($event->getValue('dtend')) . "</p>";
+    echo "<h3 class='uk-card-title'>" . rex_escape($event->getValue('summary')) . "</h3>";
+    echo "<p>" . rex_escape($event->getValue('description')) . "</p>";
+    echo "<p><strong>Location:</strong> " . rex_escape($event->getValue('location')) . "</p>";
+    echo "<p><strong>Start:</strong> " . rex_escape($event->getValue('dtstart')) . "</p>";
+    echo "<p><strong>End:</strong> " . rex_escape($event->getValue('dtend')) . "</p>";
     echo "</div>";
 }
 echo "</div>";
@@ -153,7 +153,7 @@ $events = YFormCalHelper::getEvents();
 // Ausgabe der Ereignisse als einfache Liste
 echo "<ul>";
 foreach ($events as $event) {
-    echo "<li>" . htmlspecialchars($event->getValue('summary')) . " (" . htmlspecialchars($event->getValue('dtstart')) . " - " . htmlspecialchars($event->getValue('dtend')) . ")</li>";
+    echo "<li>" . rex_escape($event->getValue('summary')) . " (" . rex_escape($event->getValue('dtstart')) . " - " . rex_escape($event->getValue('dtend')) . ")</li>";
 }
 echo "</ul>";
 ```
@@ -171,7 +171,7 @@ $events = YFormCalHelper::getEvents();
 // Ausgabe der Ereignisse als einfache Liste
 echo "<ul>";
 foreach ($events as $event) {
-    echo "<li>" . htmlspecialchars($event->getValue('summary')) . " (" . htmlspecialchars($event->getValue('dtstart')) . " - " . htmlspecialchars($event->getValue('dtend')) . ")</li>";
+    echo "<li>" . rex_escape($event->getValue('summary')) . " (" . rex_escape($event->getValue('dtstart')) . " - " . rex_escape($event->getValue('dtend')) . ")</li>";
 }
 echo "</ul>";
 ```
