@@ -14,7 +14,14 @@ class CalendarEventJson
         string $sortByStart = 'ASC', 
         string $sortByEnd = 'ASC'
     ): string {
-        $events = YFormCalHelper::getChronologicalEvents($startDate, $endDate, $sortByStart, $sortByEnd);
+        // Setzen der Filterkriterien
+        YFormCalHelper::setStartDate($startDate);
+        YFormCalHelper::setEndDate($endDate);
+        YFormCalHelper::setSortByStart($sortByStart);
+        YFormCalHelper::setSortByEnd($sortByEnd);
+
+        // Holen der Ereignisse
+        $events = YFormCalHelper::getEvents();
         $calendarEvents = [];
 
         foreach ($events as $event) {
@@ -36,7 +43,4 @@ class CalendarEventJson
 
         return json_encode($calendarEvents);
     }
-
-
-
 }
