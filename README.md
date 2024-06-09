@@ -1,66 +1,33 @@
-
 # YFormCalHelper
 
 Die `YFormCalHelper`-Klasse dient zur Verwaltung und Verarbeitung von Kalenderereignissen in REDAXO. Sie ermöglicht das Abrufen, Filtern und Sortieren von Ereignissen aus einer Datenbank sowie das Generieren wiederkehrender Ereignisse.
 
 ### Funktionen
 
-1. **Holen aller Ereignisse innerhalb eines bestimmten Datumsbereichs.**
+1. **Abrufen aller Ereignisse innerhalb eines bestimmten Datumsbereichs.**
 2. **Generieren von wiederkehrenden Ereignissen basierend auf Wiederholungsregeln.**
-3. **Holen der nächsten X Ereignisse ab einem festgelegten Datum und/oder Uhrzeit.**
+3. **Abrufen der nächsten X Ereignisse ab einem festgelegten Datum und/oder Uhrzeit.**
 
 ### Installation
 
+Diese Klasse muss in einem REDAXO-Projekt verwendet werden. Stellen Sie sicher, dass die YForm und YOrm AddOns installiert und aktiviert sind.
 
 ### Methoden
 
-#### `getChronologicalEvents`
+#### `getEvents`
 
 Holt alle Ereignisse und sortiert sie nach den angegebenen Kriterien.
 
 ```php
-public static function getChronologicalEvents(
-    ?string $startDate = null,
-    ?string $endDate = null,
-    string $sortByStart = 'ASC',
-    string $sortByEnd = 'ASC'
-): array
+public static function getEvents(): array
 ```
 
-- **Parameter:**
-  - `startDate` (optional): Das Startdatum, um Ereignisse zu filtern.
-  - `endDate` (optional): Das Enddatum, um Ereignisse zu filtern.
-  - `sortByStart`: Sortierrichtung für das Startdatum (`ASC` oder `DESC`).
-  - `sortByEnd`: Sortierrichtung für das Enddatum (`ASC` oder `DESC`).
-
-- **Rückgabewert:** Ein Array von Ereignisobjekten.
-
-#### `getNextEvents`
-
-Holt die nächsten X Ereignisse ab einem festgelegten Datum und/oder Uhrzeit basierend auf der Datensatz-ID eines Termins.
-
-```php
-public static function getNextEvents(int $eventId, int $limit, ?string $startDateTime = null): array
-```
-
-- **Parameter:**
-  - `eventId`: Die ID des Referenzereignisses.
-  - `limit`: Die Anzahl der zu holenden Ereignisse.
-  - `startDateTime` (optional): Das Startdatum und die Startzeit, ab der die Ereignisse abgerufen werden sollen.
-
-- **Rückgabewert:** Ein Array von Ereignisobjekten.
-
-#### `getEventsByDate`
-
-Holt alle Ereignisse für ein spezifisches Datum oder Zeitraum.
-
-```php
-public static function getEventsByDate(string $startDate, ?string $endDate = null): array
-```
-
-- **Parameter:**
-  - `startDate`: Das Startdatum, um Ereignisse zu filtern.
-  - `endDate` (optional): Das Enddatum, um Ereignisse zu filtern.
+- **Parameter:** Keine direkten Parameter, aber durch Setter-Methoden konfigurierbar:
+  - `setStartDate(?string $startDate)`: Setzt das Startdatum, um Ereignisse zu filtern.
+  - `setEndDate(?string $endDate)`: Setzt das Enddatum, um Ereignisse zu filtern.
+  - `setSortByStart(string $sortByStart)`: Sortierrichtung für das Startdatum (`ASC` oder `DESC`).
+  - `setSortByEnd(string $sortByEnd)`: Sortierrichtung für das Enddatum (`ASC` oder `DESC`).
+  - `setWhereRaw(?string $whereRaw)`: Setzt eine rohe WHERE-Bedingung für die Ereignisabfrage.
 
 - **Rückgabewert:** Ein Array von Ereignisobjekten.
 
@@ -71,27 +38,24 @@ public static function getEventsByDate(string $startDate, ?string $endDate = nul
 Dieses Beispiel zeigt, wie Sie alle Ereignisse innerhalb eines Datumsbereichs abrufen und als einfache Liste ausgeben.
 
 ```php
-
 // Festlegen des Start- und Enddatums
-$startDate = '2024-06-01';
-$endDate = '2024-06-30';
+YFormCalHelper::setStartDate('2024-06-01');
+YFormCalHelper::setEndDate('2024-06-30');
 
 // Holen der Ereignisse innerhalb des Datumsbereichs
-$events = YFormCalHelper::getChronologicalEvents($startDate, $endDate);
+$events = YFormCalHelper::getEvents();
 
 // Ausgabe der Ereignisse als einfache Liste
 echo "<ul>";
 foreach ($events as $event) {
     echo "<li>";
     echo "<strong>Event:</strong> " . htmlspecialchars($event->getValue('summary')) . "<br>";
-    echo "<strong>Description:</strong> " . htmlspecialchars($event->getValue('description')) . "<br>";
     echo "<strong>Location:</strong> " . htmlspecialchars($event->getValue('location')) . "<br>";
     echo "<strong>Start:</strong> " . htmlspecialchars($event->getValue('dtstart')) . "<br>";
     echo "<strong>End:</strong> " . htmlspecialchars($event->getValue('dtend')) . "<br>";
     echo "</li>";
 }
 echo "</ul>";
-?>
 ```
 
 #### Beispiel 2: Holen der nächsten 5 Ereignisse ab heute und Ausgabe mit Bootstrap
@@ -99,18 +63,20 @@ echo "</ul>";
 Dieses Beispiel zeigt, wie Sie die nächsten 5 Ereignisse ab dem aktuellen Datum und der aktuellen Uhrzeit abrufen und mit Bootstrap formatieren.
 
 ```php
-
 // ID des Referenzereignisses und Limit der Ereignisse
 $eventId = 1;
 $limit = 5;
 
 // Holen der nächsten Ereignisse ab dem aktuellen Datum und Uhrzeit
-$events = YFormCalHelper::getNextEvents($eventId, $limit);
+YFormCalHelper::setStartDate((new DateTime())->format('Y-m-d'));
+$events = YFormCalHelper::getEvents();
+
+$nextEvents = array_slice($events, 0, $limit);
 
 // Ausgabe der Ereignisse mit Bootstrap
 echo "<div class='container'>";
 echo "<div class='row'>";
-foreach ($events as $event) {
+foreach ($nextEvents as $event) {
     echo "<div class='col-md-4'>";
     echo "<div class='card'>";
     echo "<div class='card-body'>";
@@ -125,7 +91,6 @@ foreach ($events as $event) {
 }
 echo "</div>";
 echo "</div>";
-?>
 ```
 
 #### Beispiel 3: Holen aller Ereignisse ab heute minus 3 Monate und Ausgabe mit UIkit 3
@@ -133,12 +98,12 @@ echo "</div>";
 Dieses Beispiel zeigt, wie Sie alle Ereignisse ab einem Datum drei Monate vor dem heutigen Datum abrufen und mit UIkit 3 formatieren.
 
 ```php
-
 // Berechnen des Startdatums (heute minus 3 Monate)
 $startDate = (new DateTime())->modify('-3 months')->format('Y-m-d');
 
 // Holen der Ereignisse ab dem berechneten Startdatum
-$events = YFormCalHelper::getChronologicalEvents($startDate);
+YFormCalHelper::setStartDate($startDate);
+$events = YFormCalHelper::getEvents();
 
 // Ausgabe der Ereignisse mit UIkit 3
 echo "<div class='uk-container'>";
@@ -152,7 +117,6 @@ foreach ($events as $event) {
     echo "</div>";
 }
 echo "</div>";
-?>
 ```
 
 ### Beispiele für die Datumsübergabe
@@ -160,12 +124,12 @@ echo "</div>";
 #### Beispiel: Holen aller Ereignisse ab heute
 
 ```php
-
 // Festlegen des Startdatums auf heute
 $startDate = (new DateTime())->format('Y-m-d');
 
 // Holen der Ereignisse ab dem heutigen Datum
-$events = YFormCalHelper::getChronologicalEvents($startDate);
+YFormCalHelper::setStartDate($startDate);
+$events = YFormCalHelper::getEvents();
 
 // Ausgabe der Ereignisse als einfache Liste
 echo "<ul>";
@@ -173,18 +137,17 @@ foreach ($events as $event) {
     echo "<li>" . htmlspecialchars($event->getValue('summary')) . " (" . htmlspecialchars($event->getValue('dtstart')) . " - " . htmlspecialchars($event->getValue('dtend')) . ")</li>";
 }
 echo "</ul>";
-?>
 ```
 
 #### Beispiel: Holen aller Ereignisse ab heute minus 3 Monate
 
 ```php
-
 // Festlegen des Startdatums auf heute minus 3 Monate
 $startDate = (new DateTime())->modify('-3 months')->format('Y-m-d');
 
 // Holen der Ereignisse ab dem berechneten Datum
-$events = YFormCalHelper::getChronologicalEvents($startDate);
+YFormCalHelper::setStartDate($startDate);
+$events = YFormCalHelper::getEvents();
 
 // Ausgabe der Ereignisse als einfache Liste
 echo "<ul>";
@@ -192,11 +155,95 @@ foreach ($events as $event) {
     echo "<li>" . htmlspecialchars($event->getValue('summary')) . " (" . htmlspecialchars($event->getValue('dtstart')) . " - " . htmlspecialchars($event->getValue('dtend')) . ")</li>";
 }
 echo "</ul>";
-?>
 ```
 
 Diese Beispiele zeigen verschiedene Anwendungsfälle und wie man die Methoden der `YFormCalHelper`-Klasse nutzt, um Ereignisse basierend auf spezifischen Start- und Enddatumsparametern abzurufen und in verschiedenen Formaten auszugeben.
 
+### Sortierung und Filterung
+
+Sie können die Ereignisse nach Start- und Enddatum sortieren. Die Standardwerte sind aufsteigend (`ASC`). Sie können diese jedoch auf absteigend (`DESC`) ändern, indem Sie die entsprechenden Setter-Methoden `setSortByStart` und `setSortByEnd` verwenden. Beispielsweise:
+
+```php
+// Holen der Ereignisse in absteigender Reihenfolge nach Startdatum
+YFormCalHelper::setSortByStart('DESC');
+YFormCalHelper::setSortByEnd('DESC');
+$events = YFormCalHelper::getEvents();
+```
+
+### Erforderliche Tabellenfelder
+
+Um sicherzustellen, dass alle Funktionen der `YFormCalHelper`-Klasse korrekt funktionieren, sollten die folgenden Felder in Ihrer Tabelle vorhanden sein:
+
+1. **summary**: Eine kurze Zusammenfassung oder der Titel des Ereignisses.
+2. **description**: Eine detaillierte Beschreibung des Ereignisses.
+3. **location**: Der Ort, an dem das Ereignis stattfindet.
+4. **dtstart**: Das Startdatum und die Startzeit des Ereignisses im Format `YYYY-MM-DD HH:MM:SS`.
+5. **dtend**: Das Enddatum und die Endzeit des Ereignisses im Format `YYYY-MM-DD HH:MM:SS`.
+6. **all_day**: Ein Boolean-Wert (0 oder 1), der angibt, ob es sich um ein ganztägiges Ereignis handelt.
+7. **repeat**: Ein Boolean-Wert (0 oder 1), der angibt, ob das Ereignis wiederholt wird.
+8. **freq**: Die Häufigkeit der Wiederholung (z.B. DAILY, WEEKLY, MONTHLY, YEARLY).
+9. **interval**: Das Intervall der Wiederholung.
+10. **until**: Das Enddatum der Wiederholungen im Format `YYYY-MM-DD HH:MM:SS`.
+11. **exdate:** Eine durch Kommas getrennte Liste von Ausnahme-Daten im Format YYYY-MM-DD.
+
+
+## CalendarEventJson
+
+Die `CalendarEventJson`-Klasse dient dazu, Kalenderereignisse aus der Tabelle in ein JSON-Format zu konvertieren, das von FullCalendar verwendet werden kann. Sie ermöglicht das Abrufen und Formatieren von Ereignissen basierend auf bestimmten Filter- und Sortierkriterien.
+
+### Konstruktor
+
+```php
+public function __construct(callable $linkCallback)
+```
+
+- **Parameter:**
+  - `linkCallback`: Eine Callback-Funktion, die für jedes Ereignis einen Link generiert.
+
+### Methoden
+
+#### `generateJson`
+
+Generiert ein JSON-Format für FullCalendar basierend auf den angegebenen Kriterien.
+
+```php
+public function generateJson(
+    ?string $startDate = null,
+    ?string $endDate = null,
+    string $sortByStart = 'ASC',
+    string $sortByEnd = 'ASC'
+): string
+```
+
+- **Parameter:**
+  - `startDate` (optional): Das Startdatum, um Ereignisse zu filtern.
+  - `endDate` (optional): Das Enddatum, um Ereignisse zu filtern.
+  - `sortByStart`: Sortierrichtung für das Startdatum (`ASC` oder `DESC`).
+  - `sortByEnd`: Sortierrichtung für das Enddatum (`ASC` oder `DESC`).
+
+- **Rückgabewert:** Ein JSON-String, der die Ereignisse im FullCalendar-Format enthält.
+
+### Beispiele
+
+#### Beispiel: Generieren von JSON-Daten für FullCalendar
+
+```php
+// Url2 links generieren
+$linkCallback = function($id) {
+    return rex_getUrl('', '', ['event_id' => $id]);
+};
+
+// Erstellen einer Instanz der CalendarEventJson-Klasse
+$calendarEventJson = new CalendarEventJson($linkCallback);
+
+// Generieren der JSON-Daten für FullCalendar
+$startDate = '2024-01-01';
+$endDate = '2024-12-31';
+$eventsJson = $calendarEventJson->generateJson($startDate, $endDate);
+
+// Ausgabe der JSON-Daten
+echo $eventsJson;
+```
 
 ## FullCalendarDemo
 
@@ -451,24 +498,3 @@ DTSTART:20240615T100000Z
 DTEND:20240615T110000Z
 END:VEVENT
 ```
-
-
-## Erforderliche Tabellenfelder
-
-Um sicherzustellen, dass alle Funktionen der `YFormCalHelper`- und `CalendarEventICal`-Klassen korrekt funktionieren, sollten die folgenden Felder in Ihrer Tabelle vorhanden sein:
-
-1. **summary**: Eine kurze Zusammenfassung oder der Titel des Ereignisses.
-2. **description**: Eine detaillierte Beschreibung des Ereignisses.
-3. **location**: Der Ort, an dem das Ereignis stattfindet.
-4. **status**: Der Status des Ereignisses (z.B. CONFIRMED, TENTATIVE).
-5. **categories**: Kategorien des Ereignisses als durch Kommas getrennte Liste.
-6. **dtstart**: Das Startdatum und die Startzeit des Ereignisses im Format `YYYY-MM-DD HH:MM:SS`.
-7. **dtend**: Das Enddatum und die Endzeit des Ereignisses im Format `YYYY-MM-DD HH:MM:SS`.
-8. **all_day**: Ein Boolean-Wert (0 oder 1), der angibt, ob es sich um ein ganztägiges Ereignis handelt.
-9. **repeat**: Ein Boolean-Wert (0 oder 1), der angibt, ob das Ereignis wiederholt wird.
-10. **freq**: Die Häufigkeit der Wiederholung (z.B. DAILY, WEEKLY, MONTHLY, YEARLY).
-11. **interval**: Das Intervall der Wiederholung.
-12. **repeat_by**: Die Regel, nach der das Ereignis wiederholt wird (z.B. day oder date).
-13. **exdate**: Eine durch Kommas getrennte Liste von Ausnahme-Daten im Format `YYYY-MM-DD`.
-
-Ein Tableset zum Import und Aufbau einer eigenen Tabelle liegt bei. 
