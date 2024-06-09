@@ -1,8 +1,8 @@
 {
-    "rex_calendar": {
+    "rex_yform_calhelper_demo": {
         "table": {
             "status": 1,
-            "table_name": "rex_calendar",
+            "table_name": "rex_yform_calhelper_demo",
             "name": "Calendar",
             "description": "A table to manage calendar events",
             "list_amount": 50,
@@ -23,7 +23,7 @@
         },
         "fields": [
             {
-                "table_name": "rex_calendar",
+                "table_name": "rex_yform_calhelper_demo",
                 "prio": 1,
                 "type_id": "value",
                 "type_name": "text",
@@ -41,7 +41,7 @@
                 "append": ""
             },
             {
-                "table_name": "rex_calendar",
+                "table_name": "rex_yform_calhelper_demo",
                 "prio": 2,
                 "type_id": "value",
                 "type_name": "textarea",
@@ -57,7 +57,7 @@
                 "attributes": ""
             },
             {
-                "table_name": "rex_calendar",
+                "table_name": "rex_yform_calhelper_demo",
                 "prio": 3,
                 "type_id": "value",
                 "type_name": "text",
@@ -75,7 +75,7 @@
                 "append": ""
             },
             {
-                "table_name": "rex_calendar",
+                "table_name": "rex_yform_calhelper_demo",
                 "prio": 4,
                 "type_id": "value",
                 "type_name": "choice",
@@ -100,7 +100,7 @@
                 "choice_label": ""
             },
             {
-                "table_name": "rex_calendar",
+                "table_name": "rex_yform_calhelper_demo",
                 "prio": 5,
                 "type_id": "value",
                 "type_name": "text",
@@ -118,7 +118,7 @@
                 "append": ""
             },
             {
-                "table_name": "rex_calendar",
+                "table_name": "rex_yform_calhelper_demo",
                 "prio": 6,
                 "type_id": "value",
                 "type_name": "datetime",
@@ -139,7 +139,7 @@
                 "year_end": ""
             },
             {
-                "table_name": "rex_calendar",
+                "table_name": "rex_yform_calhelper_demo",
                 "prio": 7,
                 "type_id": "value",
                 "type_name": "datetime",
@@ -160,7 +160,7 @@
                 "year_end": ""
             },
             {
-                "table_name": "rex_calendar",
+                "table_name": "rex_yform_calhelper_demo",
                 "prio": 8,
                 "type_id": "value",
                 "type_name": "checkbox",
@@ -177,7 +177,7 @@
                 "output_values": ""
             },
             {
-                "table_name": "rex_calendar",
+                "table_name": "rex_yform_calhelper_demo",
                 "prio": 9,
                 "type_id": "value",
                 "type_name": "checkbox",
@@ -194,7 +194,7 @@
                 "output_values": ""
             },
             {
-                "table_name": "rex_calendar",
+                "table_name": "rex_yform_calhelper_demo",
                 "prio": 10,
                 "type_id": "value",
                 "type_name": "choice",
@@ -219,7 +219,7 @@
                 "choice_label": ""
             },
             {
-                "table_name": "rex_calendar",
+                "table_name": "rex_yform_calhelper_demo",
                 "prio": 11,
                 "type_id": "value",
                 "type_name": "integer",
@@ -235,7 +235,7 @@
                 "unit": ""
             },
             {
-                "table_name": "rex_calendar",
+                "table_name": "rex_yform_calhelper_demo",
                 "prio": 14,
                 "type_id": "value",
                 "type_name": "datetime",
@@ -256,7 +256,7 @@
                 "year_end": ""
             },
             {
-                "table_name": "rex_calendar",
+                "table_name": "rex_yform_calhelper_demo",
                 "prio": 15,
                 "type_id": "value",
                 "type_name": "integer",
@@ -272,7 +272,7 @@
                 "unit": ""
             },
             {
-                "table_name": "rex_calendar",
+                "table_name": "rex_yform_calhelper_demo",
                 "prio": 16,
                 "type_id": "value",
                 "type_name": "textarea",
@@ -288,7 +288,7 @@
                 "attributes": ""
             },
             {
-                "table_name": "rex_calendar",
+                "table_name": "rex_yform_calhelper_demo",
                 "prio": 17,
                 "type_id": "value",
                 "type_name": "uuid",
@@ -302,7 +302,7 @@
                 "show_value": "0"
             },
             {
-                "table_name": "rex_calendar",
+                "table_name": "rex_yform_calhelper_demo",
                 "prio": 18,
                 "type_id": "value",
                 "type_name": "text",
