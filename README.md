@@ -125,6 +125,27 @@ echo "</div>";
 
 ### Beispiele für die Datumsübergabe
 
+#### Beispiel: Holen aller Ereignisse ab jetzt
+
+```php
+<?php
+require_once 'YFormCalHelper.php';
+
+// Aktuelles Datum und Uhrzeit in der Zeitzone Berlin
+$berlinTimezone = new DateTimeZone('Europe/Berlin');
+$startDateTime = (new DateTime('now', $berlinTimezone))->format('Y-m-d H:i:s');
+
+// Abrufen der zukünftigen Ereignisse
+$events = YFormCalHelper::getChronologicalEvents($startDateTime);
+
+// Ausgabe der Ereignisse
+foreach ($events as $event) {
+    echo 'Event: ' . $event->getValue('title') . ' - Start: ' . $event->getValue('dtstart') . ' - End: ' . $event->getValue('dtend') . '<br>';
+}
+?>
+```
+
+
 #### Beispiel: Holen aller Ereignisse ab heute
 
 ```php
