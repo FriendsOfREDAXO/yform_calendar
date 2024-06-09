@@ -6,9 +6,15 @@ class YFormCalHelper extends \rex_yform_manager_dataset
         ?string $startDate = null,
         ?string $endDate = null,
         string $sortByStart = 'ASC',
-        string $sortByEnd = 'ASC'
+        string $sortByEnd = 'ASC',
+        ?string $whereRaw = null
     ): array {
-        $events = self::query()->find();
+        $query = self::query();
+        // Füge Bedingungen hinzu
+        if ($whereRaw) {
+            $query->whereRaw($whereRaw);
+        }
+        $events = $query->find();
         $allEvents = [];
 
         foreach ($events as $event) {
