@@ -1,7 +1,39 @@
 <?php
 class YFormCalHelper extends \rex_yform_manager_dataset
 {
-    // Holt alle Ereignisse und sortiert sie nach den angegebenen Kriterien
+    private static ?string $startDate = null;
+    private static ?string $endDate = null;
+    private static string $sortByStart = 'ASC';
+    private static string $sortByEnd = 'ASC';
+    private static ?string $whereRaw = null;
+
+    // Setter-Methoden
+    public static function setStartDate(?string $startDate): void
+    {
+        self::$startDate = $startDate;
+    }
+
+    public static function setEndDate(?string $endDate): void
+    {
+        self::$endDate = $endDate;
+    }
+
+    public static function setSortByStart(string $sortByStart): void
+    {
+        self::$sortByStart = $sortByStart;
+    }
+
+    public static function setSortByEnd(string $sortByEnd): void
+    {
+        self::$sortByEnd = $sortByEnd;
+    }
+
+    public static function setWhereRaw(?string $whereRaw): void
+    {
+        self::$whereRaw = $whereRaw;
+    }
+
+    // Wrapper-Methode für Kompatibilität
     public static function getChronologicalEvents(
         ?string $startDate = null,
         ?string $endDate = null,
@@ -9,29 +41,38 @@ class YFormCalHelper extends \rex_yform_manager_dataset
         string $sortByEnd = 'ASC',
         ?string $whereRaw = null
     ): array {
+        self::setStartDate($startDate);
+        self::setEndDate($endDate);
+        self::setSortByStart($sortByStart);
+        self::setSortByEnd($sortByEnd);
+        self::setWhereRaw($whereRaw);
+        return self::getEvents();
+    }
+
+    // Holt alle Ereignisse und sortiert sie nach den angegebenen Kriterien
+    public static function getEvents(): array
+    {
         $query = self::query();
-        // Füge Bedingungen hinzu
-        if ($whereRaw) {
-            $query->whereRaw($whereRaw);
+
+        if (self::$whereRaw) {
+            $query->whereRaw(self::$whereRaw);
         }
+
         $events = $query->find();
         $allEvents = [];
 
         foreach ($events as $event) {
             if ($event->getValue('repeat')) {
-                // Füge wiederkehrende Ereignisse hinzu
                 $allEvents = array_merge($allEvents, self::generateRecurringEvents($event));
             } else {
-                // Füge einmalige Ereignisse hinzu
                 $allEvents[] = $event;
             }
         }
 
-        // Filtern nach Start- und Enddatum
-        if ($startDate || $endDate) {
+        if (self::$startDate || self::$endDate) {
             $filteredEvents = [];
-            $start = $startDate ? new DateTime($startDate) : null;
-            $end = $endDate ? new DateTime($endDate) : null;
+            $start = self::$startDate ? new DateTime(self::$startDate) : null;
+            $end = self::$endDate ? new DateTime(self::$endDate) : null;
 
             foreach ($allEvents as $event) {
                 $eventStart = new DateTime($event->getValue('dtstart'));
@@ -45,16 +86,15 @@ class YFormCalHelper extends \rex_yform_manager_dataset
             $allEvents = $filteredEvents;
         }
 
-        // Sortiere die Ereignisse nach den angegebenen Kriterien
-        usort($allEvents, function ($a, $b) use ($sortByStart, $sortByEnd) {
+        usort($allEvents, function ($a, $b) {
             $startComparison = strtotime($a->getValue('dtstart')) <=> strtotime($b->getValue('dtstart'));
             $endComparison = strtotime($a->getValue('dtend')) <=> strtotime($b->getValue('dtend'));
 
-            if ($sortByStart === 'DESC') {
+            if (self::$sortByStart === 'DESC') {
                 $startComparison *= -1;
             }
 
-            if ($sortByEnd === 'DESC') {
+            if (self::$sortByEnd === 'DESC') {
                 $endComparison *= -1;
             }
 
@@ -214,3 +254,4 @@ class YFormCalHelper extends \rex_yform_manager_dataset
         return array_slice($filteredEvents, 0, $limit);
     }
 }
+
