@@ -71,7 +71,6 @@ public static function getEventsByDate(string $startDate, ?string $endDate = nul
 Dieses Beispiel zeigt, wie Sie alle Ereignisse innerhalb eines Datumsbereichs abrufen und als einfache Liste ausgeben.
 
 ```php
-require_once 'path/to/YFormCalHelper.php';
 
 // Festlegen des Start- und Enddatums
 $startDate = '2024-06-01';
@@ -100,7 +99,6 @@ echo "</ul>";
 Dieses Beispiel zeigt, wie Sie die nächsten 5 Ereignisse ab dem aktuellen Datum und der aktuellen Uhrzeit abrufen und mit Bootstrap formatieren.
 
 ```php
-require_once 'path/to/YFormCalHelper.php';
 
 // ID des Referenzereignisses und Limit der Ereignisse
 $eventId = 1;
@@ -135,7 +133,6 @@ echo "</div>";
 Dieses Beispiel zeigt, wie Sie alle Ereignisse ab einem Datum drei Monate vor dem heutigen Datum abrufen und mit UIkit 3 formatieren.
 
 ```php
-require_once 'path/to/YFormCalHelper.php';
 
 // Berechnen des Startdatums (heute minus 3 Monate)
 $startDate = (new DateTime())->modify('-3 months')->format('Y-m-d');
@@ -163,7 +160,6 @@ echo "</div>";
 #### Beispiel: Holen aller Ereignisse ab heute
 
 ```php
-require_once 'path/to/YFormCalHelper.php';
 
 // Festlegen des Startdatums auf heute
 $startDate = (new DateTime())->format('Y-m-d');
@@ -183,7 +179,6 @@ echo "</ul>";
 #### Beispiel: Holen aller Ereignisse ab heute minus 3 Monate
 
 ```php
-require_once 'path/to/YFormCalHelper.php';
 
 // Festlegen des Startdatums auf heute minus 3 Monate
 $startDate = (new DateTime())->modify('-3 months')->format('Y-m-d');
