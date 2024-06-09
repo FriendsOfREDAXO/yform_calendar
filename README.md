@@ -129,8 +129,6 @@ echo "</div>";
 
 ```php
 <?php
-require_once 'YFormCalHelper.php';
-
 // Aktuelles Datum und Uhrzeit in der Zeitzone Berlin
 $berlinTimezone = new DateTimeZone('Europe/Berlin');
 $startDateTime = (new DateTime('now', $berlinTimezone))->format('Y-m-d H:i:s');
