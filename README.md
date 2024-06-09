@@ -11,11 +11,6 @@ Die `YFormCalHelper`-Klasse dient zur Verwaltung und Verarbeitung von Kalenderer
 
 ### Installation
 
-Kopieren Sie die `YFormCalHelper.php`-Datei in Ihr REDAXO-Projekt und stellen Sie sicher, dass sie in Ihren PHP-Dateien eingebunden ist:
-
-```php
-require_once 'path/to/YFormCalHelper.php';
-```
 
 ### Methoden
 
