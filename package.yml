@@ -1,8 +1,10 @@
 package: yform_calhelper
 version: '0.0.1'
-author: 'Friends Of REDAXO'
-supportpage: https://github.com/FriendsOfREDAXO/addon_key
+author: 'Thomas Skerbis'
+supportpage: https://github.com/skerbis/yform_calhelper
 requires:
-    redaxo: '^5.17.1'
     php:
-        version: '>=8.2, <9'
+        version: '>8.2,<9'
+    redaxo: ^5.17
+    packages:
+        yform: '^4'
