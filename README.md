@@ -1,9 +1,5 @@
 # YFormCalHelper
 
-Hinweis
-> Dies wird kein AddOn das im Installer zur Verfügung gestellt wird. Ich plane nur die Classes per Composer zur Verfügung zu stellen, wenn REDAXO so weit ist. 
-
-
 Die `YFormCalHelper`-Klasse dient zur Verwaltung und Verarbeitung von Kalenderereignissen in REDAXO. Sie ermöglicht das Abrufen, Filtern und Sortieren von Ereignissen aus einer Datenbank sowie das Generieren wiederkehrender Ereignisse.
 
 ### Funktionen
