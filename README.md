@@ -427,8 +427,6 @@ echo $ical;
 #### Beispiel 2: Generieren eines iCal-Kalenders für die nächsten 3 Monate
 
 ```php
-require_once 'path/to/CalendarEventICal.php';
-
 // Erstellen einer Instanz der CalendarEventICal-Klasse
 $calendar = new CalendarEventICal();
 
@@ -483,8 +481,6 @@ VALUES ('Team Meeting', 'Discuss project updates', 'Conference Room', 'CONFIRMED
 Das folgende Beispiel zeigt, wie Sie die `CalendarEventICal`-Klasse verwenden, um einen iCal-Kalender zu generieren, der Ereignisse mit Kategorien enthält:
 
 ```php
-require_once 'path/to/CalendarEventICal.php';
-
 // Erstellen einer Instanz der CalendarEventICal-Klasse
 $calendar = new CalendarEventICal();
 
