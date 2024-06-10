@@ -49,14 +49,14 @@ class YFormCalHelper extends \rex_yform_manager_dataset
         string $sortByEnd = 'ASC',
         ?string $whereRaw = null,
         int $page = 1
-    ): array {
+    ): iterable {
         self::setStartDate($startDate);
         self::setEndDate($endDate);
         self::setSortByStart($sortByStart);
         self::setSortByEnd($sortByEnd);
         self::setWhereRaw($whereRaw);
         self::setPage($page);
-        return iterator_to_array(self::getEvents());
+        return self::getEvents();
     }
 
     // Holt alle Ereignisse und sortiert sie nach den angegebenen Kriterien
@@ -90,11 +90,11 @@ class YFormCalHelper extends \rex_yform_manager_dataset
         $repeatBy = $event->getValue('repeat_by'); // 'date' oder 'day'
 
         // Berechne den Wochentag und die Woche im Monat des ursprünglichen Ereignisses
-        $originalDayOfWeek = (int) $currentDate->format('N'); // 1 (für Montag) bis 7 (für Sonntag)
-        $originalWeekOfMonth = (int) ceil($currentDate->format('j') / 7); // Woche im Monat
+        $originalDayOfWeek = (int)$currentDate->format('N'); // 1 (für Montag) bis 7 (für Sonntag)
+        $originalWeekOfMonth = (int)ceil($currentDate->format('j') / 7); // Woche im Monat
 
         // Formatieren der Ausnahmedaten
-        $exceptions = array_map(fn ($date) => (new DateTime($date))->format('Ymd'), explode(',', $event->getValue('exdate'))); // Exceptions als Array und im richtigen Format
+        $exceptions = array_map(fn($date) => (new DateTime($date))->format('Ymd'), explode(',', $event->getValue('exdate'))); // Exceptions als Array und im richtigen Format
 
         // Generiere die wiederkehrenden Ereignisse bis zum Enddatum
         while ($currentDate <= $endRecurrence) {
@@ -102,7 +102,7 @@ class YFormCalHelper extends \rex_yform_manager_dataset
 
             // Prüfe, ob das aktuelle Datum in den Ausnahmen enthalten ist
             if (in_array($formattedCurrentDate, $exceptions)) {
-                self::nextOccurrence($currentDate, $event->getValue('freq'), (int) $event->getValue('interval'), $repeatBy, $originalDayOfWeek, $originalWeekOfMonth);
+                self::nextOccurrence($currentDate, $event->getValue('freq'), (int)$event->getValue('interval'), $repeatBy, $originalDayOfWeek, $originalWeekOfMonth);
                 continue;
             }
 
@@ -124,7 +124,7 @@ class YFormCalHelper extends \rex_yform_manager_dataset
             yield $newEvent;
 
             // Berechne das nächste Wiederholungsdatum
-            self::nextOccurrence($currentDate, $event->getValue('freq'), (int) $event->getValue('interval'), $repeatBy, $originalDayOfWeek, $originalWeekOfMonth);
+            self::nextOccurrence($currentDate, $event->getValue('freq'), (int)$event->getValue('interval'), $repeatBy, $originalDayOfWeek, $originalWeekOfMonth);
         }
     }
 
@@ -171,7 +171,7 @@ class YFormCalHelper extends \rex_yform_manager_dataset
 
         $counter = 0;
         while ($counter < $originalWeekOfMonth) {
-            if ((int) $nextDate->format('N') === $originalDayOfWeek) {
+            if ((int)$nextDate->format('N') === $originalDayOfWeek) {
                 $counter++;
             }
             if ($counter < $originalWeekOfMonth) {
@@ -180,7 +180,7 @@ class YFormCalHelper extends \rex_yform_manager_dataset
         }
 
         // Falls der Monat nicht genügend Wochen hat, setze das Datum auf den Anfang des nächsten Monats
-        if ((int) ceil($nextDate->format('j') / 7) < $originalWeekOfMonth) {
+        if ((int)ceil($nextDate->format('j') / 7) < $originalWeekOfMonth) {
             $nextDate->modify('first day of next month');
         }
 
@@ -194,7 +194,7 @@ class YFormCalHelper extends \rex_yform_manager_dataset
         $nextDate->modify('+' . $interval . ' year');
 
         // Suche den nächsten Wochentag im Zieljahr
-        while ((int) $nextDate->format('N') !== $dayOfWeek) {
+        while ((int)$nextDate->format('N') !== $dayOfWeek) {
             $nextDate->modify('+1 day');
         }
 
@@ -202,29 +202,25 @@ class YFormCalHelper extends \rex_yform_manager_dataset
     }
 
     // Holt alle Ereignisse für ein spezifisches Datum oder Zeitraum
-    public static function getEventsByDate(string $startDate, ?string $endDate = null): array
+    public static function getEventsByDate(string $startDate, ?string $endDate = null): iterable
     {
-        $events = iterator_to_array(self::getEvents()); // Konvertiere hier den Generator zu einem Array
-        $specificEvents = [];
+        $events = self::getChronologicalEvents($startDate, $endDate);
 
         $start = new DateTime($startDate);
         $end = $endDate ? new DateTime($endDate) : $start;
 
-        // Filtere Ereignisse basierend auf dem angegebenen Zeitraum
         foreach ($events as $event) {
             $eventStart = new DateTime($event->getValue('dtstart'));
             $eventEnd = new DateTime($event->getValue('dtend'));
 
             if ($eventStart >= $start && $eventEnd <= $end) {
-                $specificEvents[] = $event;
+                yield $event;
             }
         }
-
-        return $specificEvents;
     }
 
     // Holt die nächsten X Ereignisse ab einem festgelegten Datum und/oder Uhrzeit basierend auf der Datensatz-ID eines Termins
-    public static function getNextEvents(int $eventId, int $limit, ?string $startDateTime = null): array
+    public static function getNextEvents(int $eventId, int $limit, ?string $startDateTime = null): iterable
     {
         $event = self::get($eventId);
         if (!$event) {
@@ -233,20 +229,17 @@ class YFormCalHelper extends \rex_yform_manager_dataset
 
         $startDateTime = $startDateTime ?: (new DateTime())->format('Y-m-d H:i:s');
         $startDateTimeObj = new DateTime($startDateTime);
-        $events = iterator_to_array(self::getEvents()); // Konvertiere hier den Generator zu einem Array
+        $count = 0;
 
-        $filteredEvents = [];
-        foreach ($events as $e) {
+        foreach (self::getEvents() as $e) {
             $eventStart = new DateTime($e->getValue('dtstart'));
             if ($eventStart >= $startDateTimeObj && $e->getId() == $eventId) {
-                $filteredEvents[] = $e;
+                yield $e;
+                $count++;
+                if ($count >= $limit) {
+                    break;
+                }
             }
         }
-
-        usort($filteredEvents, function ($a, $b) {
-            return strtotime($a->getValue('dtstart')) <=> strtotime($b->getValue('dtstart'));
-        });
-
-        return array_slice($filteredEvents, 0, $limit);
     }
 }
