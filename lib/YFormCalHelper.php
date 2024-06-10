@@ -159,29 +159,28 @@ class YFormCalHelper extends \rex_yform_manager_dataset
         return $recurringEvents;
     }
 
+private static function generateRruleRecurringEvents($event): array
+{
+    $recurringEvents = [];
+    $rrule = new RRule($event->getValue('rrule'));
+    $originalStart = new DateTime($event->getValue('dtstart'));
+    $originalEnd = new DateTime($event->getValue('dtend'));
+    $duration = $originalEnd->getTimestamp() - $originalStart->getTimestamp();
 
- // Generiert wiederkehrende Ereignisse basierend auf RRULE
-    private static function generateRruleRecurringEvents($event): array
-    {
-        $recurringEvents = [];
-        $rrule = new RRule($event->getValue('rrule'));
-        $originalStart = new DateTime($event->getValue('dtstart'));
-        $originalEnd = new DateTime($event->getValue('dtend'));
-        $duration = $originalEnd->getTimestamp() - $originalStart->getTimestamp();
+    foreach ($rrule as $occurrence) {
+        $newEvent = clone $event;
+        $newEventStart = $occurrence->format('Y-m-d H:i:s');
+        $newEventEnd = (new DateTime($newEventStart))->modify("+$duration seconds")->format('Y-m-d H:i:s');
 
-        foreach ($rrule as $occurrence) {
-            $newEvent = clone $event;
-            $newEventStart = $occurrence->format('Y-m-d H:i:s');
-            $newEventEnd = (new DateTime($newEventStart))->modify("+$duration seconds")->format('Y-m-d H:i:s');
+        $newEvent->setValue('dtstart', $newEventStart);
+        $newEvent->setValue('dtend', $newEventEnd);
 
-            $newEvent->setValue('dtstart', $newEventStart);
-            $newEvent->setValue('dtend', $newEventEnd);
-
-            $recurringEvents[] = $newEvent;
-        }
-
-        return $recurringEvents;
+        $recurringEvents[] = $newEvent;
     }
+
+    return $recurringEvents;
+}
+
 
 
     // Berechnet das nächste Wiederholungsdatum basierend auf freq und repeat_by
