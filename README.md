@@ -68,7 +68,7 @@ $eventId = 1;
 $limit = 5;
 
 // Holen der nächsten Ereignisse ab dem aktuellen Datum und Uhrzeit
-YFormCalHelper::setStartDate((new DateTime())->format('Y-m-d'));
+YFormCalHelper::setStartDate((new DateTime())->format('Y-m-d H:i:s'));
 $events = YFormCalHelper::getEvents();
 
 $nextEvents = array_slice($events, 0, $limit);
