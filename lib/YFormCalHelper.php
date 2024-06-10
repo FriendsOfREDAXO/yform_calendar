@@ -1,4 +1,5 @@
 <?php
+use RRule\RRule;
 class YFormCalHelper extends \rex_yform_manager_dataset
 {
     private static ?string $startDate = null;
