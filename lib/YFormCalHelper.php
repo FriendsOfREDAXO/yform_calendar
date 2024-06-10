@@ -160,16 +160,19 @@ class YFormCalHelper extends \rex_yform_manager_dataset
     }
 
 
-   // Generiert wiederkehrende Ereignisse basierend auf RRULE
+ // Generiert wiederkehrende Ereignisse basierend auf RRULE
     private static function generateRruleRecurringEvents($event): array
     {
         $recurringEvents = [];
         $rrule = new RRule($event->getValue('rrule'));
+        $originalStart = new DateTime($event->getValue('dtstart'));
+        $originalEnd = new DateTime($event->getValue('dtend'));
+        $duration = $originalEnd->getTimestamp() - $originalStart->getTimestamp();
 
         foreach ($rrule as $occurrence) {
             $newEvent = clone $event;
             $newEventStart = $occurrence->format('Y-m-d H:i:s');
-            $newEventEnd = (new DateTime($newEventStart))->modify('+1 hour')->format('Y-m-d H:i:s'); // Annahme: Ereignis dauert eine Stunde
+            $newEventEnd = (new DateTime($newEventStart))->modify("+$duration seconds")->format('Y-m-d H:i:s');
 
             $newEvent->setValue('dtstart', $newEventStart);
             $newEvent->setValue('dtend', $newEventEnd);
