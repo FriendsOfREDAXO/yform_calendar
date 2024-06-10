@@ -20,22 +20,22 @@ class YFormCalHelper extends \rex_yform_manager_dataset
         self::$endDate = $endDate;
     }
 
-    public static void setSortByStart(string $sortByStart): void
+    public static function setSortByStart(string $sortByStart): void
     {
         self::$sortByStart = $sortByStart;
     }
 
-    public static void setSortByEnd(string $sortByEnd): void
+    public static function setSortByEnd(string $sortByEnd): void
     {
         self::$sortByEnd = $sortByEnd;
     }
 
-    public static void setWhereRaw(?string $whereRaw): void
+    public static function setWhereRaw(?string $whereRaw): void
     {
         self::$whereRaw = $whereRaw;
     }
 
-    public static void setPage(int $page): void
+    public static function setPage(int $page): void
     {
         self::$page = $page;
     }
