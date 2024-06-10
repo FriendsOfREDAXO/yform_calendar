@@ -1,5 +1,6 @@
 <?php
 use RRule\RRule;
+
 class YFormCalHelper extends \rex_yform_manager_dataset
 {
     private static ?string $startDate = null;
@@ -89,8 +90,8 @@ class YFormCalHelper extends \rex_yform_manager_dataset
         $repeatBy = $event->getValue('repeat_by'); // 'date' oder 'day'
 
         // Berechne den Wochentag und die Woche im Monat des ursprünglichen Ereignisses
-        $originalDayOfWeek = (int)$currentDate->format('N'); // 1 (für Montag) bis 7 (für Sonntag)
-        $originalWeekOfMonth = (int)ceil($currentDate->format('j') / 7); // Woche im Monat
+        $originalDayOfWeek = (int) $currentDate->format('N'); // 1 (für Montag) bis 7 (für Sonntag)
+        $originalWeekOfMonth = (int) ceil($currentDate->format('j') / 7); // Woche im Monat
 
         // Formatieren der Ausnahmedaten
         $exceptions = array_map(fn ($date) => (new DateTime($date))->format('Ymd'), explode(',', $event->getValue('exdate'))); // Exceptions als Array und im richtigen Format
@@ -101,7 +102,7 @@ class YFormCalHelper extends \rex_yform_manager_dataset
 
             // Prüfe, ob das aktuelle Datum in den Ausnahmen enthalten ist
             if (in_array($formattedCurrentDate, $exceptions)) {
-                self::nextOccurrence($currentDate, $event->getValue('freq'), (int)$event->getValue('interval'), $repeatBy, $originalDayOfWeek, $originalWeekOfMonth);
+                self::nextOccurrence($currentDate, $event->getValue('freq'), (int) $event->getValue('interval'), $repeatBy, $originalDayOfWeek, $originalWeekOfMonth);
                 continue;
             }
 
@@ -123,7 +124,7 @@ class YFormCalHelper extends \rex_yform_manager_dataset
             yield $newEvent;
 
             // Berechne das nächste Wiederholungsdatum
-            self::nextOccurrence($currentDate, $event->getValue('freq'), (int)$event->getValue('interval'), $repeatBy, $originalDayOfWeek, $originalWeekOfMonth);
+            self::nextOccurrence($currentDate, $event->getValue('freq'), (int) $event->getValue('interval'), $repeatBy, $originalDayOfWeek, $originalWeekOfMonth);
         }
     }
 
@@ -170,7 +171,7 @@ class YFormCalHelper extends \rex_yform_manager_dataset
 
         $counter = 0;
         while ($counter < $originalWeekOfMonth) {
-            if ((int)$nextDate->format('N') === $originalDayOfWeek) {
+            if ((int) $nextDate->format('N') === $originalDayOfWeek) {
                 $counter++;
             }
             if ($counter < $originalWeekOfMonth) {
@@ -179,7 +180,7 @@ class YFormCalHelper extends \rex_yform_manager_dataset
         }
 
         // Falls der Monat nicht genügend Wochen hat, setze das Datum auf den Anfang des nächsten Monats
-        if ((int)ceil($nextDate->format('j') / 7) < $originalWeekOfMonth) {
+        if ((int) ceil($nextDate->format('j') / 7) < $originalWeekOfMonth) {
             $nextDate->modify('first day of next month');
         }
 
@@ -193,7 +194,7 @@ class YFormCalHelper extends \rex_yform_manager_dataset
         $nextDate->modify('+' . $interval . ' year');
 
         // Suche den nächsten Wochentag im Zieljahr
-        while ((int)$nextDate->format('N') !== $dayOfWeek) {
+        while ((int) $nextDate->format('N') !== $dayOfWeek) {
             $nextDate->modify('+1 day');
         }
 
@@ -203,7 +204,7 @@ class YFormCalHelper extends \rex_yform_manager_dataset
     // Holt alle Ereignisse für ein spezifisches Datum oder Zeitraum
     public static function getEventsByDate(string $startDate, ?string $endDate = null): array
     {
-        $events = iterator_to_array(self::getChronologicalEvents($startDate, $endDate));
+        $events = iterator_to_array(self::getEvents()); // Konvertiere hier den Generator zu einem Array
         $specificEvents = [];
 
         $start = new DateTime($startDate);
@@ -232,7 +233,7 @@ class YFormCalHelper extends \rex_yform_manager_dataset
 
         $startDateTime = $startDateTime ?: (new DateTime())->format('Y-m-d H:i:s');
         $startDateTimeObj = new DateTime($startDateTime);
-        $events = iterator_to_array(self::getChronologicalEvents());
+        $events = iterator_to_array(self::getEvents()); // Konvertiere hier den Generator zu einem Array
 
         $filteredEvents = [];
         foreach ($events as $e) {
