@@ -165,12 +165,14 @@ private static function generateRruleRecurringEvents($event): array
     $rrule = new RRule($event->getValue('rrule'));
     $originalStart = new DateTime($event->getValue('dtstart'));
     $originalEnd = new DateTime($event->getValue('dtend'));
-    $duration = $originalEnd->getTimestamp() - $originalStart->getTimestamp();
+    $startTime = $originalStart->format('H:i:s');
+    $endTime = $originalEnd->format('H:i:s');
 
     foreach ($rrule as $occurrence) {
         $newEvent = clone $event;
-        $newEventStart = $occurrence->format('Y-m-d H:i:s');
-        $newEventEnd = (new DateTime($newEventStart))->modify("+$duration seconds")->format('Y-m-d H:i:s');
+        $newEventDate = $occurrence->format('Y-m-d');
+        $newEventStart = $newEventDate . ' ' . $startTime;
+        $newEventEnd = $newEventDate . ' ' . $endTime;
 
         $newEvent->setValue('dtstart', $newEventStart);
         $newEvent->setValue('dtend', $newEventEnd);
