@@ -41,17 +41,17 @@ class YFormCalHelper extends \rex_yform_manager_dataset
         string $sortByStart = 'ASC',
         string $sortByEnd = 'ASC',
         ?string $whereRaw = null
-    ): array {
+    ): \Generator {
         self::setStartDate($startDate);
         self::setEndDate($endDate);
         self::setSortByStart($sortByStart);
         self::setSortByEnd($sortByEnd);
         self::setWhereRaw($whereRaw);
-        return self::getEvents();
+        yield from self::getEvents();
     }
 
     // Holt alle Ereignisse und sortiert sie nach den angegebenen Kriterien
-    public static function getEvents(): array
+    public static function getEvents(): \Generator
     {
         $query = self::query();
 
@@ -62,13 +62,17 @@ class YFormCalHelper extends \rex_yform_manager_dataset
         $events = $query->find();
         $allEvents = [];
 
-          foreach ($events as $event) {
+        foreach ($events as $event) {
             if ($event->getValue('rrule')) {
                 // Wenn rrule vorhanden ist, benutze generateRruleRecurringEvents
-                $allEvents = array_merge($allEvents, self::generateRruleRecurringEvents($event));
+                foreach (self::generateRruleRecurringEvents($event) as $recurringEvent) {
+                    $allEvents[] = $recurringEvent;
+                }
             } elseif ($event->getValue('repeat')) {
                 // Wenn repeat vorhanden ist, benutze generateRecurringEvents
-                $allEvents = array_merge($allEvents, self::generateRecurringEvents($event));
+                foreach (self::generateRecurringEvents($event) as $recurringEvent) {
+                    $allEvents[] = $recurringEvent;
+                }
             } else {
                 $allEvents[] = $event;
             }
@@ -106,13 +110,14 @@ class YFormCalHelper extends \rex_yform_manager_dataset
             return $startComparison ?: $endComparison;
         });
 
-        return $allEvents;
+        foreach ($allEvents as $event) {
+            yield $event;
+        }
     }
 
     // Generiert wiederkehrende Ereignisse basierend auf den Wiederholungsregeln
-    private static function generateRecurringEvents($event): array
+    private static function generateRecurringEvents($event): \Generator
     {
-        $recurringEvents = [];
         $currentDate = new DateTime($event->getValue('dtstart')); // Startdatum des Ereignisses
         $originalEndDate = new DateTime($event->getValue('dtend')); // Enddatum des ursprünglichen Ereignisses
         $endRecurrence = $event->getValue('until') ? new DateTime($event->getValue('until')) : new DateTime('+1 year'); // Enddatum der Wiederholung
@@ -150,40 +155,33 @@ class YFormCalHelper extends \rex_yform_manager_dataset
                 $newEvent->setValue('dtend', (clone $newEventEnd)->format('Y-m-d'));
             }
 
-            $recurringEvents[] = $newEvent;
+            yield $newEvent;
 
             // Berechne das nächste Wiederholungsdatum
             self::nextOccurrence($currentDate, $event->getValue('freq'), (int)$event->getValue('interval'), $repeatBy, $originalDayOfWeek, $originalWeekOfMonth);
         }
-
-        return $recurringEvents;
     }
 
-private static function generateRruleRecurringEvents($event): array
-{
-    $recurringEvents = [];
-    $rrule = new RRule($event->getValue('rrule'));
-    $originalStart = new DateTime($event->getValue('dtstart'));
-    $originalEnd = new DateTime($event->getValue('dtend'));
-    $startTime = $originalStart->format('H:i:s');
-    $endTime = $originalEnd->format('H:i:s');
+    private static function generateRruleRecurringEvents($event): \Generator
+    {
+        $rrule = new RRule($event->getValue('rrule'));
+        $originalStart = new DateTime($event->getValue('dtstart'));
+        $originalEnd = new DateTime($event->getValue('dtend'));
+        $startTime = $originalStart->format('H:i:s');
+        $endTime = $originalEnd->format('H:i:s');
 
-    foreach ($rrule as $occurrence) {
-        $newEvent = clone $event;
-        $newEventDate = $occurrence->format('Y-m-d');
-        $newEventStart = $newEventDate . ' ' . $startTime;
-        $newEventEnd = $newEventDate . ' ' . $endTime;
+        foreach ($rrule as $occurrence) {
+            $newEvent = clone $event;
+            $newEventDate = $occurrence->format('Y-m-d');
+            $newEventStart = $newEventDate . ' ' . $startTime;
+            $newEventEnd = $newEventDate . ' ' . $endTime;
 
-        $newEvent->setValue('dtstart', $newEventStart);
-        $newEvent->setValue('dtend', $newEventEnd);
+            $newEvent->setValue('dtstart', $newEventStart);
+            $newEvent->setValue('dtend', $newEventEnd);
 
-        $recurringEvents[] = $newEvent;
+            yield $newEvent;
+        }
     }
-
-    return $recurringEvents;
-}
-
-
 
     // Berechnet das nächste Wiederholungsdatum basierend auf freq und repeat_by
     private static function nextOccurrence(DateTime &$currentDate, string $freq, int $interval, string $repeatBy, int $originalDayOfWeek, int $originalWeekOfMonth): void
@@ -239,7 +237,7 @@ private static function generateRruleRecurringEvents($event): array
     // Holt alle Ereignisse für ein spezifisches Datum oder Zeitraum
     public static function getEventsByDate(string $startDate, ?string $endDate = null): array
     {
-        $events = self::getChronologicalEvents($startDate, $endDate);
+        $events = iterator_to_array(self::getChronologicalEvents($startDate, $endDate));
         $specificEvents = [];
 
         $start = new DateTime($startDate);
@@ -268,7 +266,7 @@ private static function generateRruleRecurringEvents($event): array
 
         $startDateTime = $startDateTime ?: (new DateTime())->format('Y-m-d H:i:s');
         $startDateTimeObj = new DateTime($startDateTime);
-        $events = self::getChronologicalEvents();
+        $events = iterator_to_array(self::getChronologicalEvents());
 
         $filteredEvents = [];
         foreach ($events as $e) {
