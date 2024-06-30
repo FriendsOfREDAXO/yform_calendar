@@ -50,14 +50,20 @@ class YFormCalHelper extends \rex_yform_manager_dataset
         yield from self::getEvents();
     }
 
-    // Holt alle Ereignisse und sortiert sie nach den angegebenen Kriterien
-    public static function getEvents(): \Generator
-    {
+    public static function getEvents(?array $preFetchedEvents = null): \Generator
+    {  
+    // Wenn keine vorab abgerufenen Ereignisse vorhanden sind, führen Sie die Abfrage aus
+    if ($preFetchedEvents === null) {
         $query = self::query();
 
         if (self::$whereRaw) {
             $query->whereRaw(self::$whereRaw);
         }
+        $events = $query->find();
+    } else {
+        // Verwenden Sie die vorab abgerufenen Ereignisse
+        $events = $preFetchedEvents;
+    }
 
         $events = $query->find();
         $allEvents = [];
