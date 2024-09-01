@@ -81,82 +81,98 @@ $id = $this->getFieldId();
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const id = '<?= $id ?>';
-    const elements = {
-        recurringEventCheckbox: document.getElementById(id + '-checkbox'),
-        rruleWidget: document.getElementById(id + '-widget'),
-        rruleDisplay: document.getElementById(id + '-display'),
-        frequency: document.getElementById(id + '-frequency'),
-        interval: document.getElementById(id + '-interval'),
-        weeklyGroup: document.getElementById(id + '-weekly-group'),
-        monthlyGroup: document.getElementById(id + '-monthly-group'),
-        bymonthdayGroup: document.getElementById(id + '-bymonthday-group'),
-        bydayGroup: document.getElementById(id + '-byday-group'),
-        rruleValue: document.getElementById(id)
-    };
+(function() {
+    function initRRuleWidget() {
+        const id = '<?= $id ?>';
+        const elements = {
+            recurringEventCheckbox: document.getElementById(id + '-checkbox'),
+            rruleWidget: document.getElementById(id + '-widget'),
+            rruleDisplay: document.getElementById(id + '-display'),
+            frequency: document.getElementById(id + '-frequency'),
+            interval: document.getElementById(id + '-interval'),
+            weeklyGroup: document.getElementById(id + '-weekly-group'),
+            monthlyGroup: document.getElementById(id + '-monthly-group'),
+            bymonthdayGroup: document.getElementById(id + '-bymonthday-group'),
+            bydayGroup: document.getElementById(id + '-byday-group'),
+            rruleValue: document.getElementById(id)
+        };
 
-    function toggleVisibility(element, show) {
-        element.classList.toggle('hidden', !show);
-    }
-
-    function updateVisibility() {
-        const frequency = elements.frequency.value;
-        toggleVisibility(elements.weeklyGroup, frequency === 'WEEKLY');
-        toggleVisibility(elements.monthlyGroup, frequency === 'MONTHLY');
-        
-        if (frequency === 'MONTHLY') {
-            const monthlyType = document.querySelector('input[name="' + id + '-monthlyType"]:checked');
-            toggleVisibility(elements.bymonthdayGroup, monthlyType && monthlyType.value === 'bymonthday');
-            toggleVisibility(elements.bydayGroup, monthlyType && monthlyType.value === 'byday');
-        } else {
-            toggleVisibility(elements.bymonthdayGroup, false);
-            toggleVisibility(elements.bydayGroup, false);
-        }
-    }
-
-    function updateRRule() {
-        if (!elements.recurringEventCheckbox.checked) {
-            elements.rruleValue.value = '';
-            elements.rruleDisplay.textContent = '';
-            return;
+        function toggleVisibility(element, show) {
+            element.classList.toggle('hidden', !show);
         }
 
-        let rrule = `FREQ=${elements.frequency.value};INTERVAL=${elements.interval.value}`;
-        
-        if (elements.frequency.value === 'WEEKLY') {
-            const weekdays = Array.from(document.querySelectorAll('#' + id + '-weekly-group input[type="checkbox"]:checked'))
-                .map(cb => cb.id.split('-').pop())
-                .join(',');
-            if (weekdays) rrule += `;BYDAY=${weekdays}`;
-        } else if (elements.frequency.value === 'MONTHLY') {
-            const monthlyType = document.querySelector('input[name="' + id + '-monthlyType"]:checked');
-            if (monthlyType) {
-                if (monthlyType.value === 'bymonthday') {
-                    rrule += `;BYMONTHDAY=${document.getElementById(id + '-monthday').value}`;
-                } else if (monthlyType.value === 'byday') {
-                    rrule += `;BYDAY=${document.getElementById(id + '-weekdayorder').value}${document.getElementById(id + '-weekday').value}`;
-                }
+        function updateVisibility() {
+            const frequency = elements.frequency.value;
+            toggleVisibility(elements.weeklyGroup, frequency === 'WEEKLY');
+            toggleVisibility(elements.monthlyGroup, frequency === 'MONTHLY');
+            
+            if (frequency === 'MONTHLY') {
+                const monthlyType = document.querySelector('input[name="' + id + '-monthlyType"]:checked');
+                toggleVisibility(elements.bymonthdayGroup, monthlyType && monthlyType.value === 'bymonthday');
+                toggleVisibility(elements.bydayGroup, monthlyType && monthlyType.value === 'byday');
+            } else {
+                toggleVisibility(elements.bymonthdayGroup, false);
+                toggleVisibility(elements.bydayGroup, false);
             }
         }
+
+        function updateRRule() {
+            if (!elements.recurringEventCheckbox.checked) {
+                elements.rruleValue.value = '';
+                elements.rruleDisplay.textContent = '';
+                return;
+            }
+
+            let rrule = `FREQ=${elements.frequency.value};INTERVAL=${elements.interval.value}`;
+            
+            if (elements.frequency.value === 'WEEKLY') {
+                const weekdays = Array.from(document.querySelectorAll('#' + id + '-weekly-group input[type="checkbox"]:checked'))
+                    .map(cb => cb.id.split('-').pop())
+                    .join(',');
+                if (weekdays) rrule += `;BYDAY=${weekdays}`;
+            } else if (elements.frequency.value === 'MONTHLY') {
+                const monthlyType = document.querySelector('input[name="' + id + '-monthlyType"]:checked');
+                if (monthlyType) {
+                    if (monthlyType.value === 'bymonthday') {
+                        rrule += `;BYMONTHDAY=${document.getElementById(id + '-monthday').value}`;
+                    } else if (monthlyType.value === 'byday') {
+                        rrule += `;BYDAY=${document.getElementById(id + '-weekdayorder').value}${document.getElementById(id + '-weekday').value}`;
+                    }
+                }
+            }
+            
+            elements.rruleValue.value = rrule;
+            elements.rruleDisplay.textContent = rrule;
+        }
+
+        elements.recurringEventCheckbox.addEventListener('change', function() {
+            toggleVisibility(elements.rruleWidget, this.checked);
+            toggleVisibility(elements.rruleDisplay, this.checked);
+            updateRRule();
+        });
+
+        elements.frequency.addEventListener('change', updateVisibility);
+        document.getElementById(id + '-bymonthday').addEventListener('change', updateVisibility);
+        document.getElementById(id + '-byday').addEventListener('change', updateVisibility);
         
-        elements.rruleValue.value = rrule;
-        elements.rruleDisplay.textContent = rrule;
+        document.getElementById(id + '-wrapper').addEventListener('change', updateRRule);
+
+        updateVisibility();
+        updateRRule();
     }
 
-    elements.recurringEventCheckbox.addEventListener('change', function() {
-        toggleVisibility(elements.rruleWidget, this.checked);
-        toggleVisibility(elements.rruleDisplay, this.checked);
-        updateRRule();
-    });
+    // Funktion sowohl für DOMContentLoaded als auch für rex:ready registrieren
+    function onReady(fn) {
+        if (document.readyState !== 'loading') {
+            fn();
+        } else {
+            document.addEventListener('DOMContentLoaded', fn);
+        }
+        if (typeof rex !== 'undefined') {
+            rex.ready(fn);
+        }
+    }
 
-    elements.frequency.addEventListener('change', updateVisibility);
-    document.getElementById(id + '-bymonthday').addEventListener('change', updateVisibility);
-    document.getElementById(id + '-byday').addEventListener('change', updateVisibility);
-    
-    document.getElementById(id + '-wrapper').addEventListener('change', updateRRule);
-
-    updateVisibility();
-    updateRRule();
-});
+    onReady(initRRuleWidget);
+})();
 </script>
