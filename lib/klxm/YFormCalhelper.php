@@ -3,7 +3,6 @@
 namespace klxm\YFormCalhelper;
 
 use DateTime;
-use DateTimeInterface;
 use Generator;
 use RRule\RSet;
 use rex_yform_manager_dataset;
@@ -74,34 +73,47 @@ class CalRender extends rex_yform_manager_dataset
         $rset = new RSet();
         $rset->addRRule($event->getValue('rrule'));
 
-        self::addExceptionsToRSet($rset, $event->getValue('exdate'));
+        // Füge exdate-Daten hinzu und verarbeite Ranges
+        $exceptions = self::parseExceptions($event->getValue('exdate'));
 
         $originalStart = new DateTime($event->getValue('dtstart'));
         $originalEnd = new DateTime($event->getValue('dtend'));
         $duration = $originalEnd->getTimestamp() - $originalStart->getTimestamp();
 
         foreach ($rset as $occurrence) {
+            $occurrenceDate = $occurrence->format('Y-m-d');
+
+            // Prüfe, ob das Vorkommnis in den exdate-Ausnahmen enthalten ist
+            $isExcluded = false;
+            foreach ($exceptions as $exception) {
+                // Unterstützt sowohl einzelne Ausnahmedaten als auch Datumsbereiche
+                if ($exception instanceof DateTime) {
+                    if ($occurrenceDate === $exception->format('Y-m-d')) {
+                        $isExcluded = true;
+                        break;
+                    }
+                } elseif (is_array($exception) && isset($exception['start'], $exception['end'])) {
+                    $startRange = $exception['start']->format('Y-m-d');
+                    $endRange = $exception['end']->format('Y-m-d');
+                    if ($occurrenceDate >= $startRange && $occurrenceDate <= $endRange) {
+                        $isExcluded = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($isExcluded) {
+                // Debug-Ausgabe für ausgeschlossene Termine
+                echo "Vorkommnis ausgeschlossen: " . $occurrence->format('Y-m-d H:i:s') . " Berlin Time\n";
+                continue; // überspringe dieses Vorkommnis
+            }
+
             if ((!$start || $occurrence >= $start) && (!$end || $occurrence <= $end)) {
                 yield self::createRecurringEvent($event, $occurrence, $duration);
             }
+
             if ($end && $occurrence > $end) {
                 break;
-            }
-        }
-    }
-
-    private static function addExceptionsToRSet(RSet $rset, ?string $exdateString): void
-    {
-        if ($exdateString === null) {
-            return;
-        }
-
-        $exceptions = self::parseExceptions($exdateString);
-        foreach ($exceptions as $exception) {
-            if ($exception instanceof DateTime) {
-                $rset->addExDate($exception);
-            } elseif (is_array($exception)) {
-                self::addExceptionRange($rset, $exception['start'], $exception['end']);
             }
         }
     }
@@ -115,25 +127,41 @@ class CalRender extends rex_yform_manager_dataset
             if (strpos($item, '/') !== false) {
                 [$start, $end] = explode('/', $item);
                 $exceptions[] = [
-                    'start' => new DateTime($start),
-                    'end' => new DateTime($end)
+                    'start' => new DateTime($start, new \DateTimeZone('Europe/Berlin')),
+                    'end' => new DateTime($end, new \DateTimeZone('Europe/Berlin'))
                 ];
             } else {
-                $exceptions[] = new DateTime($item);
+                $exceptions[] = new DateTime($item, new \DateTimeZone('Europe/Berlin'));
             }
         }
 
         return $exceptions;
     }
 
-    private static function addExceptionRange(RSet $rset, DateTime $start, DateTime $end): void
+
+
+    private static function addExceptionsToRSet(RSet $rset, ?string $exdateString): void
     {
-        $current = clone $start;
-        while ($current <= $end) {
-            $rset->addExDate($current);
-            $current->modify('+1 day');
+        if ($exdateString === null) {
+            return;
+        }
+
+        $exceptions = self::parseExceptions($exdateString);
+        foreach ($exceptions as $exception) {
+            // Setze die Zeitzone explizit auf Europe/Berlin
+            $exception->setTimezone(new \DateTimeZone('Europe/Berlin'));
+            // Setze die Zeit auf Mitternacht in der Berliner Zeitzone
+            $exception->setTime(0, 0, 0);
+
+            // Debug: Ausgabe des hinzugefügten Ausnahme-Datums
+            echo "Hinzufügen von Ausnahme-Datum: " . $exception->format('Y-m-d H:i:s') . " Berlin Time\n";
+
+            $rset->addExDate($exception);
         }
     }
+
+
+
 
     private static function createRecurringEvent(rex_yform_manager_dataset $event, DateTime $occurrence, int $duration): rex_yform_manager_dataset
     {
@@ -151,14 +179,6 @@ class CalRender extends rex_yform_manager_dataset
         return $newEvent;
     }
 
-    /**
-     * Sort events based on start and end dates.
-     *
-     * @param array $events Array of events to sort
-     * @param string $sortByStart Sort direction for start date ('ASC' or 'DESC')
-     * @param string $sortByEnd Sort direction for end date ('ASC' or 'DESC')
-     * @return array Sorted array of events
-     */
     private static function sortEvents(array $events, string $sortByStart, string $sortByEnd): array
     {
         usort($events, function (rex_yform_manager_dataset $a, rex_yform_manager_dataset $b) use ($sortByStart, $sortByEnd) {
@@ -172,21 +192,17 @@ class CalRender extends rex_yform_manager_dataset
         return $events;
     }
 
-    /**
-     * Compare event dates for sorting.
-     *
-     * @param rex_yform_manager_dataset $a First event to compare
-     * @param rex_yform_manager_dataset $b Second event to compare
-     * @param string $field Field to compare ('dtstart' or 'dtend')
-     * @param string $direction Sort direction ('ASC' or 'DESC')
-     * @return int Comparison result (-1, 0, or 1)
-     */
     private static function compareEventDates(rex_yform_manager_dataset $a, rex_yform_manager_dataset $b, string $field, string $direction): int
     {
         $aDate = self::createDateTime($a->getValue($field));
         $bDate = self::createDateTime($b->getValue($field));
         $comparison = $aDate <=> $bDate;
         return $direction === 'DESC' ? -$comparison : $comparison;
+    }
+
+    private static function createDateTime(string $dateTimeString): DateTime
+    {
+        return new DateTime($dateTimeString);
     }
 
     /**
@@ -238,34 +254,5 @@ class CalRender extends rex_yform_manager_dataset
         });
 
         return $filteredEvents;
-    }
-
-    /**
-     * Get upcoming events.
-     *
-     * @param int $limit Maximum number of events to return
-     * @param string|null $startDateTime Start date/time (default: now)
-     * @return array
-     */
-    public static function getUpcomingEvents(int $limit = 10, ?string $startDateTime = null): array
-    {
-        $startDateTime = $startDateTime ?: (new DateTime())->format('Y-m-d H:i:s');
-        return iterator_to_array(self::getCalendarEvents([
-            'startDate' => $startDateTime,
-            'limit' => $limit,
-            'sortByStart' => 'ASC'
-        ]));
-    }
-
-
-    /**
-     * Create a DateTime object from a string.
-     *
-     * @param string $dateTimeString Date/time string in 'Y-m-d H:i:s' or 'Y-m-d' format
-     * @return DateTime
-     */
-    private static function createDateTime(string $dateTimeString): DateTime
-    {
-        return new DateTime($dateTimeString);
     }
 }
