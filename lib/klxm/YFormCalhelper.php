@@ -102,14 +102,14 @@ class CalRender extends rex_yform_manager_dataset
         return $exceptions;
     }
 
-    private static void addExceptionRange(RSet $rset, DateTime $start, DateTime $end): void
-    {
-        $current = clone $start;
-        while ($current <= $end) {
-            $rset->addExDate($current);
-            $current->modify('+1 day');
-        }
+  private static function addExceptionRange(RSet $rset, DateTime $start, DateTime $end): void
+{
+    $current = clone $start;
+    while ($current <= $end) {
+        $rset->addExDate($current);
+        $current->modify('+1 day');
     }
+}
 
     private static function createRecurringEvent(rex_yform_manager_dataset $event, DateTime $occurrence, int $duration): rex_yform_manager_dataset
     {
