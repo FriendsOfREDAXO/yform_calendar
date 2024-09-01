@@ -104,7 +104,7 @@ class CalRender extends rex_yform_manager_dataset
 
             if ($isExcluded) {
                 // Debug-Ausgabe für ausgeschlossene Termine
-                echo "Vorkommnis ausgeschlossen: " . $occurrence->format('Y-m-d H:i:s') . " Berlin Time\n";
+                #echo "Vorkommnis ausgeschlossen: " . $occurrence->format('Y-m-d H:i:s') . " Berlin Time\n";
                 continue; // überspringe dieses Vorkommnis
             }
 
