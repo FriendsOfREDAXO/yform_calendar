@@ -6,7 +6,7 @@
             "name": "Calendar neo",
             "description": "Table to manage klxm calendar events",
             "list_amount": 50,
-            "list_sortfield": "id",
+            "list_sortfield": "dtstart",
             "list_sortorder": "ASC",
             "search": 1,
             "hidden": 0,
@@ -88,7 +88,7 @@
                 "not_required": "",
                 "no_db": "0",
                 "notice": "",
-                "attributes": "",
+                "attributes": "{\"class\": \"flatpickr\", \"data-locale\": \"de\", \"data-enableTime\": \"true\"}",
                 "format": "d.m.Y H:i:s",
                 "modify_default": "",
                 "widget": "input:text",
@@ -109,7 +109,7 @@
                 "not_required": "",
                 "no_db": "0",
                 "notice": "",
-                "attributes": "",
+                "attributes": "{\"class\": \"flatpickr\", \"data-locale\": \"de\", \"data-enableTime\": \"true\"}",
                 "format": "d.m.Y H:i:s",
                 "modify_default": "",
                 "widget": "input:text",
@@ -131,7 +131,7 @@
                 "default": "0",
                 "no_db": "0",
                 "notice": "",
-                "attributes": "",
+                "attributes": " {\"class\":\"toggle-switch\"}",
                 "output_values": ""
             },
             {
@@ -146,22 +146,6 @@
                 "label": "Wiederkehrender Termin?",
                 "not_required": "",
                 "default": ""
-            },
-            {
-                "table_name": "rex_klxmcalendar",
-                "prio": 8,
-                "type_id": "value",
-                "type_name": "textarea",
-                "db_type": "text",
-                "list_hidden": 1,
-                "search": 0,
-                "name": "exdate",
-                "label": "An folgenden Tagen nicht",
-                "not_required": "",
-                "default": "",
-                "no_db": "0",
-                "notice": "Comma-separated dates in YYYY-MM-DD format",
-                "attributes": ""
             },
             {
                 "table_name": "rex_klxmcalendar",
