@@ -76,6 +76,25 @@ $id = $this->getFieldId();
                 <option value="SU">Sonntag</option>
             </select>
         </div>
+
+        <div id="<?= $id ?>-end-options" class="form-group">
+            <label><i class="fas fa-calendar-times icon"></i>Ende der Wiederholung:</label>
+            <select id="<?= $id ?>-end-type">
+                <option value="never">Nie</option>
+                <option value="count">Nach Anzahl der Ereignisse</option>
+                <option value="until">An einem bestimmten Datum</option>
+            </select>
+            
+            <div id="<?= $id ?>-count-group" class="hidden">
+                <label for="<?= $id ?>-count">Anzahl der Ereignisse:</label>
+                <input type="number" id="<?= $id ?>-count" min="1" value="1">
+            </div>
+            
+            <div id="<?= $id ?>-until-group" class="hidden">
+                <label for="<?= $id ?>-until">Enddatum:</label>
+                <input type="date" id="<?= $id ?>-until">
+            </div>
+        </div>
     </div>
     
     <input type="hidden" id="<?= $id ?>" name="<?= $name ?>" value="<?= htmlspecialchars($value) ?>">
@@ -96,7 +115,12 @@ $id = $this->getFieldId();
             monthlyGroup: document.getElementById(id + '-monthly-group'),
             bymonthdayGroup: document.getElementById(id + '-bymonthday-group'),
             bydayGroup: document.getElementById(id + '-byday-group'),
-            rruleValue: document.getElementById(id)
+            rruleValue: document.getElementById(id),
+            endType: document.getElementById(id + '-end-type'),
+            countGroup: document.getElementById(id + '-count-group'),
+            untilGroup: document.getElementById(id + '-until-group'),
+            count: document.getElementById(id + '-count'),
+            until: document.getElementById(id + '-until')
         };
 
         function toggleVisibility(element, show) {
@@ -116,6 +140,9 @@ $id = $this->getFieldId();
                 toggleVisibility(elements.bymonthdayGroup, false);
                 toggleVisibility(elements.bydayGroup, false);
             }
+
+            toggleVisibility(elements.countGroup, elements.endType.value === 'count');
+            toggleVisibility(elements.untilGroup, elements.endType.value === 'until');
         }
 
         function updateRRule() {
@@ -143,6 +170,14 @@ $id = $this->getFieldId();
                 }
             }
             
+            if (elements.endType.value === 'count') {
+                rrule += `;COUNT=${elements.count.value}`;
+            } else if (elements.endType.value === 'until') {
+                const untilDate = new Date(elements.until.value);
+                const formattedDate = untilDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+                rrule += `;UNTIL=${formattedDate}`;
+            }
+
             elements.rruleValue.value = rrule;
             elements.rruleDisplay.textContent = rrule;
         }
@@ -189,6 +224,17 @@ $id = $this->getFieldId();
                     document.getElementById(`${id}-monthday`).value = rrule.BYMONTHDAY;
                 }
 
+                if (rrule.COUNT) {
+                    elements.endType.value = 'count';
+                    elements.count.value = rrule.COUNT;
+                } else if (rrule.UNTIL) {
+                    elements.endType.value = 'until';
+                    const untilDate = new Date(rrule.UNTIL.slice(0, 4) + '-' + rrule.UNTIL.slice(4, 6) + '-' + rrule.UNTIL.slice(6, 8));
+                    elements.until.value = untilDate.toISOString().split('T')[0];
+                } else {
+                    elements.endType.value = 'never';
+                }
+
                 updateVisibility();
                 elements.rruleDisplay.textContent = initialValue;
             }
@@ -203,6 +249,7 @@ $id = $this->getFieldId();
         elements.frequency.addEventListener('change', updateVisibility);
         document.getElementById(id + '-bymonthday').addEventListener('change', updateVisibility);
         document.getElementById(id + '-byday').addEventListener('change', updateVisibility);
+        elements.endType.addEventListener('change', updateVisibility);
 
         document.getElementById(id + '-wrapper').addEventListener('change', updateRRule);
 
