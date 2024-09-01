@@ -1,19 +1,22 @@
 <?php
 
-use klxm\YFormCalhelper\CalRender;
+use rex_yform_manager_dataset;
 
 class CalendarEventJson
 {
     private $linkCallback;
+    private $modelClass;
 
     /**
-     * Konstruktor, der einen Callback für die Erstellung von Links akzeptiert.
+     * Konstruktor, der einen Callback für Links und eine Modellklasse akzeptiert.
      *
      * @param callable $linkCallback Eine Callback-Funktion, die einen Link basierend auf einer Event-ID erzeugt.
+     * @param string $modelClass Die Modellklasse, die für die Abfrage der Tabelle verwendet wird.
      */
-    public function __construct(callable $linkCallback)
+    public function __construct(callable $linkCallback, string $modelClass)
     {
         $this->linkCallback = $linkCallback;
+        $this->modelClass = $modelClass;
     }
 
     /**
@@ -32,7 +35,7 @@ class CalendarEventJson
         string $sortByEnd = 'ASC'
     ): string {
         // Holen der Ereignisse mit den angegebenen Parametern
-        $events = CalRender::getCalendarEvents([
+        $events = $this->modelClass::getCalendarEvents([
             'startDate' => $startDate,
             'endDate' => $endDate,
             'sortByStart' => $sortByStart,
