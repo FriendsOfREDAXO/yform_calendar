@@ -33,23 +33,21 @@ class CalRender extends rex_yform_manager_dataset
 
         $events = $query->find();
         $allEvents = self::generateAllEvents($events);
-        $filteredEvents = self::filterEventsByDate($allEvents, $params['startDate'] ?? null, $params['endDate'] ?? null);
-        $sortedEvents = self::sortEvents($filteredEvents, $params['sortByStart'] ?? 'ASC', $params['sortByEnd'] ?? 'ASC');
 
-        yield from $sortedEvents;
+        foreach (self::filterEventsByDate(iterator_to_array($allEvents), $params['startDate'] ?? null, $params['endDate'] ?? null) as $event) {
+            yield $event;
+        }
     }
 
-    private static function generateAllEvents(array $events): array
+    private static function generateAllEvents(array $events): Generator
     {
-        $allEvents = [];
         foreach ($events as $event) {
             if ($event->getValue('rrule')) {
-                $allEvents = array_merge($allEvents, iterator_to_array(self::generateRruleRecurringEvents($event)));
+                yield from self::generateRruleRecurringEvents($event);
             } else {
-                $allEvents[] = $event;
+                yield $event;
             }
         }
-        return $allEvents;
     }
 
     private static function generateRruleRecurringEvents(rex_yform_manager_dataset $event): Generator
@@ -104,7 +102,7 @@ class CalRender extends rex_yform_manager_dataset
         return $exceptions;
     }
 
-    private static function addExceptionRange(RSet $rset, DateTime $start, DateTime $end): void
+    private static void addExceptionRange(RSet $rset, DateTime $start, DateTime $end): void
     {
         $current = clone $start;
         while ($current <= $end) {
