@@ -10,7 +10,7 @@ use rex_yform_manager_dataset;
 class CalRender extends rex_yform_manager_dataset
 {
     /**
-     * Get calendar events based on the provided parameters.
+     * Get calendar events based on the provided parameters or a custom query.
      *
      * @param array $params {
      *     @type string $startDate Start date/time in 'Y-m-d H:i:s' or 'Y-m-d' format
@@ -20,11 +20,12 @@ class CalRender extends rex_yform_manager_dataset
      *     @type string $whereRaw Additional WHERE clause for the query
      *     @type int $limit Maximum number of events to return
      * }
+     * @param rex_yform_manager_query|null $customQuery Optional custom query to use instead of generating a new one
      * @return Generator
      */
-    public static function getCalendarEvents(array $params = []): Generator
+    public static function getCalendarEvents(array $params = [], rex_yform_manager_query $customQuery = null): Generator
     {
-        $query = static::query();
+        $query = $customQuery ?? static::query();  // Verwende die übergebene Query oder erstelle eine neue
 
         if (isset($params['whereRaw'])) {
             $query->whereRaw($params['whereRaw']);
@@ -50,6 +51,7 @@ class CalRender extends rex_yform_manager_dataset
             yield $event;
         }
     }
+
 
     private static function generateEventsForSingleEvent(rex_yform_manager_dataset $event, ?string $startDate, ?string $endDate): Generator
     {
