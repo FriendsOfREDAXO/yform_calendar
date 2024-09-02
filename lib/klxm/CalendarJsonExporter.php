@@ -1,8 +1,9 @@
 <?php
+namespace klxm\YFormCalendar
 
 use rex_yform_manager_dataset;
 
-class CalendarEventJson
+class CalendarJsonExporter
 {
     private $linkCallback;
     private $modelClass;

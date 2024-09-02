@@ -1,6 +1,6 @@
 <?php
 
-namespace klxm\YFormCalhelper;
+namespace klxm\YFormCalendar
 
 use DateTime;
 use Generator;

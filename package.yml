@@ -1,5 +1,5 @@
-package: yform_calhelper
-version: '0.0.1'
+package: yform_calendar
+version: '0.1.0'
 author: 'Thomas Skerbis'
 supportpage: https://github.com/skerbis/yform_calhelper
 requires:
