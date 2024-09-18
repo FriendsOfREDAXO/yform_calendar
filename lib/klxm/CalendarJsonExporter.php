@@ -1,5 +1,5 @@
 <?php
-namespace klxm\YFormCalendar
+namespace klxm\YFormCalendar;
 
 use rex_yform_manager_dataset;
 
