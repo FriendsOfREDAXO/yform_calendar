@@ -1,4 +1,6 @@
 <?php
+namespace klxm\YFormCalendar;
+
 use DateTime;
 use Generator;
 use RRule\RSet;
