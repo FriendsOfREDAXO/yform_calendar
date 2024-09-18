@@ -4,6 +4,7 @@ namespace klxm\YFormCalendar;
 use rex;
 use rex_addon;
 use rex_plugin;
+use rex_view;
 use rex_yform;
 use rex_yform_manager_dataset;
 
