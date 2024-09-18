@@ -46,28 +46,27 @@ class ICalExporter
         $summary = self::escapeString($event->getValue('summary'));
         $description = self::escapeString($event->getValue('description'));
         $location = self::escapeString($event->getValue('location'));
-        $uid = $event->getId();
+        $uid = self::generateUID($event);  // Eindeutige UID generieren
 
         $icalEvent = "BEGIN:VEVENT\r\n";
-        $icalEvent .= "UID:$uid\r\n";
-        $icalEvent .= "DTSTAMP:" . self::formatICalDateTime((new DateTime())->format('Y-m-d H:i:s')) . "\r\n";
-        $icalEvent .= "DTSTART:$dtStart\r\n";
-        $icalEvent .= "DTEND:$dtEnd\r\n";
-        $icalEvent .= "SUMMARY:$summary\r\n";
+        $icalEvent .= self::foldICalLine("UID:$uid\r\n");
+        $icalEvent .= self::foldICalLine("DTSTAMP:" . self::formatICalDateTime((new DateTime())->format('Y-m-d H:i:s')) . "\r\n");
+        $icalEvent .= self::foldICalLine("DTSTART:$dtStart\r\n");
+        $icalEvent .= self::foldICalLine("DTEND:$dtEnd\r\n");
+        $icalEvent .= self::foldICalLine("SUMMARY:$summary\r\n");
         if (!empty($description)) {
-            $icalEvent .= "DESCRIPTION:$description\r\n";
+            $icalEvent .= self::foldICalLine("DESCRIPTION:$description\r\n");
         }
         if (!empty($location)) {
-            $icalEvent .= "LOCATION:$location\r\n";
+            $icalEvent .= self::foldICalLine("LOCATION:$location\r\n");
         }
 
         if ($rrule) {
-            $icalEvent .= "RRULE:$rrule\r\n";
+            $icalEvent .= self::foldICalLine("RRULE:$rrule\r\n");
         }
 
         if ($event->getValue('exdate')) {
-            $exdates = self::formatICalExDates($event->getValue('exdate'), $event->getValue('all_day'));
-            $icalEvent .= "EXDATE:$exdates\r\n";
+            $icalEvent .= self::formatICalExDates($event->getValue('exdate'), $event->getValue('all_day'));
         }
 
         $icalEvent .= "END:VEVENT\r\n";
@@ -88,11 +87,32 @@ class ICalExporter
             return self::formatICalDateTime($exdate, $allDay);
         }, $exdates);
 
-        return implode(',', $formattedExDates);
+        $exdateLines = '';
+        foreach ($formattedExDates as $exdate) {
+            $exdateLines .= "EXDATE:$exdate\r\n";
+        }
+
+        return $exdateLines;
     }
 
     private static function escapeString(string $string): string
     {
         return preg_replace('/([\,;])/','\\\$1', $string);
+    }
+
+    private static function generateUID($event): string
+    {
+        return uniqid($event->getId() . '@yourdomain.com', true);
+    }
+
+    private static function foldICalLine(string $line): string
+    {
+        $output = '';
+        while (strlen($line) > 75) {
+            $output .= substr($line, 0, 75) . "\r\n ";
+            $line = substr($line, 75);
+        }
+        $output .= $line;
+        return $output;
     }
 }
