@@ -41,7 +41,7 @@ rex_yform_manager_dataset::setModelClass(
 );
 ```
 
-## Verwendung der MeineCal-Klasse
+## Verwendung
 
 ```php
 <?php
