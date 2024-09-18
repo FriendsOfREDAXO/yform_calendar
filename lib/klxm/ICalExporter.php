@@ -24,6 +24,8 @@ class ICalExporter
         $ical = "BEGIN:VCALENDAR\r\n";
         $ical .= "VERSION:2.0\r\n";
         $ical .= "PRODID:-//Your Organization//Your Product//EN\r\n";
+        $ical .= "CALSCALE:GREGORIAN\r\n";
+        $ical .= "CHARSET=UTF-8\r\n";  // UTF-8-Zeichensatz deklarieren
 
         $processedEvents = [];
 
