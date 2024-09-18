@@ -223,28 +223,75 @@ Rückgabewert: Ein JSON-String mit den Ereignisdaten.
 ### Beispiel
 
 ```php
+<?php
 use klxm\YFormCalendar\CalendarJsonExporter;
-use klxm\YFormCalendar\CalRender;
+use klxm\YFormCalendar\CalRender; //ggf die eigene Modelclass angeben
 
+// Callback-Funktion zur Linkgenerierung
 $linkCallback = function($id) {
-    return rex_getUrl('', '', ['event_id' => $id]);
+    return rex_getUrl('', '', ['cal' => $id]);
 };
 
-$exporter = new CalendarJsonExporter($linkCallback, CalRender::class);
-$json = $exporter->generateJson('2024-01-01', '2024-12-31');
+// Erstellen Sie die CalendarJsonExporter-Instanz, CalRender ggf. durch eigene Modelclass ersetzen
+$calendarEventJson = new CalendarJsonExporter($linkCallback, CalRender::class);
 
-echo "<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calendar');
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            events: " . $json . "
+// Generieren Sie das JSON für FullCalendar
+$startDate = (new DateTime('today'))->format('Y-m-d');
+$endDate = (new DateTime('+48 months'))->format('Y-m-d');
+$eventsJson = $calendarEventJson->generateJson($startDate, $endDate, 'ASC', 'DESC');
+
+// Wenn Sie das JSON überprüfen möchten, können Sie diesen Code verwenden:
+// echo '<pre>' . json_encode(json_decode($eventsJson), JSON_PRETTY_PRINT) . '</pre>';
+?>
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>FullCalendar Beispiel</title>
+    <!-- FullCalendar CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css' rel='stylesheet' />
+    <!-- FullCalendar JavaScript -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/locales-all.min.js'></script>
+    <!-- Tippy.js CSS -->
+    <link href="https://unpkg.com/tippy.js@6/dist/tippy.css" rel="stylesheet">
+    <!-- Tippy.js JavaScript -->
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+</head>
+<body>
+    <div id='calendar'></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'de',
+                views: {
+                    listMonth: { buttonText: 'Liste' },
+                    timeGridWeek: { buttonText: 'Woche' }
+                },
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'timeGridWeek,dayGridMonth,listMonth'
+                },
+                events: <?php echo $eventsJson; ?>,
+                eventDidMount: function(info) {
+                    tippy(info.el, {
+                        content: info.event.extendedProps.description,
+                        placement: 'top',
+                        trigger: 'mouseenter',
+                        theme: 'light',
+                    });
+                }
+            });
+            calendar.render();
         });
-        calendar.render();
-    });
-</script>";
-
-echo "<div id='calendar'></div>";
+    </script>
+</body>
+</html>
 ```
 
 ## RRULE-Widget
