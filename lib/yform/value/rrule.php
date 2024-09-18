@@ -19,12 +19,12 @@ class rex_yform_value_rrule extends rex_yform_value_abstract
         }
     }
 
-    function getDescription(): string
+    function getDescription():string
     {
         return 'rrule|name|label|';
     }
 
-    function getDefinitions()
+    function getDefinitions():array
     {
         return [
             'type' => 'value',
