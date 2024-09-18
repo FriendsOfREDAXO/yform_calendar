@@ -1,6 +1,6 @@
 # YFormCalendar
 
-YFormCalendar ist ein umfassendes Paket für REDAXO YForm, das erweiterte Funktionen zur Verwaltung, zum Export und zur Anzeige von Kalenderereignissen bietet. Es besteht aus mehreren Klassen und einem speziellen RRULE-Widget für die Verwaltung wiederkehrender Ereignisse.
+YFormCalendar ist ein umfassendes Paket für REDAXO, das erweiterte Funktionen zur Verwaltung, zum Export und zur Anzeige von Kalenderereignissen bietet.
 
 ## Inhaltsverzeichnis
 
@@ -17,9 +17,9 @@ Dieses Paket muss in einem REDAXO-Projekt verwendet werden. Es ist sicherzustell
 
 ## CalRender-Klasse
 
-Die `CalRender`-Klasse ist das Herzstück des YFormCalendar-Pakets. Sie ermöglicht das Abrufen, Filtern und Sortieren von Ereignissen aus der Datenbank sowie das Generieren von wiederkehrenden Ereignissen.
+Die `CalRender`-Klasse ist das Herzstück des YFormCalendar-Pakets. Sie ermöglicht das Abrufen, Filtern und Sortieren von Ereignissen.
 
-### Hauptmethoden
+### Methoden
 
 #### `getCalendarEvents`
 
@@ -27,11 +27,30 @@ Die `CalRender`-Klasse ist das Herzstück des YFormCalendar-Pakets. Sie ermögli
 public static function getCalendarEvents(array $params = [], rex_yform_manager_query $customQuery = null): Generator
 ```
 
+Parameter:
+- `$params` (optional): Ein Array mit folgenden möglichen Schlüsseln:
+  - `startDate`: (string) Start-Datum/Zeit im Format 'Y-m-d' oder 'Y-m-d H:i:s'
+  - `endDate`: (string) End-Datum/Zeit im Format 'Y-m-d' oder 'Y-m-d H:i:s'
+  - `sortByStart`: (string) Sortierrichtung für Startdatum ('ASC' oder 'DESC')
+  - `sortByEnd`: (string) Sortierrichtung für Enddatum ('ASC' oder 'DESC')
+  - `whereRaw`: (string) Zusätzliche WHERE-Bedingung für die Abfrage
+  - `limit`: (int) Maximale Anzahl der zurückzugebenden Ereignisse
+- `$customQuery` (optional): Eine benutzerdefinierte YForm-Query
+
+Rückgabewert: Ein Generator, der Objekte vom Typ `rex_yform_manager_dataset` liefert.
+
 #### `getEventsByDate`
 
 ```php
 public static function getEventsByDate(string $startDate, ?string $endDate = null, int $limit = PHP_INT_MAX): array
 ```
+
+Parameter:
+- `$startDate`: (string) Start-Datum im Format 'Y-m-d' oder 'Y-m-d H:i:s'
+- `$endDate`: (string, optional) End-Datum im Format 'Y-m-d' oder 'Y-m-d H:i:s'
+- `$limit`: (int, optional) Maximale Anzahl der zurückzugebenden Ereignisse
+
+Rückgabewert: Ein Array von Objekten vom Typ `rex_yform_manager_dataset`.
 
 #### `getNextEvents`
 
@@ -39,54 +58,27 @@ public static function getEventsByDate(string $startDate, ?string $endDate = nul
 public static function getNextEvents(int $eventId, int $limit, ?string $startDateTime = null): array
 ```
 
-### Beispiele für die Verwendung der CalRender-Klasse
+Parameter:
+- `$eventId`: (int) Die ID des Referenzereignisses
+- `$limit`: (int) Maximale Anzahl der zurückzugebenden Ereignisse
+- `$startDateTime`: (string, optional) Start-Datum/Zeit im Format 'Y-m-d H:i:s'
 
-#### Beispiel 1: Abrufen aller Ereignisse innerhalb eines Datumsbereichs
+Rückgabewert: Ein Array von Objekten vom Typ `rex_yform_manager_dataset`.
 
-```php
-use klxm\YFormCalendar\CalRender;
-
-$startDate = '2024-06-01';
-$endDate = '2024-06-30';
-$limit = 10;
-
-$events = CalRender::getEventsByDate($startDate, $endDate, $limit);
-
-foreach ($events as $event) {
-    echo "Ereignis: " . $event->getValue('summary') . "<br>";
-    echo "Start: " . $event->getValue('dtstart') . "<br>";
-    echo "Ende: " . $event->getValue('dtend') . "<br>";
-    echo "---<br>";
-}
-```
-
-#### Beispiel 2: Abrufen der nächsten Ereignisse für ein bestimmtes Ereignis
+### Beispiele
 
 ```php
 use klxm\YFormCalendar\CalRender;
 
-$eventId = 1;
-$limit = 5;
-$startDateTime = (new DateTime())->format('Y-m-d H:i:s');
+// Beispiel 1: Alle Ereignisse im Juni 2024
+$events = CalRender::getEventsByDate('2024-06-01', '2024-06-30');
 
-$nextEvents = CalRender::getNextEvents($eventId, $limit, $startDateTime);
+// Beispiel 2: Die nächsten 5 Ereignisse ab jetzt
+$nextEvents = CalRender::getNextEvents(1, 5, date('Y-m-d H:i:s'));
 
-foreach ($nextEvents as $event) {
-    echo "Ereignis: " . $event->getValue('summary') . "<br>";
-    echo "Start: " . $event->getValue('dtstart') . "<br>";
-    echo "Ende: " . $event->getValue('dtend') . "<br>";
-    echo "---<br>";
-}
-```
-
-#### Beispiel 3: Verwendung eines benutzerdefinierten Queries
-
-```php
-use klxm\YFormCalendar\CalRender;
-
+// Beispiel 3: Benutzerdefinierte Abfrage
 $customQuery = rex_yform_manager_table::get('rex_calendar_events')->query()
-    ->where('status', 'CONFIRMED')
-    ->orderBy('dtstart', 'ASC');
+    ->where('status', 'CONFIRMED');
 
 $params = [
     'startDate' => '2024-01-01',
@@ -95,33 +87,9 @@ $params = [
 ];
 
 $events = CalRender::getCalendarEvents($params, $customQuery);
-
 foreach ($events as $event) {
-    echo "Ereignis: " . $event->getValue('summary') . "<br>";
-    echo "Status: " . $event->getValue('status') . "<br>";
-    echo "Start: " . $event->getValue('dtstart') . "<br>";
-    echo "---<br>";
-}
-```
-
-#### Beispiel 4: Filtern von Ereignissen nach Kategorie
-
-```php
-use klxm\YFormCalendar\CalRender;
-
-$params = [
-    'startDate' => '2024-01-01',
-    'endDate' => '2024-12-31',
-    'whereRaw' => 'FIND_IN_SET("Konferenz", categories) > 0'
-];
-
-$events = CalRender::getCalendarEvents($params);
-
-foreach ($events as $event) {
-    echo "Ereignis: " . $event->getValue('summary') . "<br>";
-    echo "Kategorien: " . $event->getValue('categories') . "<br>";
-    echo "Start: " . $event->getValue('dtstart') . "<br>";
-    echo "---<br>";
+    // $event ist ein rex_yform_manager_dataset Objekt
+    echo $event->getValue('summary');
 }
 ```
 
@@ -129,7 +97,7 @@ foreach ($events as $event) {
 
 Die `ICalExporter`-Klasse ermöglicht den Export von Kalenderereignissen im iCal-Format.
 
-### Hauptmethoden
+### Methoden
 
 #### `generateICalFile`
 
@@ -137,25 +105,40 @@ Die `ICalExporter`-Klasse ermöglicht den Export von Kalenderereignissen im iCal
 public static function generateICalFile(string $filename, array $events): void
 ```
 
+Parameter:
+- `$filename`: (string) Der Name der zu generierenden Datei (ohne .ics Erweiterung)
+- `$events`: (array) Ein Array von `rex_yform_manager_dataset` Objekten
+
+Rückgabewert: Void. Diese Methode generiert eine Datei zum Download.
+
 #### `generateICal`
 
 ```php
 public static function generateICal(array $events): string
 ```
 
-### Beispiel: Generieren und Herunterladen einer iCal-Datei
+Parameter:
+- `$events`: (array) Ein Array von `rex_yform_manager_dataset` Objekten
+
+Rückgabewert: Ein String im iCal-Format.
+
+### Beispiel
 
 ```php
 use klxm\YFormCalendar\CalRender;
 use klxm\YFormCalendar\ICalExporter;
 
 $events = CalRender::getEventsByDate('2024-01-01', '2024-12-31');
+$icalString = ICalExporter::generateICal($events);
+echo $icalString; // Gibt den iCal-String aus
+
+// Oder zum Herunterladen einer Datei:
 ICalExporter::generateICalFile('kalender_2024', $events);
 ```
 
 ## CalendarJsonExporter-Klasse
 
-Die `CalendarJsonExporter`-Klasse dient zum Exportieren von Kalenderereignissen im JSON-Format, das für FullCalendar kompatibel ist.
+Die `CalendarJsonExporter`-Klasse dient zum Exportieren von Kalenderereignissen im JSON-Format für FullCalendar.
 
 ### Konstruktor
 
@@ -163,13 +146,27 @@ Die `CalendarJsonExporter`-Klasse dient zum Exportieren von Kalenderereignissen 
 public function __construct(callable $linkCallback, string $modelClass)
 ```
 
-### Hauptmethode
+Parameter:
+- `$linkCallback`: (callable) Eine Funktion, die einen Link für jedes Ereignis generiert
+- `$modelClass`: (string) Der Name der Modellklasse für die Ereignisse
+
+### Methode
+
+#### `generateJson`
 
 ```php
 public function generateJson(?string $startDate = null, ?string $endDate = null, string $sortByStart = 'ASC', string $sortByEnd = 'ASC'): string
 ```
 
-### Beispiel: Generieren von JSON-Daten für FullCalendar
+Parameter:
+- `$startDate`: (string, optional) Start-Datum im Format 'Y-m-d' oder 'Y-m-d H:i:s'
+- `$endDate`: (string, optional) End-Datum im Format 'Y-m-d' oder 'Y-m-d H:i:s'
+- `$sortByStart`: (string, optional) Sortierrichtung für Startdatum ('ASC' oder 'DESC')
+- `$sortByEnd`: (string, optional) Sortierrichtung für Enddatum ('ASC' oder 'DESC')
+
+Rückgabewert: Ein JSON-String mit den Ereignisdaten.
+
+### Beispiel
 
 ```php
 use klxm\YFormCalendar\CalendarJsonExporter;
@@ -198,38 +195,37 @@ echo "<div id='calendar'></div>";
 
 ## RRULE-Widget
 
-Das RRULE-Widget ist eine benutzerfreundliche Oberfläche zur Erstellung und Bearbeitung von Wiederholungsregeln für Ereignisse. Es generiert einen RRULE-String, der dem iCalendar-Standard entspricht.
+Das RRULE-Widget ist eine Benutzeroberfläche zur Erstellung und Bearbeitung von Wiederholungsregeln für Ereignisse.
 
 ### RRULE-Wert Erklärung
 
-Der RRULE-Wert ist ein String, der die Wiederholungsregel für ein Ereignis definiert. Er besteht aus mehreren Komponenten, die durch Semikolons getrennt sind. Hier sind die wichtigsten Komponenten:
+Der RRULE-Wert ist ein String, der die Wiederholungsregel für ein Ereignis definiert. Komponenten:
 
-- `FREQ`: Gibt die Häufigkeit der Wiederholung an (z.B. DAILY, WEEKLY, MONTHLY, YEARLY).
-- `INTERVAL`: Definiert das Intervall zwischen den Wiederholungen.
-- `BYDAY`: Spezifiziert die Wochentage für wöchentliche oder monatliche Wiederholungen.
-- `BYMONTHDAY`: Gibt den Tag des Monats für monatliche Wiederholungen an.
-- `COUNT`: Begrenzt die Anzahl der Wiederholungen.
-- `UNTIL`: Setzt ein Enddatum für die Wiederholungen.
+- `FREQ`: Häufigkeit (DAILY, WEEKLY, MONTHLY, YEARLY)
+- `INTERVAL`: Intervall zwischen Wiederholungen
+- `BYDAY`: Wochentage für wöchentliche/monatliche Wiederholungen
+- `BYMONTHDAY`: Tag des Monats für monatliche Wiederholungen
+- `COUNT`: Anzahl der Wiederholungen
+- `UNTIL`: Enddatum für Wiederholungen
 
 Beispiel:
 ```
 FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE,FR;UNTIL=20240630T235959Z
 ```
-Dies bedeutet: Alle 2 Wochen am Montag, Mittwoch und Freitag bis zum 30. Juni 2024.
 
 ### Verwendung des RRULE-Widgets
 
-Das RRULE-Widget wird automatisch in einem YForm-Formular angezeigt, wenn ein Feld vom Typ `rrule` hinzugefügt wird. Es bietet eine intuitive Benutzeroberfläche zum Erstellen und Bearbeiten von Wiederholungsregeln.
+Das RRULE-Widget wird automatisch in YForm-Formularen für Felder vom Typ `rrule` angezeigt. Es generiert einen RRULE-String, der in der Datenbank gespeichert wird.
 
 ## Erforderliche Tabellenfelder
 
-Um sicherzustellen, dass alle Funktionen des YFormCalendar-Pakets korrekt funktionieren, sollten die folgenden Felder in der YForm-Tabelle vorhanden sein:
+Für die korrekte Funktion des YFormCalendar-Pakets sind folgende Felder erforderlich:
 
-1. **summary**: Eine kurze Zusammenfassung oder der Titel des Ereignisses.
-2. **description**: Eine detaillierte Beschreibung des Ereignisses.
-3. **location**: Der Ort, an dem das Ereignis stattfindet.
-4. **dtstart**: Das Startdatum und die Startzeit des Ereignisses im Format `YYYY-MM-DD HH:MM:SS`.
-5. **dtend**: Das Enddatum und die Endzeit des Ereignisses im Format `YYYY-MM-DD HH:MM:SS`.
-6. **all_day**: Ein Boolean-Wert (0 oder 1), der angibt, ob es sich um ein ganztägiges Ereignis handelt.
-7. **rrule**: Die Wiederholungsregel für wiederkehrende Ereignisse im RRULE-Format.
-8. **exdate**: Eine durch Kommas getrennte Liste von Ausnahmedaten oder Datumsbereichen im Format `YYYY-MM-DD` oder `YYYY-MM-DD/YYYY-MM-DD`.
+1. **summary**: Titel des Ereignisses (Text)
+2. **description**: Beschreibung des Ereignisses (Text)
+3. **location**: Ort des Ereignisses (Text)
+4. **dtstart**: Startdatum/-zeit (DateTime, Format: YYYY-MM-DD HH:MM:SS)
+5. **dtend**: Enddatum/-zeit (DateTime, Format: YYYY-MM-DD HH:MM:SS)
+6. **all_day**: Ganztägiges Ereignis (Boolean, 0 oder 1)
+7. **rrule**: Wiederholungsregel (Text, RRULE-Format)
+8. **exdate**: Ausnahmedaten (Text, Format: YYYY-MM-DD oder YYYY-MM-DD/YYYY-MM-DD, kommagetrennt)
