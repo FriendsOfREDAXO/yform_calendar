@@ -41,8 +41,9 @@ class ICalExporter
 
     private static function generateEvent($event, $rrule): string
     {
-        $dtStart = self::formatICalDateTime($event->getValue('dtstart'), $event->getValue('all_day'));
-        $dtEnd = self::formatICalDateTime($event->getValue('dtend'), $event->getValue('all_day'));
+        $allDay = $event->getValue('all_day');
+        $dtStart = self::formatICalDateTime($event->getValue('dtstart'), $allDay);
+        $dtEnd = self::formatICalDateTime($event->getValue('dtend'), $allDay);
         $summary = self::escapeString($event->getValue('summary'));
         $description = self::escapeString($event->getValue('description'));
         $location = self::escapeString($event->getValue('location'));
@@ -51,8 +52,8 @@ class ICalExporter
         $icalEvent = "BEGIN:VEVENT\r\n";
         $icalEvent .= "UID:$uid\r\n";
         $icalEvent .= "DTSTAMP:" . self::formatICalDateTime((new DateTime())->format('Y-m-d H:i:s')) . "\r\n";
-        $icalEvent .= "DTSTART:$dtStart\r\n";
-        $icalEvent .= "DTEND:$dtEnd\r\n";
+        $icalEvent .= "DTSTART" . ($allDay ? ";VALUE=DATE" : "") . ":$dtStart\r\n";
+        $icalEvent .= "DTEND" . ($allDay ? ";VALUE=DATE" : "") . ":$dtEnd\r\n";
         $icalEvent .= "SUMMARY:$summary\r\n";
         if (!empty($description)) {
             $icalEvent .= "DESCRIPTION:$description\r\n";
@@ -63,11 +64,10 @@ class ICalExporter
 
         if ($rrule) {
             $icalEvent .= "RRULE:$rrule\r\n";
-        }
-
-        if ($event->getValue('exdate')) {
-            $exdates = self::formatICalExDates($event->getValue('exdate'), $event->getValue('all_day'));
-            $icalEvent .= "EXDATE:$exdates\r\n";
+            if ($event->getValue('exdate')) {
+                $exdates = self::formatICalExDates($event->getValue('exdate'), $allDay);
+                $icalEvent .= "EXDATE" . ($allDay ? ";VALUE=DATE" : "") . ":$exdates\r\n";
+            }
         }
 
         $icalEvent .= "END:VEVENT\r\n";
@@ -85,7 +85,8 @@ class ICalExporter
     {
         $exdates = array_map('trim', explode(',', $exdateString));
         $formattedExDates = array_map(function ($exdate) use ($allDay) {
-            return self::formatICalDateTime($exdate, $allDay);
+            $dt = new DateTime($exdate);
+            return $allDay ? $dt->format('Ymd') : $dt->format('Ymd\THis\Z');
         }, $exdates);
 
         return implode(',', $formattedExDates);
