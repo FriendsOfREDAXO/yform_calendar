@@ -1,8 +1,8 @@
 {
-    "rex_klxmcalendar": {
+    "rex_yformcalendarr": {
         "table": {
             "status": 1,
-            "table_name": "rex_klxmcalendar",
+            "table_name": "rex_yformcalendarr",
             "name": "YFormCalendar",
             "description": "Table to manage calendar events",
             "list_amount": 50,
@@ -24,7 +24,7 @@
         },
         "fields": [
             {
-                "table_name": "rex_klxmcalendar",
+                "table_name": "rex_yformcalendarr",
                 "prio": 1,
                 "type_id": "value",
                 "type_name": "text",
@@ -42,7 +42,7 @@
                 "append": ""
             },
             {
-                "table_name": "rex_klxmcalendar",
+                "table_name": "rex_yformcalendarr",
                 "prio": 2,
                 "type_id": "value",
                 "type_name": "textarea",
@@ -58,7 +58,7 @@
                 "attributes": ""
             },
             {
-                "table_name": "rex_klxmcalendar",
+                "table_name": "rex_yformcalendarr",
                 "prio": 3,
                 "type_id": "value",
                 "type_name": "text",
@@ -76,7 +76,7 @@
                 "append": ""
             },
             {
-                "table_name": "rex_klxmcalendar",
+                "table_name": "rex_yformcalendarr",
                 "prio": 4,
                 "type_id": "value",
                 "type_name": "datetime",
@@ -97,7 +97,7 @@
                 "year_end": "2030"
             },
             {
-                "table_name": "rex_klxmcalendar",
+                "table_name": "rex_yformcalendarr",
                 "prio": 5,
                 "type_id": "value",
                 "type_name": "datetime",
@@ -118,7 +118,7 @@
                 "year_end": "2030"
             },
             {
-                "table_name": "rex_klxmcalendar",
+                "table_name": "rex_yformcalendarr",
                 "prio": 6,
                 "type_id": "value",
                 "type_name": "checkbox",
@@ -135,7 +135,7 @@
                 "output_values": ""
             },
             {
-                "table_name": "rex_klxmcalendar",
+                "table_name": "rex_yformcalendarr",
                 "prio": 7,
                 "type_id": "value",
                 "type_name": "rrule",
@@ -148,7 +148,7 @@
                 "default": ""
             },
             {
-                "table_name": "rex_klxmcalendar",
+                "table_name": "rex_yformcalendarr",
                 "prio": 8,
                 "type_id": "value",
                 "type_name": "text",
@@ -166,7 +166,7 @@
                 "append": ""
             },
             {
-                "table_name": "rex_klxmcalendar",
+                "table_name": "rex_yformcalendarr",
                 "prio": 9,
                 "type_id": "value",
                 "type_name": "text",
@@ -184,7 +184,7 @@
                 "append": ""
             },
             {
-                "table_name": "rex_klxmcalendar",
+                "table_name": "rex_yformcalendarr",
                 "prio": 10,
                 "type_id": "value",
                 "type_name": "index",
