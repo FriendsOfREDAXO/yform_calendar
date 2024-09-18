@@ -14,5 +14,6 @@ if (rex_plugin::get('yform', 'manager')->isAvailable()) {
 }
 
 if (rex::isBackend()) {
-    rex_view::addCssFile($this->getAssetsUrl('rrule.css'));
+    rex_view::addCssFile(rex_addon::get('yform_calendar')->getAssetsUrl('rrule.css'));
+    rex_view::addJsFile(rex_addon::get('yform_calendar')->getAssetsUrl('rrule.js'));
 }
