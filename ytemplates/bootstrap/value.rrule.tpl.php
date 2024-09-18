@@ -137,7 +137,9 @@ $id = $this->getFieldId();
             };
 
             function toggleVisibility(element, show) {
-                element.classList.toggle('hidden', !show);
+                if (element) {
+                    element.classList.toggle('hidden', !show);
+                }
             }
 
             function updateVisibility() {
@@ -220,21 +222,27 @@ $id = $this->getFieldId();
                     if (rrule.BYDAY) {
                         if (rrule.FREQ === 'WEEKLY') {
                             rrule.BYDAY.split(',').forEach(day => {
-                                widget.querySelector(`.rrule-weekday[data-day="${day}"]`).checked = true;
+                                const checkbox = widget.querySelector(`.rrule-weekday[data-day="${day}"]`);
+                                if (checkbox) checkbox.checked = true;
                             });
                         } else if (rrule.FREQ === 'MONTHLY') {
-                            widget.querySelector('.rrule-monthlyType[value="byday"]').checked = true;
+                            const monthlyTypeRadio = widget.querySelector('.rrule-monthlyType[value="byday"]');
+                            if (monthlyTypeRadio) monthlyTypeRadio.checked = true;
                             const match = rrule.BYDAY.match(/(-?\d+)([A-Z]+)/);
                             if (match) {
-                                widget.querySelector('.rrule-weekdayorder').value = match[1];
-                                widget.querySelector('.rrule-weekday').value = match[2];
+                                const weekdayorderSelect = widget.querySelector('.rrule-weekdayorder');
+                                const weekdaySelect = widget.querySelector('.rrule-weekday');
+                                if (weekdayorderSelect) weekdayorderSelect.value = match[1];
+                                if (weekdaySelect) weekdaySelect.value = match[2];
                             }
                         }
                     }
 
                     if (rrule.BYMONTHDAY) {
-                        widget.querySelector('.rrule-monthlyType[value="bymonthday"]').checked = true;
-                        widget.querySelector('.rrule-monthday').value = rrule.BYMONTHDAY;
+                        const monthlyTypeRadio = widget.querySelector('.rrule-monthlyType[value="bymonthday"]');
+                        if (monthlyTypeRadio) monthlyTypeRadio.checked = true;
+                        const monthdayInput = widget.querySelector('.rrule-monthday');
+                        if (monthdayInput) monthdayInput.value = rrule.BYMONTHDAY;
                     }
 
                     if (rrule.COUNT) {
@@ -259,10 +267,22 @@ $id = $this->getFieldId();
                 updateRRule();
             });
 
-            elements.frequency.addEventListener('change', updateVisibility);
-            widget.querySelector('.rrule-monthlyType[value="bymonthday"]').addEventListener('change', updateVisibility);
-            widget.querySelector('.rrule-monthlyType[value="byday"]').addEventListener('change', updateVisibility);
-            elements.endType.addEventListener('change', updateVisibility);
+            elements.frequency.addEventListener('change', () => {
+                updateVisibility();
+                updateRRule();
+            });
+
+            widget.querySelectorAll('.rrule-monthlyType').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    updateVisibility();
+                    updateRRule();
+                });
+            });
+
+            elements.endType.addEventListener('change', () => {
+                updateVisibility();
+                updateRRule();
+            });
 
             widget.addEventListener('change', updateRRule);
 
