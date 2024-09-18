@@ -23,13 +23,15 @@ Erstellen einer Modelklasse für die Kalendertabelle:
 <?php
 // In Ihrem AddOn: lib/MeineCal.php
 
+use klxm\YFormCalendar\CalRender;
+
 class MeineCal extends CalRender
 {
     // Weitere spezifische Methoden oder Änderungen zum Original
 }
 ```
 
-2. Registrieren der Modelklasse:
+2. Registrieren der Class:
 
 ```php
 <?php
