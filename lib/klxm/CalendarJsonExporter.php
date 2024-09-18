@@ -47,20 +47,37 @@ class CalendarJsonExporter
 
         foreach ($events as $event) {
             $link = call_user_func($this->linkCallback, $event->getId());
-            $calendarEvents[] = [
+            $calendarEvent = [
                 'id' => $event->getId(),
-                'title' => htmlspecialchars($event->getValue('summary')),
-                'start' => htmlspecialchars($event->getValue('dtstart')),
-                'end' => htmlspecialchars($event->getValue('dtend')),
-                'description' => htmlspecialchars($event->getValue('description')),
-                'location' => htmlspecialchars($event->getValue('location')),
-                'status' => htmlspecialchars($event->getValue('status')),
-                'categories' => htmlspecialchars($event->getValue('categories')),
+                'title' => $this->safeHtmlspecialchars($event->getValue('summary')),
+                'start' => $this->safeHtmlspecialchars($event->getValue('dtstart')),
+                'end' => $this->safeHtmlspecialchars($event->getValue('dtend')),
+                'description' => $this->safeHtmlspecialchars($event->getValue('description')),
+                'location' => $this->safeHtmlspecialchars($event->getValue('location')),
+                'categories' => $this->safeHtmlspecialchars($event->getValue('categories')),
                 'allDay' => $event->getValue('all_day') ? true : false,
                 'url' => $link, // Link basierend auf der ID
             ];
+
+            // Füge 'status' nur hinzu, wenn es verfügbar ist
+            if ($event->hasValue('status')) {
+                $calendarEvent['status'] = $this->safeHtmlspecialchars($event->getValue('status'));
+            }
+
+            $calendarEvents[] = $calendarEvent;
         }
 
         return json_encode($calendarEvents);
+    }
+
+    /**
+     * Eine sichere Version von htmlspecialchars, die null-Werte handhabt.
+     *
+     * @param mixed $value Der zu verarbeitende Wert.
+     * @return string Der verarbeitete String oder ein leerer String, wenn der Eingabewert null ist.
+     */
+    private function safeHtmlspecialchars($value): string
+    {
+        return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
     }
 }
