@@ -15,6 +15,51 @@ YFormCalendar ist ein umfassendes Paket für REDAXO, das erweiterte Funktionen z
 
 Dieses Paket muss in einem REDAXO-Projekt verwendet werden. Es ist sicherzustellen, dass die YForm und YOrm AddOns installiert und aktiviert sind.
 
+## Erstellen einer eigenen Modelklasse
+
+Erstellen einer Modelklasse für die Kalendertabelle:
+
+```php
+<?php
+// In Ihrem AddOn: lib/MeineCal.php
+
+class MeineCal extends CalRender
+{
+    // Weitere spezifische Methoden oder Änderungen zum Original
+}
+```
+
+2. Registrieren der Modelklasse:
+
+```php
+<?php
+// In Ihrem AddOn: boot.php
+
+rex_yform_manager_dataset::setModelClass(
+    'rex_mein_kalender',
+    MeineCal::class
+);
+```
+
+## Verwendung der MeineCal-Klasse
+
+```php
+<?php
+// Im Template oder Modul
+
+// Alle Ereignisse im Juni 2024
+$events = MeineCal::getEventsByDate('2024-06-01', '2024-06-30');
+
+// Die nächsten 5 Ereignisse ab jetzt
+$nextEvents = MeineCal::getNextEvents(1, 5, date('Y-m-d H:i:s'));
+
+foreach ($events as $event) {
+    // $event ist nun eine Instanz von MeineCal
+    echo $event->getStartDate();
+    // Verwenden Sie hier Ihre spezifischen Methoden
+}
+```
+
 ## CalRender-Klasse
 
 Die `CalRender`-Klasse ist das Herzstück des YFormCalendar-Pakets. Sie ermöglicht das Abrufen, Filtern und Sortieren von Ereignissen.
