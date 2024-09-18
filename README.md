@@ -1,6 +1,6 @@
 # YFormCalendar
 
-YFormCalendar ist ein umfassendes Paket für REDAXO, das erweiterte Funktionen zur Verwaltung, zum Export und zur Anzeige von Kalenderereignissen bietet.
+YFormCalendar ist ein umfassendes Paket für REDAXO, das erweiterte Funktionen zur Verwaltung, zum Export und zur Anzeige von Kalenderereignissen bietet. Es liefert eine ModelClass um mit Kalenderdaten umzugehen. Die Daten werden Ical-konform gespeichert so dass ein späterer Export vereinfacht wird. Mit einem RRULE-Widget können Wiederholungen definiert werden. 
 
 ## Inhaltsverzeichnis
 
