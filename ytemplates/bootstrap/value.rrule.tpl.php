@@ -115,173 +115,183 @@ $id = $this->getFieldId();
 </div>
 </div>
 <script>
-(function() {
-    function initRRuleWidget() {
-        const id = '<?= $id ?>';
-        const elements = {
-            recurringEventCheckbox: document.getElementById(id + '-checkbox'),
-            rruleWidget: document.getElementById(id + '-widget'),
-            rruleDisplay: document.getElementById(id + '-display'),
-            frequency: document.getElementById(id + '-frequency'),
-            interval: document.getElementById(id + '-interval'),
-            weeklyGroup: document.getElementById(id + '-weekly-group'),
-            monthlyGroup: document.getElementById(id + '-monthly-group'),
-            bymonthdayGroup: document.getElementById(id + '-bymonthday-group'),
-            bydayGroup: document.getElementById(id + '-byday-group'),
-            rruleValue: document.getElementById(id),
-            endType: document.getElementById(id + '-end-type'),
-            countGroup: document.getElementById(id + '-count-group'),
-            untilGroup: document.getElementById(id + '-until-group'),
-            count: document.getElementById(id + '-count'),
-            until: document.getElementById(id + '-until')
-        };
+    (function() {
+        function initRRuleWidgets() {
+            document.querySelectorAll('.rrule-widget').forEach(widget => {
+                const id = widget.querySelector('[id$="-wrapper"]').id.replace('-wrapper', '');
+                const elements = {
+                    recurringEventCheckbox: widget.querySelector('#' + id + '-checkbox'),
+                    rruleWidget: widget.querySelector('#' + id + '-widget'),
+                    rruleDisplay: widget.querySelector('#' + id + '-display'),
+                    frequency: widget.querySelector('#' + id + '-frequency'),
+                    interval: widget.querySelector('#' + id + '-interval'),
+                    weeklyGroup: widget.querySelector('#' + id + '-weekly-group'),
+                    monthlyGroup: widget.querySelector('#' + id + '-monthly-group'),
+                    bymonthdayGroup: widget.querySelector('#' + id + '-bymonthday-group'),
+                    bydayGroup: widget.querySelector('#' + id + '-byday-group'),
+                    rruleValue: widget.querySelector('#' + id),
+                    endType: widget.querySelector('#' + id + '-end-type'),
+                    countGroup: widget.querySelector('#' + id + '-count-group'),
+                    untilGroup: widget.querySelector('#' + id + '-until-group'),
+                    count: widget.querySelector('#' + id + '-count'),
+                    until: widget.querySelector('#' + id + '-until')
+                };
 
-        function toggleVisibility(element, show) {
-            element.classList.toggle('hidden', !show);
-        }
-
-        function updateVisibility() {
-            const frequency = elements.frequency.value;
-            toggleVisibility(elements.weeklyGroup, frequency === 'WEEKLY');
-            toggleVisibility(elements.monthlyGroup, frequency === 'MONTHLY');
-            
-            if (frequency === 'MONTHLY') {
-                const monthlyType = document.querySelector('input[name="' + id + '-monthlyType"]:checked');
-                toggleVisibility(elements.bymonthdayGroup, monthlyType && monthlyType.value === 'bymonthday');
-                toggleVisibility(elements.bydayGroup, monthlyType && monthlyType.value === 'byday');
-            } else {
-                toggleVisibility(elements.bymonthdayGroup, false);
-                toggleVisibility(elements.bydayGroup, false);
-            }
-
-            toggleVisibility(elements.countGroup, elements.endType.value === 'count');
-            toggleVisibility(elements.untilGroup, elements.endType.value === 'until');
-        }
-
-        function updateRRule() {
-            if (!elements.recurringEventCheckbox.checked) {
-                elements.rruleValue.value = '';
-                elements.rruleDisplay.textContent = '';
-                return;
-            }
-
-            let rrule = `FREQ=${elements.frequency.value};INTERVAL=${elements.interval.value}`;
-            
-            if (elements.frequency.value === 'WEEKLY') {
-                const weekdays = Array.from(document.querySelectorAll('#' + id + '-weekly-group input[type="checkbox"]:checked'))
-                    .map(cb => cb.id.split('-').pop())
-                    .join(',');
-                if (weekdays) rrule += `;BYDAY=${weekdays}`;
-            } else if (elements.frequency.value === 'MONTHLY') {
-                const monthlyType = document.querySelector('input[name="' + id + '-monthlyType"]:checked');
-                if (monthlyType) {
-                    if (monthlyType.value === 'bymonthday') {
-                        rrule += `;BYMONTHDAY=${document.getElementById(id + '-monthday').value}`;
-                    } else if (monthlyType.value === 'byday') {
-                        rrule += `;BYDAY=${document.getElementById(id + '-weekdayorder').value}${document.getElementById(id + '-weekday').value}`;
-                    }
+                function toggleVisibility(element, show) {
+                    if (element) element.classList.toggle('hidden', !show);
                 }
-            }
-            
-            if (elements.endType.value === 'count') {
-                rrule += `;COUNT=${elements.count.value}`;
-            } else if (elements.endType.value === 'until') {
-                const untilDate = new Date(elements.until.value);
-                const formattedDate = untilDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-                rrule += `;UNTIL=${formattedDate}`;
-            }
 
-            elements.rruleValue.value = rrule;
-            elements.rruleDisplay.textContent = rrule;
-        }
+                function updateVisibility() {
+                    const frequency = elements.frequency.value;
+                    toggleVisibility(elements.weeklyGroup, frequency === 'WEEKLY');
+                    toggleVisibility(elements.monthlyGroup, frequency === 'MONTHLY');
 
-        function parseRRule(rruleString) {
-            const parts = rruleString.split(';');
-            const rrule = {};
-            parts.forEach(part => {
-                const [key, value] = part.split('=');
-                rrule[key] = value;
-            });
-            return rrule;
-        }
+                    if (frequency === 'MONTHLY') {
+                        const monthlyType = widget.querySelector('input[name="' + id + '-monthlyType"]:checked');
+                        toggleVisibility(elements.bymonthdayGroup, monthlyType && monthlyType.value === 'bymonthday');
+                        toggleVisibility(elements.bydayGroup, monthlyType && monthlyType.value === 'byday');
+                    } else {
+                        toggleVisibility(elements.bymonthdayGroup, false);
+                        toggleVisibility(elements.bydayGroup, false);
+                    }
 
-        function setInitialValues() {
-            const initialValue = elements.rruleValue.value;
-            if (initialValue) {
-                elements.recurringEventCheckbox.checked = true;
-                toggleVisibility(elements.rruleWidget, true);
-                toggleVisibility(elements.rruleDisplay, true);
+                    toggleVisibility(elements.countGroup, elements.endType.value === 'count');
+                    toggleVisibility(elements.untilGroup, elements.endType.value === 'until');
+                }
 
-                const rrule = parseRRule(initialValue);
-                
-                elements.frequency.value = rrule.FREQ || 'DAILY';
-                elements.interval.value = rrule.INTERVAL || '1';
+                function updateRRule() {
+                    if (!elements.recurringEventCheckbox.checked) {
+                        elements.rruleValue.value = '';
+                        elements.rruleDisplay.textContent = '';
+                        return;
+                    }
 
-                if (rrule.BYDAY) {
-                    if (rrule.FREQ === 'WEEKLY') {
-                        rrule.BYDAY.split(',').forEach(day => {
-                            document.getElementById(`${id}-${day}`).checked = true;
-                        });
-                    } else if (rrule.FREQ === 'MONTHLY') {
-                        document.getElementById(`${id}-byday`).checked = true;
-                        const match = rrule.BYDAY.match(/(-?\d+)([A-Z]+)/);
-                        if (match) {
-                            document.getElementById(`${id}-weekdayorder`).value = match[1];
-                            document.getElementById(`${id}-weekday`).value = match[2];
+                    let rrule = `FREQ=${elements.frequency.value};INTERVAL=${elements.interval.value}`;
+
+                    if (elements.frequency.value === 'WEEKLY') {
+                        const weekdays = Array.from(widget.querySelectorAll('#' + id + '-weekly-group input[type="checkbox"]:checked'))
+                        .map(cb => cb.id.split('-').pop())
+                        .join(',');
+                        if (weekdays) rrule += `;BYDAY=${weekdays}`;
+                    } else if (elements.frequency.value === 'MONTHLY') {
+                        const monthlyType = widget.querySelector('input[name="' + id + '-monthlyType"]:checked');
+                        if (monthlyType) {
+                            if (monthlyType.value === 'bymonthday') {
+                                rrule += `;BYMONTHDAY=${widget.querySelector('#' + id + '-monthday').value}`;
+                            } else if (monthlyType.value === 'byday') {
+                                rrule += `;BYDAY=${widget.querySelector('#' + id + '-weekdayorder').value}${widget.querySelector('#' + id + '-weekday').value}`;
+                            }
                         }
                     }
+
+                    if (elements.endType.value === 'count') {
+                        rrule += `;COUNT=${elements.count.value}`;
+                    } else if (elements.endType.value === 'until') {
+                        const untilDate = new Date(elements.until.value);
+                        const formattedDate = untilDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+                        rrule += `;UNTIL=${formattedDate}`;
+                    }
+
+                    elements.rruleValue.value = rrule;
+                    elements.rruleDisplay.textContent = rrule;
                 }
 
-                if (rrule.BYMONTHDAY) {
-                    document.getElementById(`${id}-bymonthday`).checked = true;
-                    document.getElementById(`${id}-monthday`).value = rrule.BYMONTHDAY;
+                function parseRRule(rruleString) {
+                    const parts = rruleString.split(';');
+                    const rrule = {};
+                    parts.forEach(part => {
+                        const [key, value] = part.split('=');
+                        rrule[key] = value;
+                    });
+                    return rrule;
                 }
 
-                if (rrule.COUNT) {
-                    elements.endType.value = 'count';
-                    elements.count.value = rrule.COUNT;
-                } else if (rrule.UNTIL) {
-                    elements.endType.value = 'until';
-                    const untilDate = new Date(rrule.UNTIL.slice(0, 4) + '-' + rrule.UNTIL.slice(4, 6) + '-' + rrule.UNTIL.slice(6, 8));
-                    elements.until.value = untilDate.toISOString().split('T')[0];
-                } else {
-                    elements.endType.value = 'never';
+                function setInitialValues() {
+                    const initialValue = elements.rruleValue.value;
+                    if (initialValue) {
+                        elements.recurringEventCheckbox.checked = true;
+                        toggleVisibility(elements.rruleWidget, true);
+                        toggleVisibility(elements.rruleDisplay, true);
+
+                        const rrule = parseRRule(initialValue);
+
+                        elements.frequency.value = rrule.FREQ || 'DAILY';
+                        elements.interval.value = rrule.INTERVAL || '1';
+
+                        if (rrule.BYDAY) {
+                            if (rrule.FREQ === 'WEEKLY') {
+                                rrule.BYDAY.split(',').forEach(day => {
+                                    const checkbox = widget.querySelector(`#${id}-${day}`);
+                                    if (checkbox) checkbox.checked = true;
+                                });
+                            } else if (rrule.FREQ === 'MONTHLY') {
+                                const bydayRadio = widget.querySelector(`#${id}-byday`);
+                                if (bydayRadio) bydayRadio.checked = true;
+                                const match = rrule.BYDAY.match(/(-?\d+)([A-Z]+)/);
+                                if (match) {
+                                    const weekdayOrder = widget.querySelector(`#${id}-weekdayorder`);
+                                    const weekday = widget.querySelector(`#${id}-weekday`);
+                                    if (weekdayOrder) weekdayOrder.value = match[1];
+                                    if (weekday) weekday.value = match[2];
+                                }
+                            }
+                        }
+
+                        if (rrule.BYMONTHDAY) {
+                            const bymonthdayRadio = widget.querySelector(`#${id}-bymonthday`);
+                            const monthday = widget.querySelector(`#${id}-monthday`);
+                            if (bymonthdayRadio) bymonthdayRadio.checked = true;
+                            if (monthday) monthday.value = rrule.BYMONTHDAY;
+                        }
+
+                        if (rrule.COUNT) {
+                            elements.endType.value = 'count';
+                            elements.count.value = rrule.COUNT;
+                        } else if (rrule.UNTIL) {
+                            elements.endType.value = 'until';
+                            const untilDate = new Date(rrule.UNTIL.slice(0, 4) + '-' + rrule.UNTIL.slice(4, 6) + '-' + rrule.UNTIL.slice(6, 8));
+                            elements.until.value = untilDate.toISOString().split('T')[0];
+                        } else {
+                            elements.endType.value = 'never';
+                        }
+
+                        updateVisibility();
+                        elements.rruleDisplay.textContent = initialValue;
+                    }
                 }
 
+                elements.recurringEventCheckbox.addEventListener('change', function() {
+                    toggleVisibility(elements.rruleWidget, this.checked);
+                    toggleVisibility(elements.rruleDisplay, this.checked);
+                    updateRRule();
+                });
+
+                elements.frequency.addEventListener('change', updateVisibility);
+                const bymonthdayRadio = widget.querySelector('#' + id + '-bymonthday');
+                const bydayRadio = widget.querySelector('#' + id + '-byday');
+                if (bymonthdayRadio) bymonthdayRadio.addEventListener('change', updateVisibility);
+                if (bydayRadio) bydayRadio.addEventListener('change', updateVisibility);
+                elements.endType.addEventListener('change', updateVisibility);
+
+                widget.addEventListener('change', updateRRule);
+
+                setInitialValues();
                 updateVisibility();
-                elements.rruleDisplay.textContent = initialValue;
+                updateRRule();
+            });
+        }
+
+        function onReady(fn) {
+            if (document.readyState !== 'loading') {
+                fn();
+            } else {
+                document.addEventListener('DOMContentLoaded', fn);
+            }
+            if (typeof jQuery !== 'undefined') {
+                jQuery(document).on('rex:ready', fn);
             }
         }
 
-        elements.recurringEventCheckbox.addEventListener('change', function() {
-            toggleVisibility(elements.rruleWidget, this.checked);
-            toggleVisibility(elements.rruleDisplay, this.checked);
-            updateRRule();
-        });
-
-        elements.frequency.addEventListener('change', updateVisibility);
-        document.getElementById(id + '-bymonthday').addEventListener('change', updateVisibility);
-        document.getElementById(id + '-byday').addEventListener('change', updateVisibility);
-        elements.endType.addEventListener('change', updateVisibility);
-
-        document.getElementById(id + '-wrapper').addEventListener('change', updateRRule);
-
-        setInitialValues();
-        updateVisibility();
-        updateRRule();
-    }
-
-    function onReady(fn) {
-        if (document.readyState !== 'loading') {
-            fn();
-        } else {
-            document.addEventListener('DOMContentLoaded', fn);
-        }
-        if (typeof jQuery !== 'undefined') {
-            jQuery(document).on('rex:ready', fn);
-        }
-    }
-
-    onReady(initRRuleWidget);
-})();
+        onReady(initRRuleWidgets);
+    })();
 </script>
