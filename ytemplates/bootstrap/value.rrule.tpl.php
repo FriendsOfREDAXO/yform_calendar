@@ -6,7 +6,7 @@ $id = $this->getFieldId();
 <div id="rrule-widget">
 <div class="form-group" id="<?= $id ?>-wrapper">
     <label class="toggle-switch">
-        <input class="form-control" type="checkbox" id="<?= $id ?>-checkbox">
+        <input type="checkbox" id="<?= $id ?>-checkbox">
         <span class="slider"></span>
     </label>
 
@@ -16,7 +16,7 @@ $id = $this->getFieldId();
 
         <div class="form-group">
             <label for="<?= $id ?>-frequency"><i class="fas fa-clock icon"></i>Häufigkeit:</label>
-            <select class="form-control selectpicker" data-live-search="true" id="<?= $id ?>-frequency">
+            <select id="<?= $id ?>-frequency">
                 <option value="DAILY">Täglich</option>
                 <option value="WEEKLY">Wöchentlich</option>
                 <option value="MONTHLY">Monatlich</option>
@@ -35,7 +35,7 @@ $id = $this->getFieldId();
                 <?php foreach (['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] as $day): ?>
                 <div>
                     <label class="toggle-switch">
-                        <input class="form-control" type="checkbox" id="<?= $id ?>-<?= $day ?>">
+                        <input type="checkbox" id="<?= $id ?>-<?= $day ?>">
                         <span class="slider"></span>
                     </label>
                     <span class="toggle-label"><?= substr($day, 0, 2) ?></span>
@@ -47,26 +47,26 @@ $id = $this->getFieldId();
         <div id="<?= $id ?>-monthly-group" class="form-group hidden">
             <label><i class="fas fa-calendar-alt icon"></i>Monatlicher Typ:</label>
             <div class="radio-group">
-                <label><input class="form-control" type="radio" id="<?= $id ?>-bymonthday" name="<?= $id ?>-monthlyType" value="bymonthday">Tag des Monats</label>
-                <label><input class="form-control" type="radio" id="<?= $id ?>-byday" name="<?= $id ?>-monthlyType" value="byday">Tag der Woche</label>
+                <label><input type="radio" id="<?= $id ?>-bymonthday" name="<?= $id ?>-monthlyType" value="bymonthday">Tag des Monats</label>
+                <label><input type="radio" id="<?= $id ?>-byday" name="<?= $id ?>-monthlyType" value="byday">Tag der Woche</label>
             </div>
         </div>
         
         <div id="<?= $id ?>-bymonthday-group" class="form-group hidden">
             <label for="<?= $id ?>-monthday"><i class="fas fa-calendar-day icon"></i>Tag des Monats:</label>
-            <input class="form-control" type="number" id="<?= $id ?>-monthday" min="1" max="31" value="1">
+            <input type="number" id="<?= $id ?>-monthday" min="1" max="31" value="1">
         </div>
         
         <div id="<?= $id ?>-byday-group" class="form-group hidden">
             <label><i class="fas fa-calendar-check icon"></i>Wochentag im Monat:</label>
-            <select class="form-control selectpicker" data-live-search="true" id="<?= $id ?>-weekdayorder">
+            <select id="<?= $id ?>-weekdayorder">
                 <option value="1">Erster</option>
                 <option value="2">Zweiter</option>
                 <option value="3">Dritter</option>
                 <option value="4">Vierter</option>
                 <option value="-1">Letzter</option>
             </select>
-            <select class="form-control selectpicker" data-live-search="true" id="<?= $id ?>-weekday">
+            <select id="<?= $id ?>-weekday">
                 <option value="MO">Montag</option>
                 <option value="TU">Dienstag</option>
                 <option value="WE">Mittwoch</option>
@@ -79,7 +79,7 @@ $id = $this->getFieldId();
 
         <div id="<?= $id ?>-end-options" class="form-group">
             <label><i class="fas fa-calendar-times icon"></i>Ende der Wiederholung:</label>
-            <select class="form-control selectpicker" data-live-search="true" id="<?= $id ?>-end-type">
+            <select id="<?= $id ?>-end-type">
                 <option value="never">Nie</option>
                 <option value="count">Nach Anzahl der Ereignisse</option>
                 <option value="until">An einem bestimmten Datum</option>
@@ -87,12 +87,12 @@ $id = $this->getFieldId();
             
             <div id="<?= $id ?>-count-group" class="hidden">
                 <label for="<?= $id ?>-count">Anzahl der Ereignisse:</label>
-                <input class="form-control" type="number" id="<?= $id ?>-count" min="1" value="1">
+                <input type="number" id="<?= $id ?>-count" min="1" value="1">
             </div>
             
             <div id="<?= $id ?>-until-group" class="hidden">
                 <label for="<?= $id ?>-until">Enddatum:</label>
-                <input class="form-control" type="date" id="<?= $id ?>-until">
+                <input type="date" id="<?= $id ?>-until">
             </div>
         </div>
     </div>
