@@ -25,9 +25,11 @@ class ICalExporter
         $processedEvents = [];
 
         foreach ($events as $event) {
-            $eventId = $event->getId(); // Annahme: Es gibt eine getId()-Methode
+            $eventId = $event->getId();
+            $rrule = $event->getValue('rrule');
+
             if (!isset($processedEvents[$eventId])) {
-                $ical .= self::generateEvent($event);
+                $ical .= self::generateEvent($event, $rrule);
                 $processedEvents[$eventId] = true;
             }
         }
@@ -37,14 +39,14 @@ class ICalExporter
         return $ical;
     }
 
-    private static function generateEvent($event): string
+    private static function generateEvent($event, $rrule): string
     {
         $dtStart = self::formatICalDateTime($event->getValue('dtstart'), $event->getValue('all_day'));
         $dtEnd = self::formatICalDateTime($event->getValue('dtend'), $event->getValue('all_day'));
         $summary = self::escapeString($event->getValue('summary'));
         $description = self::escapeString($event->getValue('description'));
         $location = self::escapeString($event->getValue('location'));
-        $uid = $event->getId(); // Verwenden der Event-ID als UID
+        $uid = $event->getId();
 
         $icalEvent = "BEGIN:VEVENT\r\n";
         $icalEvent .= "UID:$uid\r\n";
@@ -59,12 +61,10 @@ class ICalExporter
             $icalEvent .= "LOCATION:$location\r\n";
         }
 
-        // RRULE hinzufügen, wenn vorhanden
-        if ($event->getValue('rrule')) {
-            $icalEvent .= "RRULE:" . $event->getValue('rrule') . "\r\n";
+        if ($rrule) {
+            $icalEvent .= "RRULE:$rrule\r\n";
         }
 
-        // EXDATE hinzufügen, wenn vorhanden
         if ($event->getValue('exdate')) {
             $exdates = self::formatICalExDates($event->getValue('exdate'), $event->getValue('all_day'));
             $icalEvent .= "EXDATE:$exdates\r\n";
