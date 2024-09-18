@@ -42,6 +42,11 @@ rex_yform_manager_dataset::setModelClass(
 );
 ```
 
+Um weitere Tabellen zu verwenden sollten abgeleitete Classes der CalRender erstellt werden. Meist eine leere extended Class um weitere Tabellen anzumelden. 
+Im Ordner /tablesets des AddOns befindet sich ein fertiges Tableset. Dieses kann als Ausgangspunkt für eigene Tabellen verwendet werden. 
+Alternativ müssen folgende [Tabellenfelder](#erforderliche-tabellenfelder) angelegt sein. 
+
+
 
 ## Verwendung
 
