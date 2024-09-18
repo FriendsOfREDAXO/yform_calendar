@@ -13,10 +13,9 @@ $id = $this->getFieldId();
     <span class="toggle-label"><i class="fas fa-redo icon"></i><?= $this->getLabel() ?></span>
 
     <div id="<?= $id ?>-widget" class="hidden">
-
         <div class="form-group">
             <label for="<?= $id ?>-frequency"><i class="fas fa-clock icon"></i>Häufigkeit:</label>
-            <select id="<?= $id ?>-frequency">
+            <select id="<?= $id ?>-frequency" class="form-control selectpicker">
                 <option value="DAILY">Täglich</option>
                 <option value="WEEKLY">Wöchentlich</option>
                 <option value="MONTHLY">Monatlich</option>
@@ -26,7 +25,7 @@ $id = $this->getFieldId();
         
         <div class="form-group">
             <label for="<?= $id ?>-interval"><i class="fas fa-step-forward icon"></i>Intervall:</label>
-            <input type="number" id="<?= $id ?>-interval" min="1" value="1">
+            <input type="number" id="<?= $id ?>-interval" min="1" value="1" class="form-control">
         </div>
         
         <div id="<?= $id ?>-weekly-group" class="form-group hidden">
@@ -54,45 +53,59 @@ $id = $this->getFieldId();
         
         <div id="<?= $id ?>-bymonthday-group" class="form-group hidden">
             <label for="<?= $id ?>-monthday"><i class="fas fa-calendar-day icon"></i>Tag des Monats:</label>
-            <input type="number" id="<?= $id ?>-monthday" min="1" max="31" value="1">
+            <input type="number" id="<?= $id ?>-monthday" min="1" max="31" value="1" class="form-control">
         </div>
         
         <div id="<?= $id ?>-byday-group" class="form-group hidden">
             <label><i class="fas fa-calendar-check icon"></i>Wochentag im Monat:</label>
-            <select id="<?= $id ?>-weekdayorder">
-                <option value="1">Erster</option>
-                <option value="2">Zweiter</option>
-                <option value="3">Dritter</option>
-                <option value="4">Vierter</option>
-                <option value="-1">Letzter</option>
-            </select>
-            <select id="<?= $id ?>-weekday">
-                <option value="MO">Montag</option>
-                <option value="TU">Dienstag</option>
-                <option value="WE">Mittwoch</option>
-                <option value="TH">Donnerstag</option>
-                <option value="FR">Freitag</option>
-                <option value="SA">Samstag</option>
-                <option value="SU">Sonntag</option>
-            </select>
+            <div class="row">
+                <div class="col-md-6">
+                    <select id="<?= $id ?>-weekdayorder" class="form-control selectpicker">
+                        <option value="1">Erster</option>
+                        <option value="2">Zweiter</option>
+                        <option value="3">Dritter</option>
+                        <option value="4">Vierter</option>
+                        <option value="-1">Letzter</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <select id="<?= $id ?>-weekday" class="form-control selectpicker">
+                        <option value="MO">Montag</option>
+                        <option value="TU">Dienstag</option>
+                        <option value="WE">Mittwoch</option>
+                        <option value="TH">Donnerstag</option>
+                        <option value="FR">Freitag</option>
+                        <option value="SA">Samstag</option>
+                        <option value="SU">Sonntag</option>
+                    </select>
+                </div>
+            </div>
         </div>
 
         <div id="<?= $id ?>-end-options" class="form-group">
             <label><i class="fas fa-calendar-times icon"></i>Ende der Wiederholung:</label>
-            <select id="<?= $id ?>-end-type">
+            <select id="<?= $id ?>-end-type" class="form-control selectpicker">
                 <option value="never">Nie</option>
                 <option value="count">Nach Anzahl der Ereignisse</option>
                 <option value="until">An einem bestimmten Datum</option>
             </select>
             
-            <div id="<?= $id ?>-count-group" class="hidden">
+            <div id="<?= $id ?>-count-group" class="form-group hidden">
                 <label for="<?= $id ?>-count">Anzahl der Ereignisse:</label>
-                <input type="number" id="<?= $id ?>-count" min="1" value="1">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <input type="number" id="<?= $id ?>-count" min="1" value="1" class="form-control">
+                    </div>
+                </div>
             </div>
             
-            <div id="<?= $id ?>-until-group" class="hidden">
+            <div id="<?= $id ?>-until-group" class="form-group hidden">
                 <label for="<?= $id ?>-until">Enddatum:</label>
-                <input type="date" id="<?= $id ?>-until">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <input type="date" id="<?= $id ?>-until" class="form-control">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -258,7 +271,6 @@ $id = $this->getFieldId();
         updateRRule();
     }
 
-    // Funktion sowohl für DOMContentLoaded als auch für rex:ready registrieren
     function onReady(fn) {
         if (document.readyState !== 'loading') {
             fn();
