@@ -233,5 +233,3 @@ Um sicherzustellen, dass alle Funktionen des YFormCalendar-Pakets korrekt funkti
 6. **all_day**: Ein Boolean-Wert (0 oder 1), der angibt, ob es sich um ein ganztägiges Ereignis handelt.
 7. **rrule**: Die Wiederholungsregel für wiederkehrende Ereignisse im RRULE-Format.
 8. **exdate**: Eine durch Kommas getrennte Liste von Ausnahmedaten oder Datumsbereichen im Format `YYYY-MM-DD` oder `YYYY-MM-DD/YYYY-MM-DD`.
-
-Diese README bietet einen umfassenden Überblick über die Funktionalitäten des YFormCalendar-Pakets, einschließlich der Erklärung des RRULE-Wertes und der Verwendung des RRULE-Widgets. Sie zeigt, wie man die verschiedenen Klassen verwendet, um Ereignisse abzurufen, zu exportieren und anzuzeigen, sowie wie man wiederkehrende Ereignisse mit dem RRULE-Widget verwaltet.
