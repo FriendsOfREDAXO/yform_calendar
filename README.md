@@ -13,7 +13,33 @@ YFormCalendar ist ein umfassendes Paket für REDAXO, das erweiterte Funktionen z
 
 ## Installation
 
-Dieses Paket muss in einem REDAXO-Projekt verwendet werden. Es ist sicherzustellen, dass die YForm und YOrm AddOns installiert und aktiviert sind.
+Dieses Paket muss in einem REDAXO-Projekt-AddOn oder einem eigenen AddOn verwendet werden. Es ist sicherzustellen, dass die YForm und der YForm Manager installiert und aktiviert sind.
+
+### Demo-Tableset verwenden
+
+#### 1. install.php im Projekt-AddOn anlegen. 
+
+```php 
+<?php
+if (rex_addon::get('yform') && rex_addon::get('yform')->isAvailable()) {
+    rex_yform_manager_table_api::importTablesets(rex_file::get(rex_path::addon('yform_calendar', 'tableset/tableset.json')));
+}
+```
+**Projekt-AddOn reinstallieren**. Danach sollte eine Tabelle erscheinen: YFormCalender
+Diese kann nach Belieben erweitert werden. 
+
+#### 2. boot.php des Projekt-AddOn erweitern
+
+```php 
+// Am Anfang einsetzen 
+use klxm\YFormCalendar\CalRender;
+// Einsetzen wo es Sinn ergibt
+
+rex_yform_manager_dataset::setModelClass(
+            'rex_yformcalendar',CalRender::class
+);
+```
+
 
 ## Verwendung
 
