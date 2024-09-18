@@ -277,8 +277,8 @@ $id = $this->getFieldId();
         } else {
             document.addEventListener('DOMContentLoaded', fn);
         }
-        if (typeof rex !== 'undefined') {
-            rex.ready(fn);
+        if (typeof jQuery !== 'undefined') {
+            jQuery(document).on('rex:ready', fn);
         }
     }
 
