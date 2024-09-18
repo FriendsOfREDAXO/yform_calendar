@@ -3,7 +3,7 @@
         "table": {
             "status": 1,
             "table_name": "rex_klxmcalendar",
-            "name": "Calendar neo",
+            "name": "YFormClaendar",
             "description": "Table to manage klxm calendar events",
             "list_amount": 50,
             "list_sortfield": "dtstart",
@@ -164,6 +164,41 @@
                 "attributes": "",
                 "prepend": "",
                 "append": ""
+            },
+            {
+                "table_name": "rex_klxmcalendar",
+                "prio": 9,
+                "type_id": "value",
+                "type_name": "text",
+                "db_type": "varchar(191)",
+                "list_hidden": 1,
+                "search": 0,
+                "name": "exdate",
+                "label": "Termine ausschlie\u00dfen",
+                "not_required": "",
+                "default": "",
+                "no_db": "0",
+                "notice": "",
+                "attributes": "",
+                "prepend": "",
+                "append": ""
+            },
+            {
+                "table_name": "rex_klxmcalendar",
+                "prio": 10,
+                "type_id": "value",
+                "type_name": "index",
+                "db_type": "mediumtext",
+                "list_hidden": 1,
+                "search": 1,
+                "name": "title",
+                "label": "Titel",
+                "not_required": "",
+                "no_db": "0",
+                "function": "",
+                "names": "summary",
+                "add_this_param": "0",
+                "salt": ""
             }
         ]
     }
