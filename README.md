@@ -283,3 +283,73 @@ Für die korrekte Funktion des YFormCalendar-Pakets sind folgende Felder erforde
 6. **all_day**: Ganztägiges Ereignis (Boolean, 0 oder 1)
 7. **rrule**: Wiederholungsregel (Text, RRULE-Format)
 8. **exdate**: Ausnahmedaten (Text, Format: YYYY-MM-DD oder YYYY-MM-DD/YYYY-MM-DD, kommagetrennt)
+
+## Weitere Beispiele
+
+### Modul mit Performance-Test
+
+Gibt eine Liste aller Termine aus und die nächsten Termine einer ausgewählten ID. 
+
+
+```php
+<?php
+use klxm\YFormCalendar\CalRender;
+
+$startDate = date('Y-m-d');
+$endDate = date('Y-m-d', strtotime('+10000 days'));
+$eventId = 1; // Ersetzen Sie dies durch eine tatsächliche Event-ID aus Ihrer Datenbank
+$limit = 10;
+?>
+<div class="calrender-test">
+    <h2>CalRender Test Ausgabe</h2>
+    <h3>1. Alle Events im Zeitraum (<?= $startDate ?> bis <?= $endDate ?>)</h3>
+    <ul>
+    <?php
+    $events = CalRender::getEventsByDate($startDate, $endDate);
+    foreach ($events as $event): ?>
+        <li>
+            <?= $event->getValue('summary') ?> - 
+            Start: <?= rex_formatter::intlDateTime(strtotime($event->getValue('dtstart')), [IntlDateFormatter::MEDIUM, IntlDateFormatter::SHORT]) ?>, 
+            Ende: <?= rex_formatter::intlDateTime(strtotime($event->getValue('dtend')), [IntlDateFormatter::MEDIUM, IntlDateFormatter::SHORT]) ?>
+        </li>
+    <?php endforeach; ?>
+    </ul>
+    <h3>2. Nächste maximal <?= $limit ?> Events für Event ID <?= $eventId ?></h3>
+    <ul>
+    <?php
+    $nextEvents = CalRender::getNextEvents($eventId, $limit);
+    foreach ($nextEvents as $event): ?>
+        <li>
+            <?= $event->getValue('summary') ?> - 
+            Start: <?= rex_formatter::intlDateTime(strtotime($event->getValue('dtstart')), [IntlDateFormatter::MEDIUM, IntlDateFormatter::SHORT]) ?>, 
+            Ende: <?= rex_formatter::intlDateTime(strtotime($event->getValue('dtend')), [IntlDateFormatter::MEDIUM, IntlDateFormatter::SHORT]) ?>
+        </li>
+    <?php endforeach; ?>
+    </ul>
+    <h3>3. Speicherverbrauch Test</h3>
+    <?php
+    $memoryBefore = memory_get_usage();
+    $largeNumberOfEvents = iterator_to_array(CalRender::getCalendarEvents([
+        'startDate' => $startDate,
+        'endDate' => date('Y-m-d', strtotime('+10 year')),
+        'limit' => 1000
+    ]));
+    $memoryAfter = memory_get_usage();
+    $memoryUsed = $memoryAfter - $memoryBefore;
+    ?>
+    <p>Speicherverbrauch für 1000 Events: <?= number_format($memoryUsed / 1024 / 1024, 2) ?> MB</p>
+    <h3>4. Leistungstest</h3>
+    <?php
+    $startTime = microtime(true);
+    $events = iterator_to_array(CalRender::getCalendarEvents([
+        'startDate' => $startDate,
+        'endDate' => date('Y-m-d', strtotime('+10 year')),
+        'limit' => 1000
+    ]));
+    $endTime = microtime(true);
+    $executionTime = $endTime - $startTime;
+    ?>
+    <p>Zeit zum Abrufen von 1000 Events: <?= number_format($executionTime, 4) ?> Sekunden</p>
+</div>
+```
+
