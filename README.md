@@ -17,7 +17,7 @@ AddOn über den Installer installieren.
 
 Dieses Paket muss in einem REDAXO-Projekt-AddOn oder einem eigenen AddOn als abhängiges AddOn verwendet werden. Es ist sicherzustellen, dass die YForm und der YForm Manager installiert und aktiviert sind.
 
-### Demo-Tableset verwenden
+### Demo-Tableset für den Start verwenden
 
 #### 1. install.php im Projekt-AddOn anlegen. 
 
