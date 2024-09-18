@@ -3,7 +3,7 @@ $name = $this->getFieldName();
 $value = $this->getValue();
 $id = $this->getFieldId();
 ?>
-<div id="rrule-widget">
+<div id="rrule-widget" class="rrule-widget">
 <div class="form-group" id="<?= $id ?>-wrapper">
     <label class="toggle-switch">
         <input type="checkbox" id="<?= $id ?>-checkbox">
