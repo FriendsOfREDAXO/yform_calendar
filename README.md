@@ -288,7 +288,7 @@ Für die korrekte Funktion des YFormCalendar-Pakets sind folgende Felder erforde
 
 ### Modul mit Performance-Test
 
-Gibt eine Liste aller Termine aus und die nächsten Termine einer ausgewählten ID. 
+Gibt eine Liste aller Termine für den angegebenen Zeitraum aus und die nächsten Termine einer ausgewählten ID. 
 
 
 ```php
