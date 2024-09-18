@@ -1,5 +1,3 @@
-Ich verstehe und entschuldige mich für die Verwirrung. Hier ist die überarbeitete README ohne das problematische Beispiel für die Tabellenerstellung:
-
 # YFormCalendar
 
 YFormCalendar ist ein Paket für REDAXO, das umfassende Funktionen zur Verwaltung, zum Export und zur Anzeige von Kalenderereignissen bietet. Es besteht aus mehreren Klassen, die zusammenarbeiten, um eine flexible und leistungsfähige Kalenderfunktionalität zu ermöglichen.
