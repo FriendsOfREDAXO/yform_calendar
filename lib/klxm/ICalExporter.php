@@ -22,8 +22,14 @@ class ICalExporter
         $ical .= "VERSION:2.0\r\n";
         $ical .= "PRODID:-//Your Organization//Your Product//EN\r\n";
 
+        $processedEvents = [];
+
         foreach ($events as $event) {
-            $ical .= self::generateEvent($event);
+            $eventId = $event->getId(); // Annahme: Es gibt eine getId()-Methode
+            if (!isset($processedEvents[$eventId])) {
+                $ical .= self::generateEvent($event);
+                $processedEvents[$eventId] = true;
+            }
         }
 
         $ical .= "END:VCALENDAR\r\n";
@@ -38,7 +44,7 @@ class ICalExporter
         $summary = self::escapeString($event->getValue('summary'));
         $description = self::escapeString($event->getValue('description'));
         $location = self::escapeString($event->getValue('location'));
-        $uid = uniqid();
+        $uid = $event->getId(); // Verwenden der Event-ID als UID
 
         $icalEvent = "BEGIN:VEVENT\r\n";
         $icalEvent .= "UID:$uid\r\n";
@@ -53,6 +59,17 @@ class ICalExporter
             $icalEvent .= "LOCATION:$location\r\n";
         }
 
+        // RRULE hinzufügen, wenn vorhanden
+        if ($event->getValue('rrule')) {
+            $icalEvent .= "RRULE:" . $event->getValue('rrule') . "\r\n";
+        }
+
+        // EXDATE hinzufügen, wenn vorhanden
+        if ($event->getValue('exdate')) {
+            $exdates = self::formatICalExDates($event->getValue('exdate'), $event->getValue('all_day'));
+            $icalEvent .= "EXDATE:$exdates\r\n";
+        }
+
         $icalEvent .= "END:VEVENT\r\n";
 
         return $icalEvent;
@@ -62,6 +79,16 @@ class ICalExporter
     {
         $dt = new DateTime($dateTime);
         return $allDay ? $dt->format('Ymd') : $dt->format('Ymd\THis\Z');
+    }
+
+    private static function formatICalExDates(string $exdateString, bool $allDay = false): string
+    {
+        $exdates = array_map('trim', explode(',', $exdateString));
+        $formattedExDates = array_map(function ($exdate) use ($allDay) {
+            return self::formatICalDateTime($exdate, $allDay);
+        }, $exdates);
+
+        return implode(',', $formattedExDates);
     }
 
     private static function escapeString(string $string): string
