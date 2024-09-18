@@ -12,7 +12,7 @@ class ICalExporter
     {
         $icalData = self::generateICal($events);
 
-        header('Content-Type: text/calendar; charset=utf-8');
+        header('Content-Type: text/calendar; charset=utf-8');  // Setzt UTF-8 im Header
         header('Content-Disposition: attachment; filename="' . $filename . '.ics"');
 
         echo $icalData;
@@ -24,8 +24,7 @@ class ICalExporter
         $ical = "BEGIN:VCALENDAR\r\n";
         $ical .= "VERSION:2.0\r\n";
         $ical .= "PRODID:-//Your Organization//Your Product//EN\r\n";
-        $ical .= "CALSCALE:GREGORIAN\r\n";
-        $ical .= "CHARSET=UTF-8\r\n";  // UTF-8-Zeichensatz deklarieren
+        $ical .= "CALSCALE:GREGORIAN\r\n";  // UTF-8 wird über den HTTP-Header gesetzt
 
         $processedEvents = [];
 
@@ -126,11 +125,19 @@ class ICalExporter
     private static function foldICalLine(string $line): string
     {
         $output = '';
-        while (strlen($line) > 75) {
-            $output .= substr($line, 0, 75) . "\r\n ";
-            $line = substr($line, 75);
+        $byteLength = 0;
+
+        // Iterate through the line character by character and fold based on byte length, not character length
+        while ($byteLength + strlen($line) > 75) {
+            $cutOff = 75 - $byteLength;
+            $output .= substr($line, 0, $cutOff) . "\r\n ";
+            $line = substr($line, $cutOff);
+            $byteLength = 0; // Reset byte length after each fold
         }
+
+        // Append the remaining part of the line
         $output .= $line;
+        
         return $output;
     }
 }
