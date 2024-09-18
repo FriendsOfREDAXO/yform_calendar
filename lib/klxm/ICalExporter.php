@@ -3,9 +3,11 @@
 namespace klxm\YFormCalendar;
 
 use DateTime;
+use DateTimeZone;
 
 class ICalExporter
 {
+    // Generiert und sendet die iCal-Datei an den Browser
     public static function generateICalFile(string $filename, array $events): void
     {
         $icalData = self::generateICal($events);
@@ -16,6 +18,7 @@ class ICalExporter
         echo $icalData;
     }
 
+    // Generiert den gesamten iCal-Inhalt aus Events
     public static function generateICal(array $events): string
     {
         $ical = "BEGIN:VCALENDAR\r\n";
@@ -39,6 +42,7 @@ class ICalExporter
         return $ical;
     }
 
+    // Generiert ein einzelnes Event
     private static function generateEvent($event, $rrule): string
     {
         $dtStart = self::formatICalDateTime($event->getValue('dtstart'), $event->getValue('all_day'));
@@ -74,12 +78,21 @@ class ICalExporter
         return $icalEvent;
     }
 
+    // Formatiert Datum und Uhrzeit für iCal
     private static function formatICalDateTime(string $dateTime, bool $allDay = false): string
     {
         $dt = new DateTime($dateTime);
-        return $allDay ? $dt->format('Ymd') : $dt->format('Ymd\THis\Z');
+        if ($allDay) {
+            // Ganztägige Events nur als Ymd formatieren (ohne Uhrzeit)
+            return $dt->format('Ymd');
+        } else {
+            // Events mit Uhrzeit in UTC (Z) formatieren
+            $dt->setTimezone(new DateTimeZone('UTC'));
+            return $dt->format('Ymd\THis\Z');
+        }
     }
 
+    // Formatiert EXDATE-Werte korrekt
     private static function formatICalExDates(string $exdateString, bool $allDay = false): string
     {
         $exdates = array_map('trim', explode(',', $exdateString));
@@ -95,16 +108,19 @@ class ICalExporter
         return $exdateLines;
     }
 
+    // Hilfsfunktion zum Escapen von Strings (z.B. für Kommas)
     private static function escapeString(string $string): string
     {
         return preg_replace('/([\,;])/','\\\$1', $string);
     }
 
+    // Generiert eine eindeutige UID für jedes Event
     private static function generateUID($event): string
     {
         return uniqid($event->getId() . '@yourdomain.com', true);
     }
 
+    // Faltet eine Zeile, wenn sie länger als 75 Zeichen ist, wie es von RFC 5545 verlangt wird
     private static function foldICalLine(string $line): string
     {
         $output = '';
