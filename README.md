@@ -15,34 +15,6 @@ YFormCalendar ist ein umfassendes Paket für REDAXO, das erweiterte Funktionen z
 
 Dieses Paket muss in einem REDAXO-Projekt verwendet werden. Es ist sicherzustellen, dass die YForm und YOrm AddOns installiert und aktiviert sind.
 
-## Erstellen einer eigenen Modelklasse
-
-Erstellen einer Modelklasse für die Kalendertabelle:
-
-```php
-<?php
-// In Ihrem AddOn: lib/MeineCal.php
-
-use klxm\YFormCalendar\CalRender;
-
-class MeineCal extends CalRender
-{
-    // Weitere spezifische Methoden oder Änderungen zum Original
-}
-```
-
-2. Registrieren der Class:
-
-```php
-<?php
-// In Ihrem AddOn: boot.php
-
-rex_yform_manager_dataset::setModelClass(
-    'rex_mein_kalender',
-    MeineCal::class
-);
-```
-
 ## Verwendung
 
 ```php
