@@ -93,7 +93,7 @@ class ICalExporter
         }
     }
 
-    // Formatiert EXDATE-Werte korrekt und sorgt für Zeilenumbruch
+    // Formatiert EXDATE-Werte korrekt
     private static function formatICalExDates(string $exdateString, bool $allDay = false): string
     {
         $exdates = array_map('trim', explode(',', $exdateString));
