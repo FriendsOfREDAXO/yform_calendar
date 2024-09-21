@@ -256,4 +256,65 @@ class CalRender extends rex_yform_manager_dataset
 
         return $filteredEvents;
     }
+    /**
+     * Create a new event in the database.
+     *
+     * @param array $data An associative array of field names and their values
+     * @return rex_yform_manager_dataset|null The newly created event, or null if creation failed
+     */
+    public static function createEvent(array $data): ?rex_yform_manager_dataset
+    {
+        $event = self::create();
+        
+        foreach ($data as $field => $value) {
+            if ($event->hasValue($field)) {
+                $event->setValue($field, $value);
+            }
+        }
+
+        if ($event->save()) {
+            return $event;
+        }
+
+        return null;
+    }
+
+    /**
+     * Update an event in the database by its ID.
+     *
+     * @param int $eventId The ID of the event to update
+     * @param array $data An associative array of field names and their new values
+     * @return bool True if the update was successful, false otherwise
+     */
+    public static function updateEventById(int $eventId, array $data): bool
+    {
+        $event = self::get($eventId);
+        if (!$event) {
+            return false;
+        }
+
+        foreach ($data as $field => $value) {
+            if ($event->hasValue($field)) {
+                $event->setValue($field, $value);
+            }
+        }
+
+        return $event->save();
+    }
+
+    /**
+     * Delete an event from the database by its ID.
+     *
+     * @param int $eventId The ID of the event to delete
+     * @return bool True if the deletion was successful, false otherwise
+     */
+    public static function deleteEventById(int $eventId): bool
+    {
+        $event = self::get($eventId);
+        if (!$event) {
+            return false;
+        }
+
+        return $event->delete();
+    }
 }
