@@ -95,7 +95,7 @@ foreach ($events as $event) {
 
 ## CalRender-Klasse
 
-Die `CalRender`-Klasse ist das Herzstück des YFormCalendar-Pakets. Sie ermöglicht das Abrufen, Filtern und Sortieren von Ereignissen.
+Die `CalRender`-Klasse ist das Herzstück des AddOns. Sie ermöglicht das Abrufen, Filtern, Sortieren und Bearbeiten von Ereignissen.
 
 ### Methoden
 
