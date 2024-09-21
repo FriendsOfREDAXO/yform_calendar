@@ -1,7 +1,7 @@
 package: yform_calendar
-version: '1.0.0-beta2'
-author: 'Thomas Skerbis'
-supportpage: https://github.com/skerbis/yform_calhelper
+version: '1.0.0-beta3'
+author: 'Friends of REDAXO'
+supportpage: https://github.com/FriendsOfREDAXO/yform_calendar/
 requires:
     php:
         version: '>8.2,<9'
