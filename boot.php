@@ -1,5 +1,5 @@
 <?php 
-namespace klxm\YFormCalendar;
+namespace FriendsOfRedaxo\YFormCalendar;
 
 use rex;
 use rex_addon;

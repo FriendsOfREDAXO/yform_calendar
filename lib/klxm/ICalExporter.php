@@ -1,6 +1,6 @@
 <?php
 
-namespace klxm\YFormCalendar;
+namespace FriendsOfRedaxo\YFormCalendar;
 
 use DateTime;
 use DateTimeZone;
