@@ -4,33 +4,33 @@
 
 YFormCalendar ist ein umfassendes Paket für REDAXO, das erweiterte Funktionen zur Verwaltung, zum Export und zur Anzeige von Kalenderereignissen bietet. Es liefert eine ModelClass um mit Kalenderdaten umzugehen. Die Daten werden Ical-konform gespeichert so dass ein späterer Export vereinfacht wird. Mit einem RRULE-Widget können Wiederholungen definiert werden. 
 
-# YFormCalendar Feature-Liste
+## YFormCalendar Feature-Liste
 
-## CalRender-Klasse
+### CalRender-Klasse
 - Abrufen von Kalenderereignissen basierend auf Datum, Zeit und anderen Parametern
 - Unterstützung für wiederkehrende Ereignisse mit RRULE
 - Sortierung von Ereignissen nach Start- oder Enddatum
 - Benutzerdefinierte Abfragen mit YForm-Query-Unterstützung
 - Generierung der nächsten X Ereignisse ab einem bestimmten Datum
 
-## ICalExporter-Klasse
+### ICalExporter-Klasse
 - Generierung von iCal-Dateien aus Kalenderereignissen
 - Unterstützung für den Download von iCal-Dateien
 - Erstellung von iCal-Strings für die direkte Ausgabe
 
-## CalendarJsonExporter-Klasse
+### CalendarJsonExporter-Klasse
 - Export von Kalenderereignissen im JSON-Format für FullCalendar
 - Benutzerdefinierte Link-Generierung für Ereignisse
 - Sortieroptionen für Ereignisse
 - Unterstützung für Datumsbereiche beim Export
 
-## RRULE-Widget
+### RRULE-Widget
 - Benutzeroberfläche zur Erstellung und Bearbeitung von Wiederholungsregeln
 - Unterstützung für verschiedene Wiederholungsfrequenzen (täglich, wöchentlich, monatlich, jährlich)
 - Einstellung von Intervallen, Wochentagen, Monatstagen
 - Definition von Wiederholungsanzahl oder Enddatum
 
-## Allgemeine Features
+### Allgemeine Features
 - Integration mit YForm und YForm Manager
 - Unterstützung für ganztägige Ereignisse
 - Handhabung von Ausnahmedaten (EXDATE) für wiederkehrende Ereignisse
