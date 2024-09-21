@@ -171,6 +171,95 @@ foreach ($events as $event) {
 }
 ```
 
+## Edit-Methoden 
+
+### Zusätzliche Methoden für die CalRender-Klasse
+
+#### `createEvent`
+
+```php
+public static function createEvent(array $data): ?rex_yform_manager_dataset
+```
+
+Diese Methode erstellt ein neues Ereignis in der Datenbank.
+
+Parameter:
+- `$data`: (array) Ein assoziatives Array mit Feldnamen und ihren Werten für das neue Ereignis.
+
+Rückgabewert: Das neu erstellte Ereignis als `rex_yform_manager_dataset`-Objekt oder `null`, wenn die Erstellung fehlgeschlagen ist.
+
+Beispiel für die Verwendung:
+```php
+$neuesEreignisDaten = [
+    'summary' => 'Neues Ereignis',
+    'description' => 'Dies ist ein neues Ereignis',
+    'dtstart' => '2024-01-01 10:00:00',
+    'dtend' => '2024-01-01 12:00:00',
+    // ... weitere Felder nach Bedarf
+];
+$neuesEreignis = CalRender::createEvent($neuesEreignisDaten);
+if ($neuesEreignis) {
+    echo "Ereignis erfolgreich erstellt mit ID: " . $neuesEreignis->getId();
+} else {
+    echo "Ereignis konnte nicht erstellt werden";
+}
+```
+
+#### `updateEventById`
+
+```php
+public static function updateEventById(int $eventId, array $data): bool
+```
+
+Diese Methode aktualisiert ein bestehendes Ereignis in der Datenbank anhand seiner ID.
+
+Parameter:
+- `$eventId`: (int) Die ID des zu aktualisierenden Ereignisses.
+- `$data`: (array) Ein assoziatives Array mit Feldnamen und ihren neuen Werten.
+
+Rückgabewert: `true`, wenn die Aktualisierung erfolgreich war, ansonsten `false`.
+
+Beispiel für die Verwendung:
+```php
+$ereignisId = 123; // Die ID des zu aktualisierenden Ereignisses
+$aktualisierungsDaten = [
+    'summary' => 'Aktualisierter Ereignistitel',
+    'description' => 'Dieses Ereignis wurde aktualisiert',
+    // ... weitere zu aktualisierende Felder
+];
+$erfolg = CalRender::updateEventById($ereignisId, $aktualisierungsDaten);
+if ($erfolg) {
+    echo "Ereignis erfolgreich aktualisiert";
+} else {
+    echo "Aktualisierung des Ereignisses fehlgeschlagen";
+}
+```
+
+#### `deleteEventById`
+
+```php
+public static function deleteEventById(int $eventId): bool
+```
+
+Diese Methode löscht ein Ereignis aus der Datenbank anhand seiner ID.
+
+Parameter:
+- `$eventId`: (int) Die ID des zu löschenden Ereignisses.
+
+Rückgabewert: `true`, wenn das Löschen erfolgreich war, ansonsten `false`.
+
+Beispiel für die Verwendung:
+```php
+$ereignisId = 123; // Die ID des zu löschenden Ereignisses
+$erfolg = CalRender::deleteEventById($ereignisId);
+if ($erfolg) {
+    echo "Ereignis erfolgreich gelöscht";
+} else {
+    echo "Löschen des Ereignisses fehlgeschlagen";
+}
+```
+
+
 ## ICalExporter-Klasse
 
 Die `ICalExporter`-Klasse ermöglicht den Export von Kalenderereignissen im iCal-Format.
