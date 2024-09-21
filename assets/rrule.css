@@ -20,7 +20,7 @@
   /* Dark mode variables for system preference */
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg-color: #1e1e1e;
+      --bg-color: rgba(31, 31, 31, 0.39);
       --border-color: #444;
       --text-color: #f0f0f0;
       --shadow-color: rgba(0, 0, 0, 0.3);
@@ -31,7 +31,7 @@
   
   /* REDAXO dark theme */
   body.rex-theme-dark {
-    --bg-color: #1e1e1e;
+    --bg-color: rgba(31, 31, 31, 0.39);
     --border-color: #444;
     --text-color: #f0f0f0;
     --shadow-color: rgba(0, 0, 0, 0.3);
