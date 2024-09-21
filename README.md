@@ -37,15 +37,6 @@ YFormCalendar ist ein umfassendes Paket für REDAXO, das erweiterte Funktionen z
 - Kompatibilität mit FullCalendar für Frontend-Darstellung
 - Flexibles Datenmodell mit Unterstützung für benutzerdefinierte Felder
 
-## Inhaltsverzeichnis
-
-1. [Installation](#installation)
-2. [CalRender-Klasse](#calrender-klasse)
-3. [ICalExporter-Klasse](#icalexporter-klasse)
-4. [CalendarJsonExporter-Klasse](#calendarjsonexporter-klasse)
-5. [RRULE-Widget](#rrule-widget)
-6. [Erforderliche Tabellenfelder](#erforderliche-tabellenfelder)
-
 ## Installation
 
 AddOn über den Installer installieren. 
