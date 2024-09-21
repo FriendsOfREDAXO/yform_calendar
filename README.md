@@ -1,6 +1,6 @@
 # YFormCalendar
 
-![Screenshot](https://github.com/KLXM/yform_calendar/blob/assets/screenshot.png?raw=true)
+![Screenshot](https://github.com/FriendsOfRedaxo/yform_calendar/blob/assets/screenshot.png?raw=true)
 
 YFormCalendar ist ein umfassendes Paket für REDAXO, das erweiterte Funktionen zur Verwaltung, zum Export und zur Anzeige von Kalenderereignissen bietet. Es liefert eine ModelClass um mit Kalenderdaten umzugehen. Die Daten werden Ical-konform gespeichert so dass ein späterer Export vereinfacht wird. Mit einem RRULE-Widget können Wiederholungen definiert werden. 
 
@@ -36,7 +36,7 @@ Diese kann nach Belieben erweitert werden.
 
 ```php 
 // Am Anfang einsetzen 
-use klxm\YFormCalendar\CalRender;
+use FriendsOfRedaxo\YFormCalendar\CalRender;
 // Einsetzen wo es Sinn ergibt
 
 rex_yform_manager_dataset::setModelClass(
@@ -122,7 +122,7 @@ Rückgabewert: Ein Array von Objekten vom Typ `rex_yform_manager_dataset`.
 ### Beispiele
 
 ```php
-use klxm\YFormCalendar\CalRender;
+use FriendsOfRedaxo\YFormCalendar\CalRender;
 
 // Beispiel 1: Alle Ereignisse im Juni 2024
 $events = CalRender::getEventsByDate('2024-06-01', '2024-06-30');
@@ -179,8 +179,8 @@ Rückgabewert: Ein String im iCal-Format.
 ### Beispiel
 
 ```php
-use klxm\YFormCalendar\CalRender;
-use klxm\YFormCalendar\ICalExporter;
+use FriendsOfRedaxo\YFormCalendar\CalRender;
+use FriendsOfRedaxo\YFormCalendar\ICalExporter;
 
 $events = CalRender::getEventsByDate('2024-01-01', '2024-12-31');
 $icalString = ICalExporter::generateICal($events);
@@ -224,8 +224,8 @@ Rückgabewert: Ein JSON-String mit den Ereignisdaten.
 
 ```php
 <?php
-use klxm\YFormCalendar\CalendarJsonExporter;
-use klxm\YFormCalendar\CalRender; //ggf die eigene Modelclass angeben
+use FriendsOfRedaxo\YFormCalendar\CalendarJsonExporter;
+use FriendsOfRedaxo\YFormCalendar\CalRender; //ggf die eigene Modelclass angeben
 
 // Callback-Funktion zur Linkgenerierung
 $linkCallback = function($id) {
@@ -340,7 +340,7 @@ Gibt eine Liste aller Termine für den angegebenen Zeitraum aus und die nächste
 
 ```php
 <?php
-use klxm\YFormCalendar\CalRender;
+use FriendsOfRedaxo\YFormCalendar\CalRender;
 
 $startDate = date('Y-m-d');
 $endDate = date('Y-m-d', strtotime('+10000 days'));
