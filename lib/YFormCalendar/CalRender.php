@@ -317,4 +317,44 @@ class CalRender extends rex_yform_manager_dataset
 
         return $event->delete();
     }
+
+    /**
+     * Holt den Original-Datensatz eines wiederholenden Events für eine bestimmte Event-ID und ein Datum,
+     * wobei Start- und Endzeitpunkte des Termins dem angegebenen Wiederholungstermin entsprechen.
+     *
+     * @param int $eventId Die ID des Events
+     * @param string $occurrenceDate Das Datum des spezifischen wiederholenden Termins im Format 'Y-m-d'
+     * @return rex_yform_manager_dataset|null Der Datensatz des wiederkehrenden Events mit angepassten Start- und Endzeiten oder null, wenn kein passendes Event gefunden wurde
+     */
+    public static function getEventDetailsByOccurrence(int $eventId, string $occurrenceDate): ?rex_yform_manager_dataset
+    {
+        // Überprüfen, ob Event-ID und Termin-Datum gültig sind
+        if ($eventId > 0 && $occurrenceDate) {
+            // Hole den Event-Datensatz basierend auf der ID
+            $event = self::get($eventId);
+            if (!$event) {
+                return null; // Event nicht gefunden
+            }
+
+            // Erstelle ein Startdatum aus dem gegebenen Termin
+            $occurrenceDateTime = new DateTime($occurrenceDate);
+
+            // Generiere wiederkehrende Events ab diesem Datum
+            foreach (self::generateEventsForSingleEvent($event, $occurrenceDateTime->format('Y-m-d H:i:s'), null) as $recurringEvent) {
+                // Kopiere den originalen Event-Datensatz und passe die Start- und Endzeiten des spezifischen Termins an
+                $recurringStart = $recurringEvent->getValue('dtstart');
+                $recurringEnd = $recurringEvent->getValue('dtend');
+
+                // Klone den originalen Event-Datensatz, um Start- und Endzeiten zu ändern
+                $newEvent = clone $event;
+                $newEvent->setValue('dtstart', $recurringStart);
+                $newEvent->setValue('dtend', $recurringEnd);
+
+                return $newEvent;
+            }
+        }
+
+        // Rückgabe null, wenn kein passendes Event gefunden wurde oder die Anfrage ungültig ist
+        return null;
+    }
 }
