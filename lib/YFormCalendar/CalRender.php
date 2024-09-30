@@ -1,4 +1,5 @@
 <?php
+
 namespace FriendsOfRedaxo\YFormCalendar;
 
 use DateTime;
@@ -265,7 +266,7 @@ class CalRender extends rex_yform_manager_dataset
     public static function createEvent(array $data): ?rex_yform_manager_dataset
     {
         $event = self::create();
-        
+
         foreach ($data as $field => $value) {
             if ($event->hasValue($field)) {
                 $event->setValue($field, $value);
@@ -328,38 +329,43 @@ class CalRender extends rex_yform_manager_dataset
      */
     public static function getEventDetailsByOccurrence(int $eventId, string $occurrenceDate): ?rex_yform_manager_dataset
     {
-    if ($eventId > 0 && $occurrenceDate) {
-        $event = self::get($eventId);
-        if (!$event) {
-            return null;
+        if ($eventId > 0 && $occurrenceDate) {
+            $event = self::get($eventId);
+            if (!$event) {
+                return null;
+            }
+
+            $occurrenceDateTime = new DateTime($occurrenceDate);
+            $originalStart = new DateTime($event->getValue('dtstart'));
+            $originalEnd = new DateTime($event->getValue('dtend'));
+
+            // Berechne die Dauer des Originaltermins
+            $eventDuration = $originalEnd->getTimestamp() - $originalStart->getTimestamp();
+
+            // Erweitere den Suchbereich auf den ganzen Tag
+            $searchStart = (clone $occurrenceDateTime)->setTime(0, 0, 0);
+            $searchEnd = (clone $occurrenceDateTime)->setTime(23, 59, 59);
+
+            foreach (self::generateEventsForSingleEvent($event, $searchStart->format('Y-m-d H:i:s'), $searchEnd->format('Y-m-d H:i:s')) as $recurringEvent) {
+                $newEvent = clone $event;
+
+                // Behalte die ursprünglichen Uhrzeiten bei und erhalte die Dauer über mehrere Tage hinweg
+                $newStart = (clone $occurrenceDateTime)->setTime(
+                    (int)$originalStart->format('H'),
+                    (int)$originalStart->format('i'),
+                    (int)$originalStart->format('s')
+                );
+
+                // Setze das Enddatum, unter Beachtung der Originaldauer des Events
+                $newEnd = (clone $newStart)->modify("+$eventDuration seconds");
+
+                $newEvent->setValue('dtstart', $newStart->format('Y-m-d H:i:s'));
+                $newEvent->setValue('dtend', $newEnd->format('Y-m-d H:i:s'));
+
+                return $newEvent;
+            }
         }
 
-        $occurrenceDateTime = new DateTime($occurrenceDate);
-        $originalStart = new DateTime($event->getValue('dtstart'));
-        $originalEnd = new DateTime($event->getValue('dtend'));
-
-        foreach (self::generateEventsForSingleEvent($event, $occurrenceDate, $occurrenceDate) as $recurringEvent) {
-            $newEvent = clone $event;
-            
-            // Behalte die ursprünglichen Uhrzeiten bei, aber ändere das Datum
-            $newStart = (clone $occurrenceDateTime)->setTime(
-                (int)$originalStart->format('H'),
-                (int)$originalStart->format('i'),
-                (int)$originalStart->format('s')
-            );
-            $newEnd = (clone $occurrenceDateTime)->setTime(
-                (int)$originalEnd->format('H'),
-                (int)$originalEnd->format('i'),
-                (int)$originalEnd->format('s')
-            );
-
-            $newEvent->setValue('dtstart', $newStart->format('Y-m-d H:i:s'));
-            $newEvent->setValue('dtend', $newEnd->format('Y-m-d H:i:s'));
-
-            return $newEvent;
-        }
+        return null;
     }
-
-    return null;
-}
 }
