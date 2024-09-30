@@ -1,5 +1,5 @@
 package: yform_calendar
-version: '1.0.0'
+version: '1.0.1-dev'
 author: 'Friends of REDAXO'
 supportpage: https://github.com/FriendsOfREDAXO/yform_calendar/
 requires:
