@@ -339,31 +339,32 @@ class CalRender extends rex_yform_manager_dataset
             $originalStart = new DateTime($event->getValue('dtstart'));
             $originalEnd = new DateTime($event->getValue('dtend'));
 
-            // Berechne die Dauer des Originaltermins
-            $eventDuration = $originalEnd->getTimestamp() - $originalStart->getTimestamp();
+            // Prüfe, ob der Termin ganztägig ist
+            $isAllDay = $event->getValue('all_day');
 
-            // Erweitere den Suchbereich auf den ganzen Tag
-            $searchStart = (clone $occurrenceDateTime)->setTime(0, 0, 0);
-            $searchEnd = (clone $occurrenceDateTime)->setTime(23, 59, 59);
-
-            foreach (self::generateEventsForSingleEvent($event, $searchStart->format('Y-m-d H:i:s'), $searchEnd->format('Y-m-d H:i:s')) as $recurringEvent) {
-                $newEvent = clone $event;
-
-                // Behalte die ursprünglichen Uhrzeiten bei und erhalte die Dauer über mehrere Tage hinweg
+            if ($isAllDay) {
+                // Wenn der Termin ganztägig ist, setze die Uhrzeiten auf den Beginn und das Ende des Tages
+                $newStart = (clone $occurrenceDateTime)->setTime(0, 0, 0);
+                $newEnd = (clone $occurrenceDateTime)->setTime(23, 59, 59);
+            } else {
+                // Behalte die ursprünglichen Uhrzeiten bei, aber ändere das Datum
                 $newStart = (clone $occurrenceDateTime)->setTime(
                     (int)$originalStart->format('H'),
                     (int)$originalStart->format('i'),
                     (int)$originalStart->format('s')
                 );
-
-                // Setze das Enddatum, unter Beachtung der Originaldauer des Events
-                $newEnd = (clone $newStart)->modify("+$eventDuration seconds");
-
-                $newEvent->setValue('dtstart', $newStart->format('Y-m-d H:i:s'));
-                $newEvent->setValue('dtend', $newEnd->format('Y-m-d H:i:s'));
-
-                return $newEvent;
+                $newEnd = (clone $occurrenceDateTime)->setTime(
+                    (int)$originalEnd->format('H'),
+                    (int)$originalEnd->format('i'),
+                    (int)$originalEnd->format('s')
+                );
             }
+
+            $newEvent = clone $event;
+            $newEvent->setValue('dtstart', $newStart->format('Y-m-d H:i:s'));
+            $newEvent->setValue('dtend', $newEnd->format('Y-m-d H:i:s'));
+
+            return $newEvent;
         }
 
         return null;
