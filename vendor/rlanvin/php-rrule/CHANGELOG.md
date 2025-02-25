@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [2.5.2] - 2025-02-21
+
+### Fixed
+
+- Fix "november" typo in french translation [#155](https://github.com/rlanvin/php-rrule/issues/155)
+- Fix incorrect calculation from partially filled cache [#160](https://github.com/rlanvin/php-rrule/issues/160)
+
 ## [2.5.1] - 2024-06-23
 
 ### Fixed
@@ -43,7 +50,7 @@
 
 ### Added
 
-- Added Portugese translation [#108](https://github.com/rlanvin/php-rrule/pull/108)
+- Added Portuguese translation [#108](https://github.com/rlanvin/php-rrule/pull/108)
 - Added Polish translation [#106](https://github.com/rlanvin/php-rrule/pull/106)
 
 ## [2.3.2] - 2022-05-03
@@ -114,7 +121,7 @@
 
 ## [2.0.0-rc1] - 2019-01-13
 
-- Rewrite the core algorithm to use a native PHP generator, drop compability with PHP < 5.6 [#43](https://github.com/rlanvin/php-rrule/issues/43)
+- Rewrite the core algorithm to use a native PHP generator, drop compatibility with PHP < 5.6 [#43](https://github.com/rlanvin/php-rrule/issues/43)
 
 ### Added
 
@@ -228,7 +235,7 @@
 
 ### Fixed
 
-- `RRule::parseRfcString()` is strictier and will not accept invalid `DTSTART` and `UNTIL` formats (use the array syntax in the constructor with `DateTime` objects if you need to create rules with complex combinations of timezones). [#13](https://github.com/rlanvin/php-rrule/issues/13)
+- `RRule::parseRfcString()` is stricter and will not accept invalid `DTSTART` and `UNTIL` formats (use the array syntax in the constructor with `DateTime` objects if you need to create rules with complex combinations of timezones). [#13](https://github.com/rlanvin/php-rrule/issues/13)
 
 ## [1.2.0] - 2016-04-09
 
@@ -273,7 +280,8 @@
 
 - First release, everything before that was unversioned (`dev-master` was used).
 
-[Unreleased]: https://github.com/rlanvin/php-rrule/compare/v2.5.1...HEAD
+[Unreleased]: https://github.com/rlanvin/php-rrule/compare/v2.5.2...HEAD
+[2.5.2]: https://github.com/rlanvin/php-rrule/compare/v2.5.1...v2.5.2
 [2.5.1]: https://github.com/rlanvin/php-rrule/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/rlanvin/php-rrule/compare/v2.4.1...v2.5.0
 [2.4.1]: https://github.com/rlanvin/php-rrule/compare/v2.4.0...v2.4.1
