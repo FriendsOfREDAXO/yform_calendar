@@ -185,16 +185,26 @@
         var exdate_elements = document.querySelectorAll('input.exdate');
         
         exdate_elements.forEach(function (element) {
-            // Flatpickr initialisieren mit Optionen basierend auf Ihrem Beispiel
+            // Flatpickr initialisieren
             flatpickr(element, {
                 mode: 'multiple',
                 dateFormat: 'Y-m-d',
                 locale: 'de',
                 conjunction: ',',
-                altInput: true,
-                altFormat: 'j. F Y',
+                // altInput entfernt, um sicherzustellen, dass die Werte im Original-Input bleiben
+                // altInput: true,
+                // altFormat: 'j. F Y',
                 time_24hr: true,
-                placeholder: 'Termine auswählen...'
+                placeholder: 'Termine auswählen...',
+                // Event hinzufügen, um sicherzustellen, dass der Wert aktualisiert wird
+                onChange: function(selectedDates, dateStr) {
+                    // Stellen Sie sicher, dass der Wert im ursprünglichen Eingabefeld gesetzt wird
+                    element.value = dateStr;
+                    
+                    // Optional: Ein Change-Event auslösen, falls andere Skripte darauf warten
+                    var event = new Event('change', { bubbles: true });
+                    element.dispatchEvent(event);
+                }
             });
         });
         
@@ -202,22 +212,23 @@
         var exdate_by_name = document.querySelectorAll('input[name*="[exdate]"]');
         
         exdate_by_name.forEach(function (element) {
-            // Klasse hinzufügen, falls noch nicht vorhanden
-            if (!element.classList.contains('exdate')) {
+            // Nur verarbeiten, wenn es noch nicht durch den obigen Selektor erfasst wurde
+            if (!element._flatpickr && !element.classList.contains('exdate')) {
                 element.classList.add('exdate');
-            }
-            
-            // Flatpickr initialisieren, falls nicht bereits geschehen
-            if (!element._flatpickr) {
+                
                 flatpickr(element, {
                     mode: 'multiple',
                     dateFormat: 'Y-m-d',
                     locale: 'de',
                     conjunction: ',',
-                    altInput: true,
-                    altFormat: 'j. F Y',
+                    // altInput entfernt
                     time_24hr: true,
-                    placeholder: 'Termine auswählen...'
+                    placeholder: 'Termine auswählen...',
+                    onChange: function(selectedDates, dateStr) {
+                        element.value = dateStr;
+                        var event = new Event('change', { bubbles: true });
+                        element.dispatchEvent(event);
+                    }
                 });
             }
         });
