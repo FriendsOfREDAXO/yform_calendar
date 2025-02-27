@@ -182,28 +182,48 @@
 (function() {
     function initExDatePickers() {
         // Alle Felder mit der Klasse 'exdate' finden
-        document.querySelectorAll('input.exdate').forEach(field => {
-            // Flatpickr initialisieren
-            flatpickr(field, {
+        var exdate_elements = document.querySelectorAll('input.exdate');
+        
+        exdate_elements.forEach(function (element) {
+            // Flatpickr initialisieren mit Optionen basierend auf Ihrem Beispiel
+            flatpickr(element, {
                 mode: 'multiple',
                 dateFormat: 'Y-m-d',
                 locale: 'de',
-                conjunction: ',', // Komma als Trennzeichen
-                position: 'auto',
-                static: true,
-                allowInput: false, // Manuelle Eingabe erlauben
-                placeholder: 'Termine auswählen, die ausgeschlossen werden sollen...'
+                conjunction: ',',
+                altInput: true,
+                altFormat: 'j. F Y',
+                time_24hr: true,
+                placeholder: 'Termine auswählen...'
             });
+        });
+        
+        // Alternative: Falls die Auswahl nach Namen zuverlässiger ist
+        var exdate_by_name = document.querySelectorAll('input[name*="[exdate]"]');
+        
+        exdate_by_name.forEach(function (element) {
+            // Klasse hinzufügen, falls noch nicht vorhanden
+            if (!element.classList.contains('exdate')) {
+                element.classList.add('exdate');
+            }
             
-            // Einfache Hilfetextanzeige unter dem Feld
-            // const helpText = document.createElement('small');
-            // helpText.className = 'form-text text-muted';
-            // helpText.textContent = 'Wählen Sie Termine, die von der Wiederholung ausgeschlossen werden sollen.';
-            // field.parentNode.appendChild(helpText);
+            // Flatpickr initialisieren, falls nicht bereits geschehen
+            if (!element._flatpickr) {
+                flatpickr(element, {
+                    mode: 'multiple',
+                    dateFormat: 'Y-m-d',
+                    locale: 'de',
+                    conjunction: ',',
+                    altInput: true,
+                    altFormat: 'j. F Y',
+                    time_24hr: true,
+                    placeholder: 'Termine auswählen...'
+                });
+            }
         });
     }
 
-    // Diese Funktion bei DOMContentLoaded und rex:ready ausführen
+    // Diese Funktion sowohl bei DOMContentLoaded als auch bei rex:ready ausführen
     function onReady(fn) {
         if (document.readyState !== 'loading') {
             fn();
@@ -215,5 +235,6 @@
         }
     }
 
+    // Initialisierung der ExDate-Picker ausführen
     onReady(initExDatePickers);
 })();
