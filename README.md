@@ -64,7 +64,7 @@ use FriendsOfRedaxo\YFormCalendar\CalRender;
 // Einsetzen wo es Sinn ergibt
 
 rex_yform_manager_dataset::setModelClass(
-            'rex_yformcalendar',CalRender::class
+            'rex_yform_calendar',CalRender::class
 );
 ```
 
