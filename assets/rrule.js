@@ -177,3 +177,43 @@
 
         onReady(initRRuleWidgets);
     })();
+
+
+(function() {
+    function initExDatePickers() {
+        // Alle Felder mit der Klasse 'exdate' finden
+        document.querySelectorAll('input.exdate').forEach(field => {
+            // Flatpickr initialisieren
+            flatpickr(field, {
+                mode: 'multiple',
+                dateFormat: 'Y-m-d',
+                locale: 'de',
+                conjunction: ',', // Komma als Trennzeichen
+                position: 'auto',
+                static: true,
+                allowInput: true, // Manuelle Eingabe erlauben
+                placeholder: 'Termine auswählen, die ausgeschlossen werden sollen...'
+            });
+            
+            // Einfache Hilfetextanzeige unter dem Feld
+            const helpText = document.createElement('small');
+            helpText.className = 'form-text text-muted';
+            helpText.textContent = 'Wählen Sie Termine, die von der Wiederholung ausgeschlossen werden sollen.';
+            field.parentNode.appendChild(helpText);
+        });
+    }
+
+    // Diese Funktion bei DOMContentLoaded und rex:ready ausführen
+    function onReady(fn) {
+        if (document.readyState !== 'loading') {
+            fn();
+        } else {
+            document.addEventListener('DOMContentLoaded', fn);
+        }
+        if (typeof jQuery !== 'undefined') {
+            jQuery(document).on('rex:ready', fn);
+        }
+    }
+
+    onReady(initExDatePickers);
+})();
