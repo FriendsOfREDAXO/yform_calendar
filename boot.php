@@ -9,7 +9,7 @@ use rex_yform;
 use rex_yform_manager_dataset;
 
 $package = rex_addon::get('yform_calendar');
-if (rex_plugin::get('yform', 'manager')->isAvailable()) {
+if (rex_addon::get('yform')->isAvailable()) {
     rex_yform::addTemplatePath($package->getPath('ytemplates'));
 }
 
