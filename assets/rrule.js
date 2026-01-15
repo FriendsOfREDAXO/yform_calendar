@@ -8,6 +8,7 @@
                     rruleDisplay: widget.querySelector('#' + id + '-display'),
                     frequency: widget.querySelector('#' + id + '-frequency'),
                     interval: widget.querySelector('#' + id + '-interval'),
+                    intervalSuffix: widget.querySelector('#' + id + '-interval-suffix'),
                     weeklyGroup: widget.querySelector('#' + id + '-weekly-group'),
                     monthlyGroup: widget.querySelector('#' + id + '-monthly-group'),
                     bymonthdayGroup: widget.querySelector('#' + id + '-bymonthday-group'),
@@ -17,17 +18,40 @@
                     countGroup: widget.querySelector('#' + id + '-count-group'),
                     untilGroup: widget.querySelector('#' + id + '-until-group'),
                     count: widget.querySelector('#' + id + '-count'),
-                    until: widget.querySelector('#' + id + '-until')
+                    until: widget.querySelector('#' + id + '-until'),
+                    exdateInput: widget.querySelector('#' + id + '-exdate'),
+                    exdateList: widget.querySelector('#' + id + '-exdate-list')
+                };
+
+                // Speicher für EXDATE Termine
+                let exdates = [];
+
+                const frequencyLabels = {
+                    'DAILY': 'Tag',
+                    'WEEKLY': 'Woche',
+                    'MONTHLY': 'Monat',
+                    'YEARLY': 'Jahr'
                 };
 
                 function toggleVisibility(element, show) {
                     if (element) element.classList.toggle('hidden', !show);
                 }
 
+                function updateIntervalSuffix() {
+                    const freq = elements.frequency.value;
+                    const interval = parseInt(elements.interval.value) || 1;
+                    const label = frequencyLabels[freq] || 'Tagen';
+                    
+                    if (elements.intervalSuffix) {
+                        elements.intervalSuffix.textContent = interval === 1 ? label : label + 'n';
+                    }
+                }
+
                 function updateVisibility() {
                     const frequency = elements.frequency.value;
                     toggleVisibility(elements.weeklyGroup, frequency === 'WEEKLY');
                     toggleVisibility(elements.monthlyGroup, frequency === 'MONTHLY');
+                    updateIntervalSuffix();
 
                     if (frequency === 'MONTHLY') {
                         const monthlyType = widget.querySelector('input[name="' + id + '-monthlyType"]:checked');
@@ -40,6 +64,100 @@
 
                     toggleVisibility(elements.countGroup, elements.endType.value === 'count');
                     toggleVisibility(elements.untilGroup, elements.endType.value === 'until');
+                }
+
+                function generatePreview(rrule) {
+                    if (!rrule) return '';
+
+                    const parts = rrule.split(';');
+                    const rule = {};
+                    parts.forEach(part => {
+                        const [key, value] = part.split('=');
+                        rule[key] = value;
+                    });
+
+                    let preview = 'Wiederholt sich: ';
+                    
+                    const interval = rule.INTERVAL ? parseInt(rule.INTERVAL) : 1;
+                    const freq = rule.FREQ;
+                    
+                    if (interval > 1) {
+                        preview += 'Alle ' + interval + ' ';
+                    }
+                    
+                    const freqLabels = {
+                        'DAILY': 'Tag' + (interval > 1 ? 'e' : ''),
+                        'WEEKLY': 'Woche' + (interval > 1 ? 'n' : ''),
+                        'MONTHLY': 'Monat' + (interval > 1 ? 'e' : ''),
+                        'YEARLY': 'Jahr' + (interval > 1 ? 'e' : '')
+                    };
+                    
+                    preview += freqLabels[freq] || freq;
+
+                    // Wochentage
+                    if (rule.BYDAY && freq === 'WEEKLY') {
+                        const days = rule.BYDAY.split(',');
+                        const dayNames = {
+                            'MO': 'Mo', 'TU': 'Di', 'WE': 'Mi', 'TH': 'Do',
+                            'FR': 'Fr', 'SA': 'Sa', 'SU': 'So'
+                        };
+                        preview += ' auf ' + days.map(d => dayNames[d] || d).join(', ');
+                    }
+
+                    // Enddatum
+                    if (rule.COUNT) {
+                        preview += ', ' + rule.COUNT + 'x';
+                    } else if (rule.UNTIL) {
+                        const date = new Date(rule.UNTIL.slice(0, 4) + '-' + rule.UNTIL.slice(4, 6) + '-' + rule.UNTIL.slice(6, 8));
+                        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                        preview += ' bis ' + date.toLocaleDateString('de-DE', options);
+                    }
+
+                    // EXDATE Info
+                    if (exdates.length > 0) {
+                        preview += ' (' + exdates.length + ' ausgeschlossen)';
+                    }
+
+                    return preview;
+                }
+
+                function renderExdateList() {
+                    elements.exdateList.innerHTML = '';
+                    exdates.forEach(date => {
+                        const item = document.createElement('div');
+                        item.className = 'rrule-exdate-item';
+                        item.innerHTML = `
+                            <span>${formatDateDisplay(date)}</span>
+                            <button type="button" class="rrule-exdate-remove" data-date="${date}" title="Entfernen">×</button>
+                        `;
+                        elements.exdateList.appendChild(item);
+                    });
+
+                    // Event-Listener für Remove-Buttons
+                    elements.exdateList.querySelectorAll('.rrule-exdate-remove').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const date = btn.getAttribute('data-date');
+                            exdates = exdates.filter(d => d !== date);
+                            renderExdateList();
+                            updateRRule();
+                        });
+                    });
+                }
+
+                function formatDateDisplay(dateStr) {
+                    const date = new Date(dateStr);
+                    const options = { weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit' };
+                    return date.toLocaleDateString('de-DE', options);
+                }
+
+                function addExdate(dateStr) {
+                    if (dateStr && !exdates.includes(dateStr)) {
+                        exdates.push(dateStr);
+                        exdates.sort();
+                        renderExdateList();
+                        updateRRule();
+                    }
                 }
 
                 function updateRRule() {
@@ -70,13 +188,21 @@
                     if (elements.endType.value === 'count') {
                         rrule += `;COUNT=${elements.count.value}`;
                     } else if (elements.endType.value === 'until') {
-                        const untilDate = new Date(elements.until.value);
-                        const formattedDate = untilDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+                        const untilDate = new Date(elements.until.value + 'T23:59:59');
+                        const year = untilDate.getFullYear();
+                        const month = String(untilDate.getMonth() + 1).padStart(2, '0');
+                        const day = String(untilDate.getDate()).padStart(2, '0');
+                        const formattedDate = year + month + day + 'T235959Z';
                         rrule += `;UNTIL=${formattedDate}`;
                     }
 
+                    // EXDATE hinzufügen
+                    if (exdates.length > 0) {
+                        rrule += `;EXDATE=${exdates.join(',')}`;
+                    }
+
                     elements.rruleValue.value = rrule;
-                    elements.rruleDisplay.textContent = rrule;
+                    elements.rruleDisplay.textContent = generatePreview(rrule);
                 }
 
                 function parseRRule(rruleString) {
@@ -94,12 +220,17 @@
                     if (initialValue) {
                         elements.recurringEventCheckbox.checked = true;
                         toggleVisibility(elements.rruleWidget, true);
-                        toggleVisibility(elements.rruleDisplay, true);
 
                         const rrule = parseRRule(initialValue);
 
                         elements.frequency.value = rrule.FREQ || 'DAILY';
                         elements.interval.value = rrule.INTERVAL || '1';
+
+                        // EXDATE laden
+                        if (rrule.EXDATE) {
+                            exdates = rrule.EXDATE.split(',');
+                            renderExdateList();
+                        }
 
                         if (rrule.BYDAY) {
                             if (rrule.FREQ === 'WEEKLY') {
@@ -133,23 +264,64 @@
                         } else if (rrule.UNTIL) {
                             elements.endType.value = 'until';
                             const untilDate = new Date(rrule.UNTIL.slice(0, 4) + '-' + rrule.UNTIL.slice(4, 6) + '-' + rrule.UNTIL.slice(6, 8));
-                            elements.until.value = untilDate.toISOString().split('T')[0];
+                            // Konvertiere zu lokalen Datum ohne Zeitzone-Versatz
+                            const year = untilDate.getFullYear();
+                            const month = String(untilDate.getMonth() + 1).padStart(2, '0');
+                            const day = String(untilDate.getDate()).padStart(2, '0');
+                            elements.until.value = year + '-' + month + '-' + day;
                         } else {
                             elements.endType.value = 'never';
                         }
 
                         updateVisibility();
-                        elements.rruleDisplay.textContent = initialValue;
+                        elements.rruleDisplay.textContent = generatePreview(initialValue);
                     }
+                }
+
+                // EXDATE Date Picker mit Flatpickr
+                if (elements.exdateInput && typeof flatpickr !== 'undefined') {
+                    flatpickr(elements.exdateInput, {
+                        mode: 'single',
+                        dateFormat: 'Y-m-d',
+                        locale: 'de',
+                        time_24hr: true,
+                        placeholder: 'Termin zum Ausschließen...',
+                        onChange: function(selectedDates) {
+                            if (selectedDates.length > 0) {
+                                // Konvertiere zu Y-m-d ohne Zeitzone-Versatz
+                                const date = selectedDates[0];
+                                const year = date.getFullYear();
+                                const month = String(date.getMonth() + 1).padStart(2, '0');
+                                const day = String(date.getDate()).padStart(2, '0');
+                                const dateStr = year + '-' + month + '-' + day;
+                                
+                                addExdate(dateStr);
+                                // Input leeren für nächste Auswahl
+                                elements.exdateInput.value = '';
+                                // Flatpickr-Instanz leeren
+                                if (elements.exdateInput._flatpickr) {
+                                    elements.exdateInput._flatpickr.clear();
+                                }
+                            }
+                        }
+                    });
                 }
 
                 elements.recurringEventCheckbox.addEventListener('change', function() {
                     toggleVisibility(elements.rruleWidget, this.checked);
-                    toggleVisibility(elements.rruleDisplay, this.checked);
                     updateRRule();
                 });
 
-                elements.frequency.addEventListener('change', updateVisibility);
+                elements.frequency.addEventListener('change', function() {
+                    updateVisibility();
+                    updateRRule();
+                });
+                
+                elements.interval.addEventListener('change', function() {
+                    updateIntervalSuffix();
+                    updateRRule();
+                });
+
                 const bymonthdayRadio = widget.querySelector('#' + id + '-bymonthday');
                 const bydayRadio = widget.querySelector('#' + id + '-byday');
                 if (bymonthdayRadio) bymonthdayRadio.addEventListener('change', updateVisibility);
@@ -191,17 +363,10 @@
                 dateFormat: 'Y-m-d',
                 locale: 'de',
                 conjunction: ',',
-                // altInput entfernt, um sicherzustellen, dass die Werte im Original-Input bleiben
-                // altInput: true,
-                // altFormat: 'j. F Y',
                 time_24hr: true,
                 placeholder: 'Termine auswählen...',
-                // Event hinzufügen, um sicherzustellen, dass der Wert aktualisiert wird
                 onChange: function(selectedDates, dateStr) {
-                    // Stellen Sie sicher, dass der Wert im ursprünglichen Eingabefeld gesetzt wird
                     element.value = dateStr;
-                    
-                    // Optional: Ein Change-Event auslösen, falls andere Skripte darauf warten
                     var event = new Event('change', { bubbles: true });
                     element.dispatchEvent(event);
                 }
@@ -221,7 +386,6 @@
                     dateFormat: 'Y-m-d',
                     locale: 'de',
                     conjunction: ',',
-                    // altInput entfernt
                     time_24hr: true,
                     placeholder: 'Termine auswählen...',
                     onChange: function(selectedDates, dateStr) {
@@ -234,7 +398,6 @@
         });
     }
 
-    // Diese Funktion sowohl bei DOMContentLoaded als auch bei rex:ready ausführen
     function onReady(fn) {
         if (document.readyState !== 'loading') {
             fn();
@@ -246,6 +409,5 @@
         }
     }
 
-    // Initialisierung der ExDate-Picker ausführen
     onReady(initExDatePickers);
 })();

@@ -70,8 +70,16 @@ class ICalExporter
             $icalEvent .= self::foldICalLine("RRULE:$rrule\r\n");
         }
 
-        if ($event->getValue('exdate')) {
-            $icalEvent .= self::formatICalExDates($event->getValue('exdate'), $event->getValue('all_day'));
+        // Extrahiere EXDATE aus dem RRule-String
+        $exdateString = self::extractExdateFromRRule($rrule);
+        
+        // Fallback auf altes separates exdate-Feld für Migration
+        if (empty($exdateString) && $event->hasValue('exdate') && $event->getValue('exdate')) {
+            $exdateString = $event->getValue('exdate');
+        }
+        
+        if ($exdateString) {
+            $icalEvent .= self::formatICalExDates($exdateString, $event->getValue('all_day'));
         }
 
         $icalEvent .= "END:VEVENT\r\n";
@@ -119,6 +127,22 @@ class ICalExporter
     private static function generateUID($event): string
     {
         return uniqid($event->getId() . '@yourdomain.com', true);
+    }
+
+    // Extrahiert EXDATE aus einem RRule-String
+    private static function extractExdateFromRRule(string $rruleString): string
+    {
+        if (empty($rruleString)) {
+            return '';
+        }
+        
+        $parts = explode(';', $rruleString);
+        foreach ($parts as $part) {
+            if (strpos($part, 'EXDATE=') === 0) {
+                return substr($part, 7); // Länge von 'EXDATE='
+            }
+        }
+        return '';
     }
 
     // Faltet eine Zeile, wenn sie länger als 75 Zeichen ist, wie es von RFC 5545 verlangt wird

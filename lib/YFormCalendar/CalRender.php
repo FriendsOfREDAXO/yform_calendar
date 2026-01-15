@@ -6,6 +6,7 @@ use DateTime;
 use Generator;
 use RRule\RSet;
 use rex_yform_manager_dataset;
+use rex_yform_manager_query;
 
 class CalRender extends rex_yform_manager_dataset
 {
@@ -75,8 +76,17 @@ class CalRender extends rex_yform_manager_dataset
         $rset = new RSet();
         $rset->addRRule($event->getValue('rrule'));
 
+        // Extrahiere EXDATE aus dem RRule-String
+        $rruleString = $event->getValue('rrule');
+        $exdateString = self::extractExdateFromRRule($rruleString);
+        
+        // Fallback auf altes separates exdate-Feld für Migration
+        if (empty($exdateString) && $event->hasValue('exdate')) {
+            $exdateString = $event->getValue('exdate');
+        }
+        
         // Füge exdate-Daten hinzu und verarbeite Ranges
-        $exceptions = self::parseExceptions($event->getValue('exdate'));
+        $exceptions = self::parseExceptions($exdateString);
 
         $originalStart = new DateTime($event->getValue('dtstart'));
         $originalEnd = new DateTime($event->getValue('dtend'));
@@ -120,8 +130,23 @@ class CalRender extends rex_yform_manager_dataset
         }
     }
 
+    private static function extractExdateFromRRule(string $rruleString): string
+    {
+        $parts = explode(';', $rruleString);
+        foreach ($parts as $part) {
+            if (strpos($part, 'EXDATE=') === 0) {
+                return substr($part, 7); // Länge von 'EXDATE='
+            }
+        }
+        return '';
+    }
+
     private static function parseExceptions(string $exdateString): array
     {
+        if (empty($exdateString)) {
+            return [];
+        }
+        
         $exceptions = [];
         $items = array_map('trim', explode(',', $exdateString));
 

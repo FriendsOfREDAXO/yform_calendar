@@ -1,156 +1,550 @@
 :root {
-    /* Light mode variables */
-    --primary-color: #4CAF50;
-    --bg-color: #fff;
-    --border-color: #ddd;
-    --text-color: #333;
-    --shadow-color: rgba(0, 0, 0, 0.1);
-    --secondary-bg: #e9ecef;
-    --toggle-bg: #ccc;
+  /* Light mode variables */
+  --rrule-primary-color: #007AFF;
+  --rrule-secondary-color: #5AC8FA;
+  --rrule-success-color: #34C759;
+  --rrule-bg-color: #fff;
+  --rrule-border-color: #E5E5EA;
+  --rrule-text-color: #000;
+  --rrule-text-secondary: #666;
+  --rrule-separator-color: #F2F2F7;
+  --rrule-shadow-color: rgba(0, 0, 0, 0.08);
   
-    /* Common variables */
-    --border-radius: 4px;
-    --spacing-sm: 5px;
-    --spacing-md: 10px;
-    --spacing-lg: 20px;
-    --font-size: 16px;
-    --transition: 0.4s;
+  /* Common variables */
+  --rrule-border-radius: 10px;
+  --rrule-spacing-xs: 4px;
+  --rrule-spacing-sm: 8px;
+  --rrule-spacing-md: 12px;
+  --rrule-spacing-lg: 16px;
+  --rrule-spacing-xl: 20px;
+  --rrule-font-size: 16px;
+  --rrule-font-size-small: 14px;
+  --rrule-transition: 0.25s ease;
+}
+
+/* Dark mode variables */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --rrule-bg-color: #1C1C1E;
+    --rrule-border-color: #38383A;
+    --rrule-text-color: #fff;
+    --rrule-text-secondary: #999;
+    --rrule-separator-color: #2C2C2E;
+    --rrule-shadow-color: rgba(0, 0, 0, 0.3);
   }
-  
-  /* Dark mode variables for system preference */
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg-color: rgba(31, 31, 31, 0.39);
-      --border-color: #444;
-      --text-color: #f0f0f0;
-      --shadow-color: rgba(0, 0, 0, 0.3);
-      --secondary-bg: #2c2c2c;
-      --toggle-bg: #555;
-    }
-  }
-  
-  /* REDAXO dark theme */
-  body.rex-theme-dark {
-    --bg-color: rgba(31, 31, 31, 0.39);
-    --border-color: #444;
-    --text-color: #f0f0f0;
-    --shadow-color: rgba(0, 0, 0, 0.3);
-    --secondary-bg: #2c2c2c;
-    --toggle-bg: #555;
-  }
-  
-  .rrule-widget {
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    padding: var(--spacing-lg);
-    border-radius: calc(var(--border-radius) * 2);
-    box-shadow: 0 2px 10px var(--shadow-color);
-    transition: background-color var(--transition), color var(--transition);
-  }
-  
-  .rrule-widget .form-group {
-    margin-bottom: var(--spacing-lg);
-  }
-  
-  .rrule-widget label {
-    display: block;
-    margin-bottom: var(--spacing-sm);
-    font-weight: bold;
-  }
-  
-  .rrule-widget select,
-  .rrule-widget input[type="number"] {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    font-size: var(--font-size);
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    transition: background-color var(--transition), color var(--transition), border-color var(--transition);
-  }
-  
-  .rrule-widget .toggle-group,
-  .rrule-widget .radio-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-md);
-  }
-  
-  .rrule-widget .toggle-switch,
-  .rrule-widget .radio-switch {
-    position: relative;
-    display: inline-block;
-    width: 40px;
-    height: 22px;
-  }
-  
-  .rrule-widget .toggle-switch input,
-  .rrule-widget .radio-switch input {
+}
+
+body.rex-theme-dark {
+  --rrule-bg-color: #1C1C1E;
+  --rrule-border-color: #38383A;
+  --rrule-text-color: #fff;
+  --rrule-text-secondary: #999;
+  --rrule-separator-color: #2C2C2E;
+  --rrule-shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+.rrule-widget {
+  background-color: var(--rrule-bg-color);
+  color: var(--rrule-text-color);
+  padding: 0;
+  border-radius: var(--rrule-border-radius);
+  transition: background-color var(--rrule-transition), color var(--rrule-transition);
+  border: 1px solid var(--rrule-border-color);
+}
+
+.rrule-widget .rrule-header {
+  display: flex;
+  align-items: center;
+  gap: var(--rrule-spacing-md);
+  padding: var(--rrule-spacing-lg) var(--rrule-spacing-lg) var(--rrule-spacing-md) var(--rrule-spacing-lg);
+  cursor: pointer;
+  border-bottom: 1px solid var(--rrule-separator-color);
+}
+
+.rrule-widget .rrule-header:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.rrule-widget .rrule-content {
+  padding: var(--rrule-spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--rrule-spacing-lg);
+  animation: rruleSlideDown var(--rrule-transition) ease-out;
+}
+
+@keyframes rruleSlideDown {
+  from {
     opacity: 0;
-    width: 0;
-    height: 0;
+    transform: translateY(-10px);
   }
-  
-  .rrule-widget .slider,
-  .rrule-widget .radio-slider {
-    position: absolute;
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rrule-widget .rrule-content.hidden {
+  display: none;
+}
+
+.rrule-widget .rrule-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rrule-spacing-md);
+  padding-bottom: var(--rrule-spacing-lg);
+  border-bottom: 1px solid var(--rrule-separator-color);
+}
+
+.rrule-widget .rrule-section:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.rrule-widget .rrule-label {
+  font-weight: 600;
+  font-size: var(--rrule-font-size);
+  color: var(--rrule-text-color);
+  margin: 0;
+}
+
+.rrule-widget .rrule-subsection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rrule-spacing-sm);
+  margin-top: var(--rrule-spacing-md);
+  padding-top: var(--rrule-spacing-md);
+  border-top: 1px solid var(--rrule-separator-color);
+}
+
+.rrule-widget .rrule-subsection.hidden {
+  display: none;
+}
+
+.rrule-widget .rrule-subsection label {
+  font-weight: 500;
+  font-size: var(--rrule-font-size-small);
+  color: var(--rrule-text-secondary);
+}
+
+/* Toggle Switch */
+.rrule-widget .toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 28px;
+}
+
+.rrule-widget .toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.rrule-widget .toggle-switch .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: background-color var(--rrule-transition);
+  border-radius: 34px;
+}
+
+.rrule-widget .toggle-switch .slider:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: transform var(--rrule-transition);
+  border-radius: 50%;
+}
+
+.rrule-widget .toggle-switch input:checked + .slider {
+  background-color: var(--rrule-primary-color);
+}
+
+.rrule-widget .toggle-switch input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+.rrule-widget .toggle-label {
+  display: flex;
+  align-items: center;
+  gap: var(--rrule-spacing-sm);
+  font-size: var(--rrule-font-size);
+  font-weight: 500;
+}
+
+/* Select & Input Styles */
+.rrule-widget .rrule-input,
+.rrule-widget .rrule-select {
+  display: block;
+  width: 100%;
+  padding: var(--rrule-spacing-md) var(--rrule-spacing-md);
+  font-size: var(--rrule-font-size);
+  line-height: 1.5;
+  color: var(--rrule-text-color);
+  background-color: var(--rrule-separator-color);
+  border: 1px solid var(--rrule-border-color);
+  border-radius: 8px;
+  transition: all var(--rrule-transition);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.rrule-widget .rrule-input:focus,
+.rrule-widget .rrule-select:focus {
+  outline: none;
+  border-color: var(--rrule-primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+  background-color: var(--rrule-bg-color);
+}
+
+.rrule-widget .rrule-input:hover:not(:focus),
+.rrule-widget .rrule-select:hover:not(:focus) {
+  border-color: var(--rrule-border-color);
+}
+
+/* Interval Group */
+.rrule-widget .interval-group {
+  display: flex;
+  align-items: center;
+  gap: var(--rrule-spacing-sm);
+  padding: var(--rrule-spacing-md);
+  background-color: var(--rrule-separator-color);
+  border-radius: 8px;
+}
+
+.rrule-widget .interval-label {
+  font-size: var(--rrule-font-size-small);
+  font-weight: 500;
+  color: var(--rrule-text-color);
+  white-space: nowrap;
+  margin: 0;
+}
+
+.rrule-widget .interval-suffix {
+  font-size: var(--rrule-font-size-small);
+  color: var(--rrule-text-secondary);
+  white-space: nowrap;
+}
+
+.rrule-widget .interval-input {
+  flex: 0 0 70px;
+  text-align: center;
+  background-color: var(--rrule-bg-color) !important;
+  padding: 6px 8px !important;
+}
+
+/* Weekdays Grid */
+.rrule-widget .weekdays-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+  gap: var(--rrule-spacing-md);
+}
+
+.rrule-widget .weekday-button {
+  display: block;
+  position: relative;
+  cursor: pointer;
+}
+
+.rrule-widget .weekday-checkbox {
+  opacity: 0;
+  position: absolute;
+  width: 0;
+  height: 0;
+  cursor: pointer;
+}
+
+.rrule-widget .weekday-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1;
+  min-height: 48px;
+  border: 2px solid var(--rrule-border-color);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: var(--rrule-font-size-small);
+  cursor: pointer;
+  transition: all var(--rrule-transition);
+  background-color: var(--rrule-separator-color);
+  color: var(--rrule-text-color);
+}
+
+.rrule-widget .weekday-checkbox:checked + .weekday-label {
+  background-color: var(--rrule-primary-color);
+  color: white;
+  border-color: var(--rrule-primary-color);
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+}
+
+.rrule-widget .weekday-label:hover {
+  border-color: var(--rrule-primary-color);
+  opacity: 0.8;
+}
+
+.rrule-widget .weekday-checkbox:checked + .weekday-label:hover {
+  opacity: 1;
+}
+
+/* Radio Buttons */
+.rrule-widget .radio-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rrule-spacing-md);
+}
+
+.rrule-widget .radio-button {
+  display: flex;
+  align-items: center;
+  gap: var(--rrule-spacing-md);
+  padding: var(--rrule-spacing-md);
+  border: 2px solid var(--rrule-border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all var(--rrule-transition);
+  background-color: var(--rrule-separator-color);
+}
+
+.rrule-widget .radio-button:hover {
+  border-color: var(--rrule-primary-color);
+  background-color: rgba(0, 122, 255, 0.05);
+}
+
+.rrule-widget .radio-button input[type="radio"] {
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: var(--rrule-primary-color);
+}
+
+.rrule-widget .radio-button input[type="radio"]:checked + span {
+  color: var(--rrule-primary-color);
+  font-weight: 600;
+}
+
+/* Preview */
+.rrule-widget .rrule-preview {
+  margin-top: var(--rrule-spacing-lg);
+  padding: var(--rrule-spacing-md) var(--rrule-spacing-lg);
+  background-color: rgba(0, 122, 255, 0.04);
+  border: 1px solid var(--rrule-border-color);
+  border-radius: 8px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.rrule-widget .preview-text {
+  font-size: var(--rrule-font-size-small);
+  color: var(--rrule-text-secondary);
+  font-weight: 500;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.rrule-widget .preview-text:empty::before {
+  content: "Wähle eine Wiederholung aus";
+  color: var(--rrule-text-secondary);
+  font-style: italic;
+  opacity: 0.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .rrule-widget {
+    padding: 0;
+  }
+
+  .rrule-widget .rrule-content {
+    padding: var(--rrule-spacing-lg) var(--rrule-spacing-md);
+  }
+
+  .rrule-widget .weekdays-grid {
+    grid-template-columns: repeat(auto-fit, minmax(48px, 1fr));
+  }
+
+  .rrule-widget .radio-buttons {
+    gap: var(--rrule-spacing-sm);
+  }
+
+  .rrule-widget .radio-button {
+    padding: var(--rrule-spacing-md);
+    font-size: var(--rrule-font-size-small);
+  }
+}
+
+/* Utilities */
+.rrule-widget .hidden {
+  display: none !important;
+}
+
+/* Override REDAXO Styles (within widget only) */
+.rrule-widget .form-group {
+  margin-bottom: 0;
+}
+
+.rrule-widget label {
+  display: block;
+  margin-bottom: var(--rrule-spacing-xs);
+  font-weight: 500;
+}
+
+.rrule-widget select,
+.rrule-widget input[type="number"],
+.rrule-widget input[type="date"] {
+  width: 100%;
+  padding: var(--rrule-spacing-md) var(--rrule-spacing-md);
+  font-size: var(--rrule-font-size);
+  color: var(--rrule-text-color);
+  background-color: var(--rrule-separator-color);
+  border: 1px solid var(--rrule-border-color);
+  border-radius: 8px;
+  transition: all var(--rrule-transition);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.rrule-widget select:focus,
+.rrule-widget input[type="number"]:focus,
+.rrule-widget input[type="date"]:focus {
+  outline: none;
+  border-color: var(--rrule-primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+  background-color: var(--rrule-bg-color);
+}
+/* EXDATE List Styling */
+.rrule-exdate-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rrule-spacing-sm);
+  margin-top: var(--rrule-spacing-md);
+}
+
+.rrule-exdate-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--rrule-separator-color);
+  border: 1px solid var(--rrule-border-color);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: var(--rrule-font-size-small);
+  color: var(--rrule-text-color);
+}
+
+.rrule-exdate-remove {
+  background: none;
+  border: none;
+  color: var(--rrule-text-secondary);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  line-height: 1;
+  transition: color var(--rrule-transition);
+}
+
+.rrule-exdate-remove:hover {
+  color: var(--rrule-primary-color);
+}
+
+.rrule-exdate-input {
+  width: 100%;
+}
+
+/* ========================================
+   ALL-DAY WIDGET STYLES
+   ======================================== */
+
+.allday-widget {
+    --allday-primary-color: #007AFF;
+    --allday-bg-color: #fff;
+    --allday-border-color: #E5E5EA;
+    --allday-text-color: #000;
+    --allday-text-secondary: #666;
+}
+
+body.rex-theme-dark .allday-widget {
+    --allday-bg-color: #1C1C1E;
+    --allday-border-color: #38383A;
+    --allday-text-color: #fff;
+    --allday-text-secondary: #999;
+}
+
+.allday-widget .form-group {
+    margin-bottom: 16px;
+}
+
+.allday-widget .allday-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: var(--toggle-bg);
-    transition: var(--transition);
-    border-radius: 22px;
-  }
-  
-  .rrule-widget .slider:before,
-  .rrule-widget .radio-slider:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 2px;
-    bottom: 2px;
-    background-color: var(--bg-color);
-    transition: var(--transition);
-    border-radius: 50%;
-  }
-  
-  .rrule-widget input:checked + .slider,
-  .rrule-widget input:checked + .radio-slider {
-    background-color: var(--primary-color);
-    box-shadow: 0 0 8px var(--primary-color);
-  }
-  
-  .rrule-widget input:checked + .slider:before,
-  .rrule-widget input:checked + .radio-slider:before {
-    transform: translateX(18px);
-  }
-  
-  .rrule-widget .toggle-label,
-  .rrule-widget .radio-label {
-    margin-left: var(--spacing-md);
-    line-height: 22px;
-  }
-  
-  .rrule-widget .hidden {
+    user-select: none;
+    margin: 0;
+}
+
+/* Toggle Switch */
+.allday-widget .allday-checkbox {
     display: none;
-  }
-  
-  .rrule-widget #rrule-display {
-    margin-top: var(--spacing-lg);
-    padding: var(--spacing-md);
-    background-color: var(--secondary-bg);
-    border-radius: var(--border-radius);
-    font-family: monospace;
-    word-break: break-all;
-    transition: background-color var(--transition);
-  }
-  
-  .rrule-widget .icon {
-    margin-right: var(--spacing-sm);
-    width: 20px;
-    text-align: center;
-  }
+}
+
+.allday-widget .allday-toggle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 28px;
+    background-color: #E5E5EA;
+    border-radius: 14px;
+    transition: background-color 0.3s ease;
+    flex-shrink: 0;
+}
+
+.allday-widget .allday-checkbox:checked ~ .allday-toggle {
+    background-color: var(--allday-primary-color);
+}
+
+.allday-widget .allday-toggle-thumb {
+    position: absolute;
+    left: 2px;
+    width: 24px;
+    height: 24px;
+    background-color: white;
+    border-radius: 12px;
+    transition: left 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.allday-widget .allday-checkbox:checked ~ .allday-toggle .allday-toggle-thumb {
+    left: 22px;
+}
+
+.allday-widget .allday-toggle-track {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 14px;
+}
+
+.allday-widget .allday-text {
+    color: var(--allday-text-color);
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.allday-widget .allday-label:hover {
+    opacity: 0.8;
+}
