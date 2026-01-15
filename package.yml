@@ -8,3 +8,16 @@ requires:
     redaxo: ^5.17
     packages:
         yform: '>=5.0.0'
+
+pages:
+    yform/yform_calendar:
+        title: 'translate:yform_calendar_setup_title'
+        perm: admin
+        icon: rex-icon fa-calendar
+
+
+
+
+
+
+

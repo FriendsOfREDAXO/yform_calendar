@@ -148,7 +148,7 @@
             },
             {
                 "table_name": "rex_yform_calendar",
-                "prio": 8,
+                "prio": 9,
                 "type_id": "value",
                 "type_name": "text",
                 "db_type": "varchar(191)",
