@@ -1,11 +1,11 @@
 <?php
 namespace FriendsOfRedaxo\YFormCalendar;
 
-use FriendsOfRedaxo\YFormCalendar\YFormCalendarEvents;
+use FriendsOfRedaxo\YFormCalendar\CalRender;
 
 // Alle Termine ab heute abrufen (max. 100)
-$today = (new DateTime())->format('Y-m-d');
-$events = YFormCalendarEvents::getEventsByDate($today, null, 100);
+$today = date('Y-m-d');
+$events = CalRender::getEventsByDate($today, null, 100);
 
 if (empty($events)) {
     echo '<div class="alert alert-info"><i class="fa fa-info-circle"></i> Keine Termine gefunden.</div>';

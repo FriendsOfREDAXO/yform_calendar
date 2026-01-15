@@ -1,931 +1,679 @@
-# YFormCalendar
+# YForm Calendar 🗓️
 
-![Screenshot](https://github.com/FriendsOfRedaxo/yform_calendar/blob/assets/screenshot.png?raw=true)
+Ein umfassendes REDAXO-Addon für die Verwaltung von Kalenderereignissen mit **RFC 5545-konformen Wiederholungsregeln (RRULE)** und erweiterten Filteroptionen.
 
-YFormCalendar ist ein umfassendes Paket für REDAXO, das erweiterte Funktionen zur Verwaltung, zum Export und zur Anzeige von Kalenderereignissen bietet. Mit RRULE-Support für wiederkehrende Termine, integrierter EXDATE-Verwaltung und iCal-Export.
+## ✨ Features
 
-## Features
+- 📅 **Volle RFC 5545 (iCalendar) Unterstützung** - Standard für Kalenderdaten
+- 🔁 **Wiederholung (RRULE)** - Tägliche, wöchentliche, monatliche und jährliche Serien mit Ausnahmen (EXDATE)
+- 🎨 **Modernes YForm Value Plugin** - Intuitiver RRULE-Editor für Listview und Formulare
+- ⚡ **Generator-basiert** - Speichereffiziente Verarbeitung großer Ereignismengen
+- 🔍 **Flexible Abfragen** - Zeiträume, SQL-Filter, benutzerdefinierte Queries
+- 📦 **Model Class (CalRender)** - Erweiterbarer rex_yform_manager_dataset
+- 🌍 **Multi-Table Support** - Der RRULE-Editor funktioniert mit **allen** YForm-Tabellen
+- 🔗 **Alias-Klasse (YFormCalendarEvents)** - Für Rückwärtskompatibilität
+- 📱 **Responsive UI** - Bootstrap 4 und 5 kompatibel
+- 🌙 **Dark Mode Support** - CSS mit Dark Mode Varianten
 
-✨ **Verwaltung**
-- RRULE-Widget mit Apple Calendar-ähnlicher UX
-- Integrierte EXDATE-Picker für Ausnahmen
-- All-Day Toggle mit schöner Benutzeroberfläche
-- Dark Mode Support
+## 📋 Anforderungen
 
-🔄 **Wiederholungen**
-- Tägliche, wöchentliche, monatliche, jährliche Termine
-- Flexible Intervalle und Bedingungen
-- Live-Vorschau der Wiederholungsregel
-- Ausgeschlossene Termine direkt im Widget
+| Paket | Version | Info |
+|-------|---------|------|
+| REDAXO | `^5.17` | CMS Core |
+| YForm | `^5.0.0` | Formular-Addon erforderlich |
+| PHP | `>8.2,<9` | Strict Types aktiviert |
 
-📤 **Export**
-- iCal-Format für Kalender-Apps
-- JSON-Export für FullCalendar
-- RFC-konform (rlanvin/php-rrule)
+## 🚀 Installation
 
-## Quick Start
+### Schritt 1: Addon installieren
 
-### 1️⃣ Installation
+Im REDAXO Backend:
+1. **Addons** → **Installer**
+2. Nach "yform_calendar" suchen
+3. **Installieren** klicken
 
-```bash
-# Im Addon-Manager oder git
-composer require friendsofredaxo/yform_calendar
+Das war's! Das Addon wird automatisch aktiviert.
+
+### Schritt 2: YForm-Feld hinzufügen (optional)
+
+Für neue Tabellen mit RRULE-Support:
+1. **YForm** → Deine Tabelle → **Struktur bearbeiten**
+2. Ein neues Feld hinzufügen
+3. Typ: **rrule**
+4. Speichern
+
+Fertig! Der RRULE-Editor und der "Termine"-Button sind nun verfügbar.
+
+## 🌍 Multiple Kalender in REDAXO
+
+Das wichtigste Feature: **Du kannst aus jeder YForm-Tabelle einen Kalender machen!** 📅
+
+### Konzept: Ein Kalender pro Tabelle
+
+Statt nur eine zentrale `rex_yform_calendar` Tabelle zu haben, kannst du beliebig viele **unabhängige Kalender** pflegen:
+
+```
+REDAXO Projekt
+├── 📅 Kalender: Firmenevents
+├── 📅 Kalender: Schulferien
+├── 📅 Kalender: Feiertage
+├── 📅 Kalender: Teamtreffen
+└── 📅 Kalender: Kundenveranstaltungen
 ```
 
-### 2️⃣ Alle Termine ab heute ausgeben
+### Wie funktioniert's?
+
+1. **Neue YForm-Tabelle erstellen** (z.B. `rex_yform_schulferien`)
+2. **RRULE-Feld hinzufügen** (Typ: `rrule`)
+3. **Weitere Felder** wie `dtstart`, `dtend`, `title` hinzufügen
+4. **Custom Model Class erstellen** (optional, aber empfohlen)
+5. **In Modulen/Plugins verwenden** wie gewohnt
+
+### Praktische Use-Cases
+
+| Kalender | Beispiel | Nutzen |
+|----------|----------|--------|
+| **Unternehmens-Events** | Konferenzen, Messen, Teamtreffen | Zentrale Planung |
+| **Schulferien** | Bundesländer-spezifische Ferien | Bildungsportale |
+| **Feiertage** | Nationale & regionale Feiertage | Geschlossene Zeiten |
+| **Kurs-Termine** | Schulungskurse, Workshops | E-Learning Plattformen |
+| **Ressourcen-Auslastung** | Buchungen, Reservierungen | Raum- und Geräte-Verwaltung |
+| **Ausgabe-Kalender** | Müllabfuhr, Straßenreinigung | Bürger-Services |
+| **Sport-Events** | Spieltage, Trainingszeiten | Sport-Verbände |
+
+### Beispiel: Multiple Kalender
 
 ```php
 <?php
-use DateTime;
-use FriendsOfRedaxo\YFormCalendar\YFormCalendarEvents;
+use FriendsOfRedaxo\YFormCalendar\CalRender;
 
-$today = (new DateTime())->format('Y-m-d');
+// Kalender 1: Firmenevent
+$events1 = CalRender::getEventsByDate('2026-01-01', '2026-12-31');
 
-foreach (YFormCalendarEvents::getCalendarEvents(['startDate' => $today, 'limit' => 50]) as $event) {
-    echo $event->getValue('title');
-    echo ' - ' . rex_formatter::intlDateTime(strtotime($event->getValue('dtstart')), [IntlDateFormatter::MEDIUM, IntlDateFormatter::SHORT]);
+// Kalender 2: Schulferien (eigene Tabelle, aber gleiche Struktur)
+class SchulferienCalendar extends CalRender
+{
+    protected static string $table = 'rex_yform_schulferien';
 }
-?>
-```
+$schoolHolidays = SchulferienCalendar::getEventsByDate('2026-01-01', '2026-12-31');
 
-### 3️⃣ Nächste 10 Termine abrufen
+// Kalender 3: Feiertage
+class HolidayCalendar extends CalRender
+{
+    protected static string $table = 'rex_yform_holidays';
+}
+$holidays = HolidayCalendar::getEventsByDate('2026-01-01', '2026-12-31');
 
-```php
-$events = YFormCalendarEvents::getEventsByDate(
-    date('Y-m-d'),           // ab heute
-    null,                    // unbegrenzt
-    10                       // max. 10 Termine
+// Alle zusammen anzeigen:
+$allEvents = array_merge($events1, $schoolHolidays, $holidays);
+usort($allEvents, fn($a, $b) => 
+    strtotime($a->getValue('dtstart')) <=> strtotime($b->getValue('dtstart'))
 );
 
-foreach ($events as $event) {
-    echo '<div>';
-    echo '<strong>' . $event->getValue('title') . '</strong><br>';
-    echo rex_formatter::intlDateTime(strtotime($event->getValue('dtstart')), [IntlDateFormatter::MEDIUM, IntlDateFormatter::SHORT]);
-    echo '</div>';
+foreach ($allEvents as $event) {
+    echo $event->getValue('title') . ': ' . $event->getValue('dtstart');
 }
+?>
 ```
 
-### 4️⃣ Termine im Datumsbereich
+## 📊 Datenbankstruktur
+
+Das Addon arbeitet standardmäßig mit der Tabelle `rex_yform_calendar`:
+
+```sql
+CREATE TABLE `rex_yform_calendar` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `title` VARCHAR(255) NOT NULL,
+  `summary` TEXT,
+  `location` VARCHAR(255),
+  `dtstart` DATETIME NOT NULL,
+  `dtend` DATETIME NOT NULL,
+  `all_day` TINYINT(1) DEFAULT 0,
+  `rrule` TEXT,
+  PRIMARY KEY (`id`)
+);
+```
+
+### Feldtypen:
+
+| Feld | Typ | Beschreibung | Erforderlich |
+|------|-----|-------------|-------------|
+| `title` | varchar(255) | Ereignistitel | Ja |
+| `summary` | text | Kurzbeschreibung | Nein |
+| `location` | varchar(255) | Veranstaltungsort | Nein |
+| `dtstart` | datetime | Startzeitpunkt | Ja |
+| `dtend` | datetime | Endzeitpunkt | Ja |
+| `all_day` | tinyint(1) | Ganztägiges Ereignis (0/1) | Nein |
+| `rrule` | text | RFC 5545 Wiederholungsregel | Nein |
+
+## �️ Warum eine Model Class?
+
+Eine **Model Class** wie `CalRender` ist die REDAXO-Standard-Methode für typsichere Datenbankabfragen und Code-Wiederverwendung:
+
+### ✅ Vorteile
+
+| Vorteil | Erklärung |
+|---------|-----------|
+| **Typsicherheit** | IDE-Autocompletion, Fehler-Früherkennung |
+| **Wiederverwendbarkeit** | Business-Logik an einer Stelle, nicht verstreut |
+| **Wartbarkeit** | Änderungen am Datenmodell nur in der Model Class |
+| **Skalierbarkeit** | Custom Methods für spezielle Abfragen |
+| **Testing** | Model Class ist leicht zu testen |
+| **Standards** | Folgt REDAXO Best Practices (rex_yform_manager_dataset) |
+
+### ❌ Ohne Model Class (Probleme)
 
 ```php
-$startDate = date('Y-m-d');
-$endDate = date('Y-m-d', strtotime('+30 days'));
+// ❌ Schlecht: Jedes Modul/Plugin macht eigene Abfragen
+$events = rex_yform_manager_dataset::query('rex_yform_calendar')
+    ->where('dtstart', '>=', date('Y-m-d'))
+    ->find();
 
-$events = YFormCalendarEvents::getEventsByDate($startDate, $endDate, 100);
-
-foreach ($events as $event) {
-    // Verarbeite Ereignis
-}
+// → Code ist verstreut
+// → RFC 5545 RRULE-Logik muss überall wiederholt werden
+// → Bei Feldnamen-Änderung: Überall updaten
 ```
 
-## API-Referenz
-
-Für die vollständige API-Dokumentation siehe [API_REFERENCE.md](API_REFERENCE.md)
-
-### Wichtigste Methoden
+### ✅ Mit Model Class (Sauberer Code)
 
 ```php
-// Generator für große Mengen (speichereffizient)
-YFormCalendarEvents::getCalendarEvents([
-    'startDate' => '2026-01-15',
-    'endDate' => '2026-12-31',
-    'limit' => 100,
-    'sortByStart' => 'ASC',
-    'sortByEnd' => 'ASC'
-]);
+// ✅ Gut: Zentrale Model Class
+use FriendsOfRedaxo\YFormCalendar\CalRender;
 
-// Array aller Termine in Datumsbereich
-YFormCalendarEvents::getEventsByDate($startDate, $endDate, $limit);
+$events = CalRender::getEventsByDate(date('Y-m-d'));
+
+// → RFC 5545 RRULE-Expansion ist integriert
+// → Konsistente API überall
+// → RRULE-Logik wird automatisch angewendet
+// → Änderungen nur in CalRender nötig
 ```
 
-## Feldnamen
+### 📦 CalRender - Spezial-Features der Model Class
 
-Standardmäßig im AddOn verwendete Feldnamen:
+Die `CalRender` Model Class bietet **vordefinierte Logik** für Kalender-Funktionen:
 
-| Feld | Typ | Beschreibung |
-|------|-----|-------------|
-| `title` | text | Termine-Titel |
-| `summary` | textarea | Kurzbeschreibung |
-| `location` | text | Ort des Termins |
-| `dtstart` | datetime | Startzeitpunkt |
-| `dtend` | datetime | Endzeitpunkt |
-| `all_day` | toggle | Ganztägiger Termin |
-| `rrule` | text | Wiederholungsregel (RRULE) |
+1. **RFC 5545 RRULE-Expansion** - Automatische Berechnung wiederkehrender Termine
+2. **EXDATE-Filterung** - Ausnahmen bei wiederkehrenden Terminen
+3. **Speicherer-effiziente Generatoren** - Für große Datenmengen
+4. **Vordefinierte Filter-Methoden** - `getEventsByDate()`, `getNextEvents()`, etc.
 
-## Modul-Beispiel
+Ohne Model Class müsstest du diese Logik **selbst implementieren** - kompliziert und fehleranfällig!
 
-Erstelle ein einfaches REDAXO-Modul zur Anzeige von Terminen:
+## �🎯 Quick Start
 
-**input:**
-```php
-// Keine Eingaben notwendig
-```
+### 1. Alle Ereignisse abrufen
 
-**output:**
 ```php
 <?php
-use DateTime;
-use FriendsOfRedaxo\YFormCalendar\YFormCalendarEvents;
+use FriendsOfRedaxo\YFormCalendar\CalRender;
 
-$today = (new DateTime())->format('Y-m-d');
+// Einfache Datumsbereichsabfrage
+$today = date('Y-m-d');
+$endDate = date('Y-m-d', strtotime('+90 days'));
+$events = CalRender::getEventsByDate($today, $endDate, 100);
+
+foreach ($events as $event) {
+    echo $event->getValue('title') . ' - ';
+    echo date('d.m.Y H:i', strtotime($event->getValue('dtstart')));
+}
 ?>
+```
 
-<div class="calendar-events">
-    <h2>📅 Kommende Termine</h2>
+### 2. Generator für große Datenmengen
+
+```php
+<?php
+use FriendsOfRedaxo\YFormCalendar\CalRender;
+
+// Memory-effizient
+$startDate = '2026-01-01';
+$endDate = '2026-12-31';
+
+foreach (CalRender::getCalendarEvents([
+    'startDate' => $startDate,
+    'endDate' => $endDate,
+    'limit' => 1000,
+    'sortByStart' => 'ASC'
+]) as $event) {
+    // Verarbeitung...
+    echo $event->getValue('title') . "\n";
+}
+?>
+```
+
+### 3. Nächste 10 Ereignisse
+
+```php
+<?php
+use FriendsOfRedaxo\YFormCalendar\CalRender;
+
+$nextEvents = CalRender::getNextEvents($eventId = 1, $limit = 10);
+
+foreach ($nextEvents as $event) {
+    echo $event->getValue('title');
+}
+?>
+```
+
+### 4. Ereignisse mit SQL-Filter
+
+```php
+<?php
+use FriendsOfRedaxo\YFormCalendar\CalRender;
+
+// Mit whereRaw:
+foreach (CalRender::getCalendarEvents([
+    'startDate' => '2026-01-01',
+    'endDate' => '2026-12-31',
+    'whereRaw' => 'location IS NOT NULL AND location != ""'
+]) as $event) {
+    echo $event->getValue('title') . ' @ ' . $event->getValue('location');
+}
+?>
+```
+
+### 5. Ganztägige Ereignisse filtern
+
+```php
+<?php
+use FriendsOfRedaxo\YFormCalendar\CalRender;
+
+$allDayEvents = CalRender::getEventsByDate('2026-01-01', '2026-12-31');
+
+foreach ($allDayEvents as $event) {
+    if ($event->getValue('all_day')) {
+        echo '<strong>' . $event->getValue('title') . '</strong> (Ganztägig)';
+    }
+}
+?>
+```
+
+## 📖 Modul-Beispiel (Arbeitsfertig)
+
+Erstelle ein neues Modul im Backend mit folgendem Code:
+
+```php
+<?php
+namespace FriendsOfRedaxo\YFormCalendar;
+
+use FriendsOfRedaxo\YFormCalendar\CalRender;
+
+$startDate = date('Y-m-d');
+$endDate = date('Y-m-d', strtotime('+1000 days'));
+$eventId = 1;
+$limit = 10;
+?>
+<div class="calrender-container">
+    <h2>Nächste Termine</h2>
     
     <?php
-    $count = 0;
-    foreach (YFormCalendarEvents::getCalendarEvents(['startDate' => $today, 'limit' => 20]) as $event) {
-        $count++;
-        $title = $event->getValue('title');
-        $start = $event->getValue('dtstart');
-        $allday = $event->getValue('all_day');
-        $location = $event->getValue('location');
-        
-        $timeStr = $allday ? date('d.m.Y', strtotime($start)) : date('d.m.Y H:i', strtotime($start));
-        ?>
-        <div class="event">
-            <h4><?= rex_escape($title) ?></h4>
-            <p>
-                📅 <strong><?= $timeStr ?></strong><br>
-                <?php if ($location): ?>
-                📍 <?= rex_escape($location) ?>
-                <?php endif; ?>
-            </p>
-        </div>
-        <?php
-    }
+    $nextEvents = CalRender::getNextEvents($eventId, $limit);
     
-    if ($count === 0) {
-        echo '<p class="text-muted">Keine Termine vorhanden.</p>';
-    }
+    if (empty($nextEvents)):
+        echo '<div class="alert alert-info">Keine zukünftigen Termine gefunden.</div>';
+    else:
     ?>
+    <div class="events-list">
+        <?php foreach ($nextEvents as $event): ?>
+        <div class="event-item">
+            <div class="event-header">
+                <h3><?= rex_escape($event->getValue('title')) ?></h3>
+                <?php if ($event->getValue('location')): ?>
+                <span class="event-location">
+                    <i class="fa fa-map-marker"></i> 
+                    <?= rex_escape($event->getValue('location')) ?>
+                </span>
+                <?php endif; ?>
+            </div>
+            
+            <div class="event-datetime">
+                <?php
+                $start = strtotime($event->getValue('dtstart'));
+                $end = strtotime($event->getValue('dtend'));
+                $isAllDay = $event->getValue('all_day');
+                ?>
+                <i class="fa fa-calendar"></i>
+                <?php if ($isAllDay): ?>
+                    <?= date('d.m.Y', $start) ?>
+                <?php else: ?>
+                    <?= date('d.m.Y H:i', $start) ?> - <?= date('H:i', $end) ?>
+                <?php endif; ?>
+            </div>
+            
+            <?php if ($event->getValue('summary')): ?>
+            <div class="event-summary">
+                <?= nl2br(rex_escape($event->getValue('summary'))) ?>
+            </div>
+            <?php endif; ?>
+            
+            <?php if ($event->getValue('rrule')): ?>
+            <div class="event-recurring">
+                <span class="badge badge-info">Wiederkehrend</span>
+            </div>
+            <?php endif; ?>
+        </div>
+        <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
 </div>
-```
 
-## YForm Manager Integration
+<style>
+.calrender-container {
+    max-width: 800px;
+    margin: 20px 0;
+}
 
-Das AddOn bietet folgende YForm Value-Typen:
+.events-list {
+    list-style: none;
+    padding: 0;
+}
 
-### `rrule` - Wiederholungsregel Widget
-- **Label:** "Wiederkehrender Termin?"
-- **DB-Typ:** text
-- **Features:**
-  - Visuelle RRULE-Builder
-  - EXDATE-Verwaltung
-  - Live-Vorschau
-  - Modal mit nächsten Terminen
+.event-item {
+    border-left: 4px solid #007bff;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
 
-### `allday` - Ganztägig Toggle
-- **Label:** "Ganztägiger Termin"
-- **DB-Typ:** tinyint(1)
-- **Features:**
-  - iOS-ähnlicher Toggle
-  - Dark Mode Support
-  - Responsive Design
+.event-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transform: translateX(2px);
+}
 
-## Export
+.event-header {
+    margin-bottom: 10px;
+}
 
-### iCal Export
+.event-header h3 {
+    margin: 0 0 5px 0;
+    color: #333;
+}
 
-```php
-use FriendsOfRedaxo\YFormCalendar\ICalExporter;
+.event-location {
+    font-size: 12px;
+    color: #666;
+    display: inline-block;
+}
 
-$exporter = new ICalExporter();
+.event-datetime {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 10px;
+}
 
-// Alle Termine exportieren
-$events = YFormCalendarEvents::getEventsByDate('2026-01-01', '2026-12-31');
-$icalString = $exporter->export($events);
+.event-summary {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
 
-// Zum Download
-header('Content-Type: text/calendar; charset=utf-8');
-header('Content-Disposition: attachment; filename="calendar.ics"');
-echo $icalString;
-```
+.event-recurring {
+    margin-top: 10px;
+}
 
-## Eigene Model Classes
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+}
 
-### Warum eine Custom Model Class?
+.badge-info {
+    background-color: #17a2b8;
+    color: white;
+}
 
-Die Standard-Klasse `YFormCalendarEvents` arbeitet mit der Tabelle `rex_yform_calendar`. Möchtest du mit einer **anderen Tabelle** arbeiten oder **zusätzliche Methoden** hinzufügen, erstelle eine eigene Klasse.
-
-### Methode 1: Einfache Wrapper-Klasse
-
-Für eine andere Tabelle, ohne zusätzliche Logik:
-
-```php
-<?php
-namespace MyAddon\Calendar;
-
-use rex_yform_manager_table;
-use FriendsOfRedaxo\YFormCalendar\CalRender;
-
-class MyEvents
-{
-    public static function getCalendarEvents(array $params = [], $customQuery = null)
-    {
-        // Deine Tabelle laden
-        $table = rex_yform_manager_table::get('my_custom_events_table');
-        $query = $customQuery ?? $table->query();
-        
-        return CalRender::getCalendarEvents($params, $query);
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+    .event-item {
+        background: #2a2a2a;
     }
-
-    public static function getEventsByDate(string $startDate, ?string $endDate = null, int $limit = PHP_INT_MAX)
-    {
-        return iterator_to_array(self::getCalendarEvents([
-            'startDate' => $startDate,
-            'endDate' => $endDate,
-            'limit' => $limit
-        ], $table->query()));
+    
+    .event-header h3 {
+        color: #e0e0e0;
+    }
+    
+    .event-datetime,
+    .event-location,
+    .event-summary {
+        color: #b0b0b0;
     }
 }
+</style>
 ```
 
-**Verwendung:**
-```php
-$events = MyEvents::getEventsByDate(date('Y-m-d'), null, 10);
-```
+## 🔧 Custom Model Classes
 
-### Methode 2: Erweiterte Klasse mit Custom Methoden
-
-Für zusätzliche Features und Geschäftslogik:
+### Muster 1: Wrapper für Alias
 
 ```php
 <?php
-namespace MyAddon\Calendar;
+namespace MyProject\Calendar;
 
-use CalRender;
-use DateTime;
-use rex_yform_manager_table;
+use FriendsOfRedaxo\YFormCalendar\CalRender;
 
-class EventManager extends CalRender
+class CustomCalendar extends CalRender
 {
-    // Mit zusätzlichen Methoden erweitern
+    // Alle Methoden von CalRender erben
+}
+
+// Verwendung:
+$events = CustomCalendar::getEventsByDate('2026-01-01', '2026-12-31');
+```
+
+### Muster 2: Erweiterung mit Custom Methods
+
+```php
+<?php
+namespace MyProject\Calendar;
+
+use FriendsOfRedaxo\YFormCalendar\CalRender;
+
+class EnhancedCalendar extends CalRender
+{
+    /**
+     * Nur Events der nächsten 7 Tage
+     */
+    public static function getWeeklyEvents(int $limit = 50): array
+    {
+        $today = date('Y-m-d');
+        $nextWeek = date('Y-m-d', strtotime('+7 days'));
+        return self::getEventsByDate($today, $nextWeek, $limit);
+    }
     
     /**
-     * Nur zukünftige Ereignisse, ohne abgelaufene
+     * Nur ganztägige Events
      */
-    public static function getUpcomingEvents(int $limit = 50)
+    public static function getAllDayEvents(string $startDate, ?string $endDate = null): array
     {
-        $today = (new DateTime())->format('Y-m-d');
-        return self::getEventsByDate($today, null, $limit);
-    }
-
-    /**
-     * Nur Ereignisse einer Kategorie
-     */
-    public static function getEventsByCategory(string $category, int $limit = 50)
-    {
-        $today = (new DateTime())->format('Y-m-d');
-        return self::getEventsByDate($today, null, $limit);
-        // TODO: Filter nach Kategorie
-    }
-
-    /**
-     * Nächster Termin
-     */
-    public static function getNextEvent()
-    {
-        $events = self::getUpcomingEvents(1);
-        return $events[0] ?? null;
-    }
-
-    /**
-     * Termine diese Woche
-     */
-    public static function getThisWeekEvents()
-    {
-        $start = date('Y-m-d', strtotime('monday this week'));
-        $end = date('Y-m-d', strtotime('sunday this week'));
-        return self::getEventsByDate($start, $end, 100);
+        $events = self::getEventsByDate($startDate, $endDate);
+        return array_filter($events, fn($e) => $e->getValue('all_day'));
     }
 }
+
+// Verwendung:
+$weeklyEvents = EnhancedCalendar::getWeeklyEvents();
+$allDayEvents = EnhancedCalendar::getAllDayEvents('2026-01-01', '2026-12-31');
 ```
 
-**Verwendung:**
-```php
-// Einfach nur nächste 5 Termine
-$events = EventManager::getUpcomingEvents(5);
-
-// Diese Woche
-$weekEvents = EventManager::getThisWeekEvents();
-
-// Nächster Termin
-$next = EventManager::getNextEvent();
-```
-
-### Methode 3: Mehrere Tabellen kombinieren
-
-Für Termine aus verschiedenen Quellen:
+### Muster 3: Multi-Table Aggregation
 
 ```php
 <?php
-namespace MyAddon\Calendar;
+namespace MyProject\Calendar;
 
-use DateTime;
 use FriendsOfRedaxo\YFormCalendar\CalRender;
-use FriendsOfRedaxo\YFormCalendar\YFormCalendarEvents;
 use rex_yform_manager_table;
 
-class CombinedEventManager
+class UnifiedCalendar
 {
     /**
-     * Alle Termine aus mehreren Tabellen
+     * Termine aus mehreren Tabellen zusammenführen
      */
-    public static function getAllEvents(string $startDate, ?string $endDate = null, int $limit = 100)
-    {
+    public static function getUnifiedEvents(
+        string $startDate, 
+        ?string $endDate = null, 
+        int $limit = 500
+    ): array {
         $allEvents = [];
         
-        // Aus Haupt-Tabelle
-        $mainEvents = YFormCalendarEvents::getEventsByDate($startDate, $endDate, $limit);
-        $allEvents = array_merge($allEvents, $mainEvents);
+        // Tabellen definieren
+        $tables = [
+            ['class' => CalRender::class, 'table' => 'rex_yform_calendar'],
+            ['class' => OtherEventClass::class, 'table' => 'rex_yform_events'],
+        ];
         
-        // Aus Custom-Tabelle
-        $customTable = rex_yform_manager_table::get('my_additional_events');
-        $customEvents = CalRender::getCalendarEvents([
-            'startDate' => $startDate,
-            'endDate' => $endDate,
-            'limit' => $limit
-        ], $customTable->query());
-        
-        foreach ($customEvents as $event) {
-            $allEvents[] = $event;
+        // Alle Tabellen abfragen
+        foreach ($tables as $tableConfig) {
+            $events = $tableConfig['class']::getEventsByDate($startDate, $endDate, $limit);
+            $allEvents = array_merge($allEvents, $events);
         }
         
         // Sortieren nach Startdatum
-        usort($allEvents, function ($a, $b) {
-            return strtotime($a->getValue('dtstart')) <=> strtotime($b->getValue('dtstart'));
+        usort($allEvents, function($a, $b) {
+            return strtotime($a->getValue('dtstart')) <=> strtotime($b->getValue('dtend'));
         });
         
         return array_slice($allEvents, 0, $limit);
     }
 }
+
+// Verwendung:
+$unifiedEvents = UnifiedCalendar::getUnifiedEvents('2026-01-01', '2026-12-31', 100);
 ```
 
-**Verwendung:**
+## 📤 Export-Beispiele
+
+### iCalendar (iCal) Format
+
 ```php
-// Alle Termine aus allen Tabellen
-$allEvents = CombinedEventManager::getAllEvents(date('Y-m-d'), null, 100);
-```
-
-## Anforderungen
-
-- REDAXO 5.17+
-- yform ^4
-- PHP 8.2+
-- rlanvin/php-rrule ^2.5
-
-## Changelog
-
-Siehe [CHANGELOG.md](CHANGELOG.md)
-
-## Lizenz
-
-MIT
- 
-
-## YFormCalendar Feature-Liste
-
-### CalRender-Klasse
-- Abrufen von Kalenderereignissen basierend auf Datum, Zeit und anderen Parametern
-- Unterstützung für wiederkehrende Ereignisse mit RRULE
-- Unterstützung für ausgeschlossene Termine (EXDATE)
-- Sortierung von Ereignissen nach Start- oder Enddatum
-- Benutzerdefinierte Abfragen mit YForm-Query-Unterstützung
-- Generierung der nächsten X Ereignisse ab einem bestimmten Datum
-
-### ICalExporter-Klasse
-- Generierung von iCal-Dateien aus Kalenderereignissen
-- Unterstützung für den Download von iCal-Dateien
-- Erstellung von iCal-Strings für die direkte Ausgabe
-
-### CalendarJsonExporter-Klasse
-- Export von Kalenderereignissen im JSON-Format für FullCalendar
-- Benutzerdefinierte Link-Generierung für Ereignisse
-- Sortieroptionen für Ereignisse
-- Unterstützung für Datumsbereiche beim Export
-
-### RRULE-Widget
-- **Apple Calendar-ähnliche Benutzeroberfläche** zur Erstellung und Bearbeitung von Wiederholungsregeln
-- Unterstützung für verschiedene Wiederholungsfrequenzen (täglich, wöchentlich, monatlich, jährlich)
-- Einstellung von Intervallen, Wochentagen, Monatstagen
-- Definition von Wiederholungsanzahl oder Enddatum
-- **Integrierte EXDATE-Verwaltung**: Direkt im Widget ausgeschlossene Termine hinzufügen/entfernen
-- **Live-Vorschau** der Wiederholungsregel
-- **Modal mit nächsten 10 Terminen**: In der Table Manager Liste Vorkommen anschauen
-- **Responsive Design** mit Dark Mode Support
-
-### Allgemeine Features
-- Integration mit YForm und YForm Manager
-- Unterstützung für ganztägige Ereignisse
-- Handhabung von Ausnahmedaten (EXDATE) für wiederkehrende Ereignisse - **jetzt im Widget integriert**
-- Kompatibilität mit FullCalendar für Frontend-Darstellung
-- Flexibles Datenmodell mit Unterstützung für benutzerdefinierte Felder
-
-## Installation
-
-AddOn über den Installer installieren. 
-
-Dieses Paket muss in einem REDAXO-Projekt-AddOn oder einem eigenen AddOn als abhängiges AddOn verwendet werden. Es ist sicherzustellen, dass die YForm und der YForm Manager installiert und aktiviert sind.
-
-### Demo-Tableset für den Start verwenden
-
-#### 1. install.php im Projekt-AddOn anlegen. 
-
-```php 
 <?php
-if (rex_addon::get('yform') && rex_addon::get('yform')->isAvailable()) {
-    rex_yform_manager_table_api::importTablesets(rex_file::get(rex_path::addon('yform_calendar', 'tableset/tableset.json')));
-}
-```
-**Projekt-AddOn reinstallieren**. Danach sollte eine Tabelle erscheinen: YFormCalender
-Diese kann nach Belieben erweitert werden. 
-
-#### 2. boot.php des Projekt-AddOn erweitern
-
-```php 
-// Am Anfang einsetzen 
 use FriendsOfRedaxo\YFormCalendar\CalRender;
-// Einsetzen wo es Sinn ergibt
 
-rex_yform_manager_dataset::setModelClass(
-            'rex_yform_calendar',CalRender::class
-);
-```
+header('Content-Type: text/calendar; charset=utf-8');
+header('Content-Disposition: attachment; filename="events.ics"');
 
-Um weitere Tabellen zu verwenden sollten abgeleitete Classes der CalRender erstellt werden. Meist eine leere extended Class um weitere Tabellen anzumelden. 
-Im Ordner /tablesets des AddOns befindet sich ein fertiges Tableset. Dieses kann als Ausgangspunkt für eigene Tabellen verwendet werden. 
-Alternativ müssen folgende [Tabellenfelder](#erforderliche-tabellenfelder) angelegt sein. 
+$events = CalRender::getEventsByDate('2026-01-01', '2026-12-31');
 
-
-
-## Verwendung
-
-```php
-<?php
-// Im Template oder Modul
-
-// Alle Ereignisse im Juni 2024
-$events = MeineCal::getEventsByDate('2024-06-01', '2024-06-30');
-
-// Die nächsten 5 Ereignisse ab jetzt
-$nextEvents = MeineCal::getNextEvents(1, 5, date('Y-m-d H:i:s'));
+echo "BEGIN:VCALENDAR\n";
+echo "VERSION:2.0\n";
+echo "PRODID:-//MyProject//REDAXO//EN\n";
+echo "CALSCALE:GREGORIAN\n";
 
 foreach ($events as $event) {
-    // $event ist nun eine Instanz von MeineCal
-    echo $event->getStartDate();
-    // Verwenden Sie hier Ihre spezifischen Methoden
+    echo "BEGIN:VEVENT\n";
+    echo "DTSTART:" . date('Ymd\THis', strtotime($event->getValue('dtstart'))) . "\n";
+    echo "DTEND:" . date('Ymd\THis', strtotime($event->getValue('dtend'))) . "\n";
+    echo "SUMMARY:" . $event->getValue('title') . "\n";
+    
+    if ($event->getValue('summary')) {
+        echo "DESCRIPTION:" . $event->getValue('summary') . "\n";
+    }
+    
+    if ($event->getValue('location')) {
+        echo "LOCATION:" . $event->getValue('location') . "\n";
+    }
+    
+    if ($event->getValue('rrule')) {
+        echo "RRULE:" . $event->getValue('rrule') . "\n";
+    }
+    
+    echo "END:VEVENT\n";
 }
+
+echo "END:VCALENDAR\n";
+exit;
+?>
 ```
 
-## CalRender-Klasse
-
-Die `CalRender`-Klasse ist das Herzstück des AddOns. Sie ermöglicht das Abrufen, Filtern, Sortieren und Bearbeiten von Ereignissen.
-
-### Methoden
-
-#### `getCalendarEvents`
+### JSON Format
 
 ```php
-public static function getCalendarEvents(array $params = [], rex_yform_manager_query $customQuery = null): Generator
-```
-
-Parameter:
-- `$params` (optional): Ein Array mit folgenden möglichen Schlüsseln:
-  - `startDate`: (string) Start-Datum/Zeit im Format 'Y-m-d' oder 'Y-m-d H:i:s'
-  - `endDate`: (string) End-Datum/Zeit im Format 'Y-m-d' oder 'Y-m-d H:i:s'
-  - `sortByStart`: (string) Sortierrichtung für Startdatum ('ASC' oder 'DESC')
-  - `sortByEnd`: (string) Sortierrichtung für Enddatum ('ASC' oder 'DESC')
-  - `whereRaw`: (string) Zusätzliche WHERE-Bedingung für die Abfrage
-  - `limit`: (int) Maximale Anzahl der zurückzugebenden Ereignisse
-- `$customQuery` (optional): Eine benutzerdefinierte YForm-Query
-
-Rückgabewert: Ein Generator, der Objekte vom Typ `rex_yform_manager_dataset` liefert.
-
-#### `getEventsByDate`
-
-```php
-public static function getEventsByDate(string $startDate, ?string $endDate = null, int $limit = PHP_INT_MAX): array
-```
-
-Parameter:
-- `$startDate`: (string) Start-Datum im Format 'Y-m-d' oder 'Y-m-d H:i:s'
-- `$endDate`: (string, optional) End-Datum im Format 'Y-m-d' oder 'Y-m-d H:i:s'
-- `$limit`: (int, optional) Maximale Anzahl der zurückzugebenden Ereignisse
-
-Rückgabewert: Ein Array von Objekten vom Typ `rex_yform_manager_dataset`.
-
-#### `getNextEvents`
-
-```php
-public static function getNextEvents(int $eventId, int $limit, ?string $startDateTime = null): array
-```
-
-Parameter:
-- `$eventId`: (int) Die ID des Referenzereignisses
-- `$limit`: (int) Maximale Anzahl der zurückzugebenden Ereignisse
-- `$startDateTime`: (string, optional) Start-Datum/Zeit im Format 'Y-m-d H:i:s'
-
-Rückgabewert: Ein Array von Objekten vom Typ `rex_yform_manager_dataset`.
-
-### Beispiele
-
-```php
+<?php
 use FriendsOfRedaxo\YFormCalendar\CalRender;
 
-// Beispiel 1: Alle Ereignisse im Juni 2024
-$events = CalRender::getEventsByDate('2024-06-01', '2024-06-30');
+header('Content-Type: application/json; charset=utf-8');
 
-// Beispiel 2: Die nächsten 5 Ereignisse ab jetzt
-$nextEvents = CalRender::getNextEvents(1, 5, date('Y-m-d H:i:s'));
+$events = CalRender::getEventsByDate('2026-01-01', '2026-12-31');
 
-// Beispiel 3: Benutzerdefinierte Abfrage
-$customQuery = rex_yform_manager_table::get('rex_calendar_events')->query()
-    ->where('status', 'CONFIRMED');
-
-$params = [
-    'startDate' => '2024-01-01',
-    'endDate' => '2024-12-31',
-    'limit' => 50
-];
-
-$events = CalRender::getCalendarEvents($params, $customQuery);
+$jsonEvents = [];
 foreach ($events as $event) {
-    // $event ist ein rex_yform_manager_dataset Objekt
-    echo $event->getValue('summary');
+    $jsonEvents[] = [
+        'id' => $event->getId(),
+        'title' => $event->getValue('title'),
+        'summary' => $event->getValue('summary'),
+        'location' => $event->getValue('location'),
+        'start' => $event->getValue('dtstart'),
+        'end' => $event->getValue('dtend'),
+        'allDay' => (bool)$event->getValue('all_day'),
+        'rrule' => $event->getValue('rrule'),
+    ];
 }
-```
 
-## Edit-Methoden 
-
-### Zusätzliche Methoden für die CalRender-Klasse
-
-#### `createEvent`
-
-```php
-public static function createEvent(array $data): ?rex_yform_manager_dataset
-```
-
-Diese Methode erstellt ein neues Ereignis in der Datenbank.
-
-Parameter:
-- `$data`: (array) Ein assoziatives Array mit Feldnamen und ihren Werten für das neue Ereignis.
-
-Rückgabewert: Das neu erstellte Ereignis als `rex_yform_manager_dataset`-Objekt oder `null`, wenn die Erstellung fehlgeschlagen ist.
-
-Beispiel für die Verwendung:
-```php
-$neuesEreignisDaten = [
-    'summary' => 'Neues Ereignis',
-    'description' => 'Dies ist ein neues Ereignis',
-    'dtstart' => '2024-01-01 10:00:00',
-    'dtend' => '2024-01-01 12:00:00',
-    // ... weitere Felder nach Bedarf
-];
-$neuesEreignis = CalRender::createEvent($neuesEreignisDaten);
-if ($neuesEreignis) {
-    echo "Ereignis erfolgreich erstellt mit ID: " . $neuesEreignis->getId();
-} else {
-    echo "Ereignis konnte nicht erstellt werden";
-}
-```
-
-#### `updateEventById`
-
-```php
-public static function updateEventById(int $eventId, array $data): bool
-```
-
-Diese Methode aktualisiert ein bestehendes Ereignis in der Datenbank anhand seiner ID.
-
-Parameter:
-- `$eventId`: (int) Die ID des zu aktualisierenden Ereignisses.
-- `$data`: (array) Ein assoziatives Array mit Feldnamen und ihren neuen Werten.
-
-Rückgabewert: `true`, wenn die Aktualisierung erfolgreich war, ansonsten `false`.
-
-Beispiel für die Verwendung:
-```php
-$ereignisId = 123; // Die ID des zu aktualisierenden Ereignisses
-$aktualisierungsDaten = [
-    'summary' => 'Aktualisierter Ereignistitel',
-    'description' => 'Dieses Ereignis wurde aktualisiert',
-    // ... weitere zu aktualisierende Felder
-];
-$erfolg = CalRender::updateEventById($ereignisId, $aktualisierungsDaten);
-if ($erfolg) {
-    echo "Ereignis erfolgreich aktualisiert";
-} else {
-    echo "Aktualisierung des Ereignisses fehlgeschlagen";
-}
-```
-
-#### `deleteEventById`
-
-```php
-public static function deleteEventById(int $eventId): bool
-```
-
-Diese Methode löscht ein Ereignis aus der Datenbank anhand seiner ID.
-
-Parameter:
-- `$eventId`: (int) Die ID des zu löschenden Ereignisses.
-
-Rückgabewert: `true`, wenn das Löschen erfolgreich war, ansonsten `false`.
-
-Beispiel für die Verwendung:
-```php
-$ereignisId = 123; // Die ID des zu löschenden Ereignisses
-$erfolg = CalRender::deleteEventById($ereignisId);
-if ($erfolg) {
-    echo "Ereignis erfolgreich gelöscht";
-} else {
-    echo "Löschen des Ereignisses fehlgeschlagen";
-}
-```
-
-
-## ICalExporter-Klasse
-
-Die `ICalExporter`-Klasse ermöglicht den Export von Kalenderereignissen im iCal-Format.
-
-### Methoden
-
-#### `generateICalFile`
-
-```php
-public static function generateICalFile(string $filename, array $events): void
-```
-
-Parameter:
-- `$filename`: (string) Der Name der zu generierenden Datei (ohne .ics Erweiterung)
-- `$events`: (array) Ein Array von `rex_yform_manager_dataset` Objekten
-
-Rückgabewert: Void. Diese Methode generiert eine Datei zum Download.
-
-#### `generateICal`
-
-```php
-public static function generateICal(array $events): string
-```
-
-Parameter:
-- `$events`: (array) Ein Array von `rex_yform_manager_dataset` Objekten
-
-Rückgabewert: Ein String im iCal-Format.
-
-### Beispiel
-
-```php
-use FriendsOfRedaxo\YFormCalendar\CalRender;
-use FriendsOfRedaxo\YFormCalendar\ICalExporter;
-
-$events = CalRender::getEventsByDate('2024-01-01', '2024-12-31');
-$icalString = ICalExporter::generateICal($events);
-echo $icalString; // Gibt den iCal-String aus
-
-// Oder zum Herunterladen einer Datei:
-ICalExporter::generateICalFile('kalender_2024', $events);
-```
-
-## CalendarJsonExporter-Klasse
-
-Die `CalendarJsonExporter`-Klasse dient zum Exportieren von Kalenderereignissen im JSON-Format für FullCalendar.
-
-### Konstruktor
-
-```php
-public function __construct(callable $linkCallback, string $modelClass)
-```
-
-Parameter:
-- `$linkCallback`: (callable) Eine Funktion, die einen Link für jedes Ereignis generiert
-- `$modelClass`: (string) Der Name der Modellklasse für die Ereignisse
-
-### Methode
-
-#### `generateJson`
-
-```php
-public function generateJson(?string $startDate = null, ?string $endDate = null, string $sortByStart = 'ASC', string $sortByEnd = 'ASC'): string
-```
-
-Parameter:
-- `$startDate`: (string, optional) Start-Datum im Format 'Y-m-d' oder 'Y-m-d H:i:s'
-- `$endDate`: (string, optional) End-Datum im Format 'Y-m-d' oder 'Y-m-d H:i:s'
-- `$sortByStart`: (string, optional) Sortierrichtung für Startdatum ('ASC' oder 'DESC')
-- `$sortByEnd`: (string, optional) Sortierrichtung für Enddatum ('ASC' oder 'DESC')
-
-Rückgabewert: Ein JSON-String mit den Ereignisdaten.
-
-### Beispiel
-
-```php
-<?php
-use FriendsOfRedaxo\YFormCalendar\CalendarJsonExporter;
-use FriendsOfRedaxo\YFormCalendar\CalRender; //ggf die eigene Modelclass angeben
-
-// Callback-Funktion zur Linkgenerierung
-$linkCallback = function($id) {
-    return rex_getUrl('', '', ['cal' => $id]);
-};
-
-// Erstellen Sie die CalendarJsonExporter-Instanz, CalRender ggf. durch eigene Modelclass ersetzen
-$calendarEventJson = new CalendarJsonExporter($linkCallback, CalRender::class);
-
-// Generieren Sie das JSON für FullCalendar
-$startDate = (new DateTime('today'))->format('Y-m-d');
-$endDate = (new DateTime('+48 months'))->format('Y-m-d');
-$eventsJson = $calendarEventJson->generateJson($startDate, $endDate, 'ASC', 'DESC');
-
-// Wenn Sie das JSON überprüfen möchten, können Sie diesen Code verwenden:
-// echo '<pre>' . json_encode(json_decode($eventsJson), JSON_PRETTY_PRINT) . '</pre>';
+echo json_encode($jsonEvents, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+exit;
 ?>
-
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>FullCalendar Beispiel</title>
-    <!-- FullCalendar CSS -->
-    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css' rel='stylesheet' />
-    <!-- FullCalendar JavaScript -->
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js'></script>
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/locales-all.min.js'></script>
-    <!-- Tippy.js CSS -->
-    <link href="https://unpkg.com/tippy.js@6/dist/tippy.css" rel="stylesheet">
-    <!-- Tippy.js JavaScript -->
-    <script src="https://unpkg.com/@popperjs/core@2"></script>
-    <script src="https://unpkg.com/tippy.js@6"></script>
-</head>
-<body>
-    <div id='calendar'></div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var calendarEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                locale: 'de',
-                views: {
-                    listMonth: { buttonText: 'Liste' },
-                    timeGridWeek: { buttonText: 'Woche' }
-                },
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'timeGridWeek,dayGridMonth,listMonth'
-                },
-                events: <?php echo $eventsJson; ?>,
-                eventDidMount: function(info) {
-                    tippy(info.el, {
-                        content: info.event.extendedProps.description,
-                        placement: 'top',
-                        trigger: 'mouseenter',
-                        theme: 'light',
-                    });
-                }
-            });
-            calendar.render();
-        });
-    </script>
-</body>
-</html>
 ```
 
-## RRULE-Widget
+## 🌐 RRULE Format Referenz
 
-Das RRULE-Widget ist eine benutzerfreundliche Schnittstelle (inspiriert von Apple Calendar) zur Erstellung und Bearbeitung von Wiederholungsregeln für Ereignisse.
+Das Addon unterstützt **RFC 5545 Recurrence Rules (RRULE)**:
 
-### Features
-
-- **Toggle-basierte Aktivierung**: Einfach an/ausschalten
-- **Intuitives Design**: Natürliche Fragen statt technischer Optionen
-- **Live-Vorschau**: Zeigt sofort lesbare Zusammenfassung der Regel
-- **Integrierte EXDATE-Verwaltung**: 
-  - Datepicker zum Hinzufügen ausgeschlossener Termine
-  - Einfaches Entfernen durch Klick auf "×"
-  - Automatische Speicherung im RRule-String
-- **Modal mit nächsten Terminen**: In der Table Manager-Liste können die nächsten 10 Vorkommen angesehen werden
-- **Apple Calendar-Ästhetik**: 
-  - Responsive Design
-  - Dark Mode Support
-  - Smooth Transitions
-  - Bootstrap-Konflikte eliminiert durch CSS-Namespacing
-
-### RRULE-Wert Erklärung
-
-Der RRULE-Wert ist ein String, der die Wiederholungsregel für ein Ereignis definiert. Komponenten:
-
-- `FREQ`: Häufigkeit (DAILY, WEEKLY, MONTHLY, YEARLY)
-- `INTERVAL`: Intervall zwischen Wiederholungen
-- `BYDAY`: Wochentage für wöchentliche/monatliche Wiederholungen
-- `BYMONTHDAY`: Tag des Monats für monatliche Wiederholungen
-- `COUNT`: Anzahl der Wiederholungen
-- `UNTIL`: Enddatum für Wiederholungen (Format: `20260315T235959Z`)
-- `EXDATE`: Ausgeschlossene Termine (Format: `2026-01-15,2026-03-15`)
-
-Beispiel:
 ```
-FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE,FR;UNTIL=20240630T235959Z;EXDATE=2026-01-15,2026-03-15
+FREQ=DAILY;INTERVAL=1;EXDATE=2026-01-15,2026-01-20
+FREQ=WEEKLY;BYDAY=MO,WE,FR;UNTIL=2026-12-31
+FREQ=MONTHLY;BYMONTHDAY=15;COUNT=24
+FREQ=YEARLY;BYMONTH=12;BYMONTHDAY=25
 ```
 
-### Verwendung des RRULE-Widgets
+### Unterstützte Parameter:
 
-Das RRULE-Widget wird automatisch in YForm-Formularen für Felder vom Typ `rrule` angezeigt. Es generiert einen RRULE-String mit integriertem EXDATE, der in der Datenbank gespeichert wird.
+| Parameter | Werte | Beispiel |
+|-----------|-------|----------|
+| `FREQ` | DAILY, WEEKLY, MONTHLY, YEARLY | `FREQ=DAILY` |
+| `INTERVAL` | Positive Integer | `INTERVAL=2` (jeden 2. Tag) |
+| `BYDAY` | MO, TU, WE, TH, FR, SA, SU | `BYDAY=MO,WE,FR` |
+| `BYMONTHDAY` | 1-31 | `BYMONTHDAY=15` |
+| `BYMONTH` | 1-12 | `BYMONTH=12` |
+| `COUNT` | Positive Integer | `COUNT=10` (10 Vorkommen) |
+| `UNTIL` | YYYYMMDD | `UNTIL=20261231` |
+| `EXDATE` | Komma-getrennte Daten | `EXDATE=2026-01-15,2026-01-20` |
 
-**Wichtig**: EXDATE wird **nicht** mehr in einem separaten Datenbankfeld gespeichert. Es ist Teil des RRule-Strings!
-
-## Erforderliche Tabellenfelder
-
-Für die korrekte Funktion des YFormCalendar-Pakets sind folgende Felder erforderlich:
-
-1. **summary**: Titel des Ereignisses (Text)
-2. **description**: Beschreibung des Ereignisses (Text)
-3. **location**: Ort des Ereignisses (Text)
-4. **dtstart**: Startdatum/-zeit (DateTime, Format: YYYY-MM-DD HH:MM:SS)
-5. **dtend**: Enddatum/-zeit (DateTime, Format: YYYY-MM-DD HH:MM:SS)
-6. **all_day**: Ganztägiges Ereignis (Boolean, 0 oder 1)
-7. **rrule**: Wiederholungsregel mit integriertem EXDATE (Text, RRULE-Format mit optionalem EXDATE)
-
-**Hinweis**: Das `exdate`-Feld ist **nicht mehr erforderlich**! EXDATE wird jetzt direkt im `rrule`-Feld gespeichert (z.B. `FREQ=DAILY;EXDATE=2026-01-15,2026-03-15`).
-
-## Weitere Beispiele
-
-### Modul mit Performance-Test
-
-Gibt eine Liste aller Termine für den angegebenen Zeitraum aus und die nächsten Termine einer ausgewählten ID. 
-
+### EXDATE für Ausnahmen:
 
 ```php
-<?php
-use FriendsOfRedaxo\YFormCalendar\CalRender;
+// Einzelne Ausnahmendaten:
+FREQ=DAILY;EXDATE=2026-01-15,2026-01-20
 
-$startDate = date('Y-m-d');
-$endDate = date('Y-m-d', strtotime('+10000 days'));
-$eventId = 1; // Ersetzen Sie dies durch eine tatsächliche Event-ID aus Ihrer Datenbank
-$limit = 10;
-?>
-<div class="calrender-test">
-    <h2>CalRender Test Ausgabe</h2>
-    <h3>1. Alle Events im Zeitraum (<?= $startDate ?> bis <?= $endDate ?>)</h3>
-    <ul>
-    <?php
-    $events = CalRender::getEventsByDate($startDate, $endDate);
-    foreach ($events as $event): ?>
-        <li>
-            <?= $event->getValue('summary') ?> - 
-            Start: <?= rex_formatter::intlDateTime(strtotime($event->getValue('dtstart')), [IntlDateFormatter::MEDIUM, IntlDateFormatter::SHORT]) ?>, 
-            Ende: <?= rex_formatter::intlDateTime(strtotime($event->getValue('dtend')), [IntlDateFormatter::MEDIUM, IntlDateFormatter::SHORT]) ?>
-        </li>
-    <?php endforeach; ?>
-    </ul>
-    <h3>2. Nächste maximal <?= $limit ?> Events für Event ID <?= $eventId ?></h3>
-    <ul>
-    <?php
-    $nextEvents = CalRender::getNextEvents($eventId, $limit);
-    foreach ($nextEvents as $event): ?>
-        <li>
-            <?= $event->getValue('summary') ?> - 
-            Start: <?= rex_formatter::intlDateTime(strtotime($event->getValue('dtstart')), [IntlDateFormatter::MEDIUM, IntlDateFormatter::SHORT]) ?>, 
-            Ende: <?= rex_formatter::intlDateTime(strtotime($event->getValue('dtend')), [IntlDateFormatter::MEDIUM, IntlDateFormatter::SHORT]) ?>
-        </li>
-    <?php endforeach; ?>
-    </ul>
-    <h3>3. Speicherverbrauch Test</h3>
-    <?php
-    $memoryBefore = memory_get_usage();
-    $largeNumberOfEvents = iterator_to_array(CalRender::getCalendarEvents([
-        'startDate' => $startDate,
-        'endDate' => date('Y-m-d', strtotime('+10 year')),
-        'limit' => 1000
-    ]));
-    $memoryAfter = memory_get_usage();
-    $memoryUsed = $memoryAfter - $memoryBefore;
-    ?>
-    <p>Speicherverbrauch für 1000 Events: <?= number_format($memoryUsed / 1024 / 1024, 2) ?> MB</p>
-    <h3>4. Leistungstest</h3>
-    <?php
-    $startTime = microtime(true);
-    $events = iterator_to_array(CalRender::getCalendarEvents([
-        'startDate' => $startDate,
-        'endDate' => date('Y-m-d', strtotime('+10 year')),
-        'limit' => 1000
-    ]));
-    $endTime = microtime(true);
-    $executionTime = $endTime - $startTime;
-    ?>
-    <p>Zeit zum Abrufen von 1000 Events: <?= number_format($executionTime, 4) ?> Sekunden</p>
-</div>
+// Datumsbereiche (Custom):
+FREQ=DAILY;EXDATE=2026-01-15/2026-01-20
 ```
 
-## Autor
+## 🔗 API-Referenz
 
-**Friends Of REDAXO**
+Siehe [API.md](API.md) für die vollständige API-Dokumentation mit allen Methoden, Parametern und Advanced Use Cases.
 
-* http://www.redaxo.org
-* https://github.com/FriendsOfREDAXO
+## 📝 Changelog
 
-**Projektleitung**
+Siehe [CHANGELOG.md](CHANGELOG.md) für alle Versionsänderungen.
 
-[Thomas Skerbis](https://github.com/skerbis)
+## 📄 Lizenz
+
+MIT - Siehe [LICENSE](LICENSE) für Details.
+
+## 🤝 Beitragen
+
+Beiträge sind willkommen! Bitte erstelle einen Pull Request oder öffne ein Issue.
+
+## 💬 Support
+
+- GitHub Issues: https://github.com/FriendsOfREDAXO/yform_calendar/issues
+- REDAXO Community: https://community.redaxo.org/
+
+---
+
+**YForm Calendar** entwickelt mit ❤️ von Friends of REDAXO

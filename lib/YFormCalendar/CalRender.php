@@ -2,7 +2,6 @@
 
 namespace FriendsOfRedaxo\YFormCalendar;
 
-use DateTime;
 use Generator;
 use RRule\RSet;
 use rex_yform_manager_dataset;
@@ -71,7 +70,7 @@ class CalRender extends rex_yform_manager_dataset
         }
     }
 
-    private static function generateRruleRecurringEvents(rex_yform_manager_dataset $event, ?DateTime $start, ?DateTime $end): Generator
+    private static function generateRruleRecurringEvents(rex_yform_manager_dataset $event, ?\DateTime $start, ?\DateTime $end): Generator
     {
         $rset = new RSet();
         $rset->addRRule($event->getValue('rrule'));
@@ -88,8 +87,8 @@ class CalRender extends rex_yform_manager_dataset
         // Füge exdate-Daten hinzu und verarbeite Ranges
         $exceptions = self::parseExceptions($exdateString);
 
-        $originalStart = new DateTime($event->getValue('dtstart'));
-        $originalEnd = new DateTime($event->getValue('dtend'));
+        $originalStart = new \DateTime($event->getValue('dtstart'));
+        $originalEnd = new \DateTime($event->getValue('dtend'));
         $duration = $originalEnd->getTimestamp() - $originalStart->getTimestamp();
 
         foreach ($rset as $occurrence) {
@@ -99,7 +98,7 @@ class CalRender extends rex_yform_manager_dataset
             $isExcluded = false;
             foreach ($exceptions as $exception) {
                 // Unterstützt sowohl einzelne Ausnahmedaten als auch Datumsbereiche
-                if ($exception instanceof DateTime) {
+                if ($exception instanceof \DateTime) {
                     if ($occurrenceDate === $exception->format('Y-m-d')) {
                         $isExcluded = true;
                         break;
@@ -154,11 +153,11 @@ class CalRender extends rex_yform_manager_dataset
             if (strpos($item, '/') !== false) {
                 [$start, $end] = explode('/', $item);
                 $exceptions[] = [
-                    'start' => new DateTime($start, new \DateTimeZone('Europe/Berlin')),
-                    'end' => new DateTime($end, new \DateTimeZone('Europe/Berlin'))
+                    'start' => new \DateTime($start, new \DateTimeZone('Europe/Berlin')),
+                    'end' => new \DateTime($end, new \DateTimeZone('Europe/Berlin'))
                 ];
             } else {
-                $exceptions[] = new DateTime($item, new \DateTimeZone('Europe/Berlin'));
+                $exceptions[] = new \DateTime($item, new \DateTimeZone('Europe/Berlin'));
             }
         }
 
@@ -190,7 +189,7 @@ class CalRender extends rex_yform_manager_dataset
 
 
 
-    private static function createRecurringEvent(rex_yform_manager_dataset $event, DateTime $occurrence, int $duration): rex_yform_manager_dataset
+    private static function createRecurringEvent(rex_yform_manager_dataset $event, \DateTime $occurrence, int $duration): rex_yform_manager_dataset
     {
         $newEvent = clone $event;
         $newEventStart = clone $occurrence;
@@ -227,9 +226,9 @@ class CalRender extends rex_yform_manager_dataset
         return $direction === 'DESC' ? -$comparison : $comparison;
     }
 
-    private static function createDateTime(string $dateTimeString): DateTime
+    private static function createDateTime(string $dateTimeString): \DateTime
     {
-        return new DateTime($dateTimeString);
+        return new \DateTime($dateTimeString);
     }
 
     /**
@@ -259,26 +258,17 @@ class CalRender extends rex_yform_manager_dataset
      */
     public static function getNextEvents(int $eventId, int $limit, ?string $startDateTime = null): array
     {
-        $event = self::get($eventId);
-        if (!$event) {
-            return [];
-        }
-
-        $startDateTime = $startDateTime ?: (new DateTime())->format('Y-m-d H:i:s');
+        $startDateTime = $startDateTime ?: date('Y-m-d H:i:s');
         $filteredEvents = [];
 
-        foreach (self::getCalendarEvents(['startDate' => $startDateTime, 'limit' => $limit]) as $e) {
-            if ($e->getId() == $eventId && self::createDateTime($e->getValue('dtstart')) >= self::createDateTime($startDateTime)) {
+        foreach (self::getCalendarEvents(['startDate' => $startDateTime, 'limit' => $limit * 2]) as $e) {
+            if ($e->getId() == $eventId) {
                 $filteredEvents[] = $e;
                 if (count($filteredEvents) >= $limit) {
                     break;
                 }
             }
         }
-
-        usort($filteredEvents, function ($a, $b) {
-            return self::createDateTime($a->getValue('dtstart')) <=> self::createDateTime($b->getValue('dtstart'));
-        });
 
         return $filteredEvents;
     }
@@ -360,9 +350,9 @@ class CalRender extends rex_yform_manager_dataset
                 return null;
             }
 
-            $occurrenceDateTime = new DateTime($occurrenceDate);
-            $originalStart = new DateTime($event->getValue('dtstart'));
-            $originalEnd = new DateTime($event->getValue('dtend'));
+            $occurrenceDateTime = new \DateTime($occurrenceDate);
+            $originalStart = new \DateTime($event->getValue('dtstart'));
+            $originalEnd = new \DateTime($event->getValue('dtend'));
 
             // Prüfe, ob der Termin ganztägig ist
             $isAllDay = $event->getValue('all_day');

@@ -13,6 +13,9 @@ use rex_yform_manager_dataset;
 $package = rex_addon::get('yform_calendar');
 if (rex_addon::get('yform')->isAvailable()) {
     rex_yform::addTemplatePath($package->getPath('ytemplates'));
+    
+    // Model Class für die Kalender-Tabelle registrieren
+    rex_yform_manager_dataset::setModelClass('rex_yform_calendar', CalRender::class);
 }
 
 if (rex::isBackend()) {
