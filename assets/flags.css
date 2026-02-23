@@ -1,0 +1,229 @@
+:root {
+  /* Flag Badge Colors - Light Mode (High Contrast) */
+  --flag-primary-bg: #0052CC;
+  --flag-primary-text: #ffffff;
+  --flag-secondary-bg: #6B7280;
+  --flag-secondary-text: #ffffff;
+  --flag-success-bg: #059669;
+  --flag-success-text: #ffffff;
+  --flag-danger-bg: #DC2626;
+  --flag-danger-text: #ffffff;
+  --flag-warning-bg: #D97706;
+  --flag-warning-text: #ffffff;
+  --flag-info-bg: #0369A1;
+  --flag-info-text: #ffffff;
+  --flag-light-bg: #E5E7EB;
+  --flag-light-text: #1F2937;
+  --flag-dark-bg: #1F2937;
+  --flag-dark-text: #ffffff;
+}
+
+/* Dark mode - REDAXO Dark Theme & System Dark Mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Brighter/saturated colors for dark mode */
+    --flag-primary-bg: #3B82F6;
+    --flag-primary-text: #ffffff;
+    --flag-secondary-bg: #9CA3AF;
+    --flag-secondary-text: #000000;
+    --flag-success-bg: #10B981;
+    --flag-success-text: #ffffff;
+    --flag-danger-bg: #EF4444;
+    --flag-danger-text: #ffffff;
+    --flag-warning-bg: #F59E0B;
+    --flag-warning-text: #000000;
+    --flag-info-bg: #06B6D4;
+    --flag-info-text: #000000;
+    --flag-light-bg: #4B5563;
+    --flag-light-text: #E5E7EB;
+    --flag-dark-bg: #2D3748;
+    --flag-dark-text: #E5E7EB;
+  }
+}
+
+body.rex-theme-dark {
+  /* Brighter/saturated colors for REDAXO dark mode */
+  --flag-primary-bg: #3B82F6;
+  --flag-primary-text: #ffffff;
+  --flag-secondary-bg: #9CA3AF;
+  --flag-secondary-text: #000000;
+  --flag-success-bg: #10B981;
+  --flag-success-text: #ffffff;
+  --flag-danger-bg: #EF4444;
+  --flag-danger-text: #ffffff;
+  --flag-warning-bg: #F59E0B;
+  --flag-warning-text: #000000;
+  --flag-info-bg: #06B6D4;
+  --flag-info-text: #000000;
+  --flag-light-bg: #4B5563;
+  --flag-light-text: #E5E7EB;
+  --flag-dark-bg: #2D3748;
+  --flag-dark-text: #E5E7EB;
+}
+
+/* Badge Classes for Listview */
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+  vertical-align: baseline;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.badge-primary {
+  background-color: var(--flag-primary-bg);
+  color: var(--flag-primary-text);
+}
+
+.badge-secondary {
+  background-color: var(--flag-secondary-bg);
+  color: var(--flag-secondary-text);
+}
+
+.badge-success {
+  background-color: var(--flag-success-bg);
+  color: var(--flag-success-text);
+}
+
+.badge-danger {
+  background-color: var(--flag-danger-bg);
+  color: var(--flag-danger-text);
+}
+
+.badge-warning {
+  background-color: var(--flag-warning-bg);
+  color: var(--flag-warning-text);
+}
+
+.badge-info {
+  background-color: var(--flag-info-bg);
+  color: var(--flag-info-text);
+}
+
+.badge-light {
+  background-color: var(--flag-light-bg);
+  color: var(--flag-light-text);
+  border: 1px solid var(--flag-secondary-bg);
+}
+
+.badge-dark {
+  background-color: var(--flag-dark-bg);
+  color: var(--flag-dark-text);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Icon spacing in badges */
+.badge .fa {
+  margin-right: 4px;
+  font-weight: 600;
+}
+
+/* Toggle UI Styles */
+.flags-toggle-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+}
+
+.flags-toggle-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background-color: var(--rrule-bg-color, #f9fafb);
+  border: 1px solid var(--rrule-border-color, #e5e7eb);
+  transition: background-color 0.2s ease;
+}
+
+body.rex-theme-dark .flags-toggle-item {
+  background-color: #374151;
+  border-color: #4B5563;
+}
+
+.flags-toggle-item:hover {
+  background-color: var(--rrule-separator-color, #f3f4f6);
+}
+
+body.rex-theme-dark .flags-toggle-item:hover {
+  background-color: #4B5563;
+}
+
+.flags-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--rrule-text-color, #1f2937);
+}
+
+body.rex-theme-dark .flags-toggle-label {
+  color: #e5e7eb;
+}
+
+.flags-toggle-label .fa {
+  font-size: 14px;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Apple-style toggle switch */
+.flags-toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 28px;
+  background-color: #D1D5DB;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  border: none;
+  padding: 0;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+body.rex-theme-dark .flags-toggle-switch {
+  background-color: #4B5563;
+}
+
+.flags-toggle-switch.active {
+  background-color: #10B981;
+}
+
+body.rex-theme-dark .flags-toggle-switch.active {
+  background-color: #10B981;
+}
+
+.flags-toggle-switch::before {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  background-color: white;
+  top: 2px;
+  left: 2px;
+  transition: left 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.flags-toggle-switch.active::before {
+  left: 18px;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+}
+
+/* Listview badges margin */
+.rex-list-table .badge {
+  margin-right: 4px;
+  margin-bottom: 2px;
+  display: inline-block;
+}
+

@@ -73,7 +73,13 @@ class CalRender extends rex_yform_manager_dataset
     private static function generateRruleRecurringEvents(rex_yform_manager_dataset $event, ?\DateTime $start, ?\DateTime $end): Generator
     {
         $rset = new RSet();
-        $rset->addRRule($event->getValue('rrule'));
+
+        // DTSTART muss explizit aus dem DB-Feld gesetzt werden, sonst verwendet
+        // php-rrule das aktuelle Datum als Startpunkt und alle Vorkommnisse
+        // erscheinen mit dem heutigen Datum.
+        $dtstart = new \DateTime($event->getValue('dtstart'));
+        $rruleWithDtstart = 'DTSTART:' . $dtstart->format('Ymd\THis') . "\nRRULE:" . $event->getValue('rrule');
+        $rset->addRRule($rruleWithDtstart);
 
         // Extrahiere EXDATE aus dem RRule-String
         $rruleString = $event->getValue('rrule');
